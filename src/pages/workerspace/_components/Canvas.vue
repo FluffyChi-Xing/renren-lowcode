@@ -5,7 +5,7 @@ import {computed, ref} from "vue";
 import { debounce } from "lodash-es";
 import Context from "@/components/Context.vue";
 import {$message} from "@/componsables/element-plus";
-import {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 const previewContainer = ref();
@@ -55,7 +55,7 @@ function getCurrentCursorPosition<T extends MouseEvent>(event: T): Promise<strin
  * @description 处理画布右键点击事件
  * @param e
  */
-function canvasRightClickHandler(e) {
+function canvasRightClickHandler<T extends MouseEvent>(e: T) {
   isShow.value = false; // 先清除右键菜单
   getCurrentCursorPosition(e).then(() => {
     isShow.value = true;

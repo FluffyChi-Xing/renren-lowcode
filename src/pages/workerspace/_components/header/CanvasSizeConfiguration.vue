@@ -36,7 +36,7 @@ function syncValueWithType(index?: string | undefined): Promise<string> {
         deviceTypes.value.forEach((item: RenrenInterface.keyValueType<string>) => {
           if (item.key === index) {
             // 同步输入框与设备类型关系
-            $enum.DeviceSizeEnum[item.key as string] as number ? defaultWidth.value = $enum.DeviceSizeEnum[item.key as string] : defaultWidth.value = 1080;
+            $enum.DeviceSizeEnum[item.key as keyof typeof $enum.DeviceSizeEnum] ? defaultWidth.value = $enum.DeviceSizeEnum[item.key as keyof typeof $enum.DeviceSizeEnum] : defaultWidth.value = 1080;
           }
         });
         emits('update:size', defaultWidth.value);
@@ -51,7 +51,7 @@ function syncValueWithType(index?: string | undefined): Promise<string> {
           }
         }
         deviceTypes.value.forEach((item: RenrenInterface.keyValueType<string>) => {
-          if ($enum.DeviceSizeEnum[item.key as string] === Number(defaultWidth.value)) {
+          if ($enum.DeviceSizeEnum[item.key as keyof typeof $enum.DeviceSizeEnum] === Number(defaultWidth.value)) {
             defaultTypes.value = item.key;
           }
         });

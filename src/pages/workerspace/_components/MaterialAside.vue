@@ -1,18 +1,53 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import {ArrowLeft, ArrowRight} from "@element-plus/icons-vue";
 const emits = defineEmits(['collapse']);
+const toolBarIcon = ref(ArrowLeft);
+import DrawerTransition from "@/components/DrawerTransition.vue";
+
+const isCollapse = ref<boolean>(false);
+
+
+/**
+ * @description 梳理侧边栏折叠事件
+ */
+function collapseBanner() {
+  isCollapse.value = !isCollapse.value
+  emits('collapse', isCollapse.value);
+  if (isCollapse.value) {
+    toolBarIcon.value = ArrowRight;
+  } else {
+    toolBarIcon.value = ArrowLeft;
+  }
+}
 </script>
 
 <template>
-  <div class="w-[90%] material-aside grid grid-rows-3 gap-4 bg-white p-4 relative shadow-sm">
-    <!-- components draggable area -->
-    <div class="w-full h-full flex flex-col row-span-2">
-      <slot name="component" />
+  <DrawerTransition>
+    <div
+      class="material-aside grid grid-rows-3 gap-4 bg-white relative shadow-sm"
+      :class="isCollapse ? 'w-10' : 'w-[90%]'"
+      style="padding: 16px;"
+    >
+      <!-- components draggable area -->
+      <div class="w-full h-full flex flex-col row-span-2">
+        <slot name="component" />
+      </div>
+      <!-- page element tree -->
+      <div class="w-full h-full flex flex-col">
+        <slot name="pageTree" />
+      </div>
+      <!-- material-tool-bar -->
+      <div
+        @click="collapseBanner"
+        class="material-aside-toolbar"
+      >
+        <el-icon size="20">
+          <component :is="toolBarIcon" />
+        </el-icon>
+      </div>
     </div>
-    <!-- page element tree -->
-    <div class="w-full h-full flex flex-col">
-      <slot name="pageTree" />
-    </div>
-  </div>
+  </DrawerTransition>
 </template>
 
 <style scoped>
@@ -20,8 +55,7 @@ const emits = defineEmits(['collapse']);
   height: 100%;
 }
 
-.material-aside::after {
-  content: '>';
+.material-aside-toolbar {
   width: 25px;
   display: flex;
   align-items: center;
@@ -33,5 +67,6 @@ const emits = defineEmits(['collapse']);
   top: 50%;
   padding: 3px;
   cursor: pointer;
+  z-index: 999;
 }
 </style>
