@@ -3,6 +3,7 @@
  */
 import type {ClassConstructor} from "@/componsables/type/RenrenType";
 import type {IJson} from "@/componsables/type/IJson";
+import {RenrenEntity} from "@/componsables/entities/RenrenEntity";
 
 export class RenrenModel {
 
