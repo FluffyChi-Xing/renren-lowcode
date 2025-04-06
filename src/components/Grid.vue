@@ -12,7 +12,7 @@ withDefaults(defineProps<{
 
 <template>
   <svg
-    class="grid" :width="width" :height="height" xmlns="http://www.w3.org/2000/svg"
+    class="grid bg-white" :width="width" :height="height" xmlns="http://www.w3.org/2000/svg"
   >
     <defs>
       <pattern id="smallGrid" width="7.236328125" height="7.236328125" patternUnits="userSpaceOnUse">

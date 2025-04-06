@@ -87,7 +87,7 @@ watch(() => props.show, (newVal: boolean) => {
 <template>
   <div
     v-if="isShow"
-    class="w-[90px] h-auto absolute flex flex-col pt-1 rounded-[5px] bg-white shadow-sm z-[999]"
+    class="w-[90px] h-auto absolute flex flex-col pt-1 rounded-[5px] bg-white shadow-md z-[999]"
     :style="`left: ${positionX}px;top: ${positionY}px;`"
   >
     <div
