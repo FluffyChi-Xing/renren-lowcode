@@ -24,10 +24,13 @@ declare module 'vue' {
     ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElScrollbar: typeof import('element-plus/es')['ElScrollbar']
+    ElTabPane: typeof import('element-plus/es')['ElTabPane']
+    ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Grid: typeof import('./src/components/Grid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelectArea: typeof import('./src/components/SelectArea.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
 }

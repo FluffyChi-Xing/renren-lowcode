@@ -4,6 +4,8 @@ import MaterialAside from "@/pages/workerspace/_components/MaterialAside.vue";
 import EditorConfiguration from "@/pages/workerspace/_components/EditorConfiguration.vue";
 import Canvas from "@/pages/workerspace/_components/Canvas.vue";
 import { ref } from "vue";
+import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
+import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
 
 
 
@@ -40,13 +42,23 @@ function editorConfigCollapseHandler(index: boolean) {
         <el-aside :width="isMaterialCollapse ? '80px' : '250px'">
           <MaterialAside
             @collapse="materialCollapseHandler"
-          />
+          >
+            <template #component>
+              <MaterialTab v-if="!isMaterialCollapse" />
+            </template>
+          </MaterialAside>
         </el-aside>
         <el-main>
           <Canvas />
         </el-main>
         <el-aside :width="isEditConfigCollapse ? '150px' : '350px'">
-          <EditorConfiguration @collapse="editorConfigCollapseHandler" />
+          <EditorConfiguration
+            @collapse="editorConfigCollapseHandler"
+          >
+            <template #side>
+              <EditorSideBar />
+            </template>
+          </EditorConfiguration>
         </el-aside>
       </el-container>
     </el-container>

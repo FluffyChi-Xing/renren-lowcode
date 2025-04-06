@@ -30,7 +30,10 @@ function collapseBanner() {
       style="padding: 16px;"
     >
       <!-- components draggable area -->
-      <div class="w-full h-full flex flex-col row-span-2">
+      <div
+        style="border-bottom: 1px solid #e4e7ed;"
+        class="w-full h-full flex flex-col row-span-2 overflow-hidden"
+      >
         <slot name="component" />
       </div>
       <!-- page element tree -->

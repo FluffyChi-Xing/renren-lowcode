@@ -17,6 +17,23 @@ export namespace RenrenInterface {
 
 
   /**
+   * @description x-y 类型
+   */
+  export interface XAndYType<T, K> {
+    x: T;
+    y: K;
+  }
+
+
+  /**
+   * @description k-v-i 类型
+   */
+  export interface KeyValueIndexType<T, K> extends keyValueType<T> {
+    index: K;
+  }
+
+
+  /**
    * @description tree interface
    */
   export interface ITree extends RenrenEntity {

@@ -42,7 +42,7 @@ function collapseBanner() {
       style="border-top: 1px solid #e4e7ed;"
       class="w-[60px] h-full flex flex-col bg-header-dark"
     >
-
+      <slot name="side" />
     </div>
   </div>
 </template>

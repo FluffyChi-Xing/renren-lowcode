@@ -1,22 +1,25 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {$message} from "@/componsables/element-plus";
 const props = withDefaults(defineProps<{
   top?: number; // 鼠标距离顶部的距离
   left?: number; // 鼠标指针距离左侧的距离
   show?: boolean; // 是否显示右键菜单
-  menuList?: RenrenInterface.keyValueType<Function>[];
+  menuList?: RenrenInterface.KeyValueIndexType<Function, string>[];
 }>(), {
   show: false,
   menuList: () => [
     {
       key: '粘贴',
-      value: () => $message({
-        type: 'warning',
-        message: '请先选择要粘贴的组件'
-      })
+      value: () => {
+        $message({
+          type: 'warning',
+          message: '请先选择要粘贴的组件'
+        });
+      },
+      index: 'paste'
     }
   ]
 });
@@ -25,6 +28,7 @@ const props = withDefaults(defineProps<{
 const isShow = ref<boolean>(props.show || false)
 const positionX = ref<number>(0); // 菜单距离左侧的距离
 const positionY = ref<number>(0); // 菜单距离顶部的距离
+const emits = defineEmits(['paste']);
 
 
 /**
@@ -83,14 +87,14 @@ watch(() => props.show, (newVal: boolean) => {
 <template>
   <div
     v-if="isShow"
-    class="w-[90px] h-auto absolute flex flex-col py-1 rounded-[5px] bg-white shadow-sm z-[999]"
+    class="w-[90px] h-auto absolute flex flex-col pt-1 rounded-[5px] bg-white shadow-sm z-[999]"
     :style="`left: ${positionX}px;top: ${positionY}px;`"
   >
     <div
       v-for="(item, index) in menuList"
       :key="index"
-      @click="item.value"
-      class="w-full h-[32px] p-4 mb-1 flex items-center justify-center hover:text-blue-500 hover:bg-gray-100"
+      @click="() => {item.value(); emits(item.index as 'paste')}"
+      class="w-full h-[32px] p-4 mb-1 flex items-center cursor-pointer justify-center hover:text-blue-500 hover:bg-gray-100"
     >
       {{ item.key }}
     </div>
