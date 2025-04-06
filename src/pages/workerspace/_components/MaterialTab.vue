@@ -3,16 +3,18 @@ import { ref } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import {$message} from "@/componsables/element-plus";
-withDefaults(defineProps<{
-  paneComp?: HTMLElement | any;
+const props = withDefaults(defineProps<{
+  paneComp?: HTMLElement | any
+  index?: string;
 }>(), {
-  paneComp: ElEmpty
+  paneComp: ElEmpty,
+  index: '1'
 });
 
 
 
 
-const defaultPaneIndex = ref<string>('1');
+const defaultPaneIndex = ref<string>(props.index || '1');
 const searchValue = ref<string>('');
 const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
   {

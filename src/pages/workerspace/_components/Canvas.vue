@@ -200,6 +200,7 @@ function pasteComp() {
         :width="areaWidth"
         :height="areaHeight"
       />
+      <!-- 物料容器 -->
     </div>
   </el-scrollbar>
 </template>

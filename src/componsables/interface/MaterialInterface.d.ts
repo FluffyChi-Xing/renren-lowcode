@@ -11,7 +11,7 @@ export namespace MaterialInterface {
   /**
    * @description 基础物料类型
    */
-  export interface IMaterial extends RenrenEntity {
+  export interface IMaterial {
     isNode: boolean; // 是否是节点
     title: string;
     isLocked: boolean;
@@ -19,21 +19,22 @@ export namespace MaterialInterface {
     conditionGroup: string; // 物料状态组
     hidden: boolean; // 是否隐藏
     id: string; // 物料 ID
-    children?: IMaterial[]; // 物料子项
-    parent?: IMaterial; // 物料父项
+    children?: IMaterial[] | null; // 物料子项
+    parent?: IMaterial | null; // 物料父项
     zLevel: number; // 物料层级
-    props?: IProps; // 物料属性
+    props?: IProps | null; // 物料属性
+    icon?: string | null; // 物料图标
   }
 
 
   /**
    * @description 物料基础属性类型
    */
-  export interface IProps extends RenrenEntity{
+  export interface IProps {
     id: string;
-    items: IProp[];
-    owner: IMaterial;
-    maps: Map<string, IProp>;
+    items: IProp[] | null;
+    owner: IMaterial | null;
+    maps: Map<string, IProp> | undefined;
     type: string;
     size: number;
   }
@@ -42,21 +43,21 @@ export namespace MaterialInterface {
   /**
    * @description 子物料项类型
    */
-  export interface INodeChildren extends RenrenEntity {
+  export interface INodeChildren {
     children: IMaterial[];
-    owner: IMaterial;
+    owner: IMaterial | null;
     size: number;
   }
 
 
-  export interface IProp extends RenrenEntity {
-    items: IProp[];
-    maps: Map<string, IProp>;
+  export interface IProp {
+    items: IProp[] | null;
+    maps: Map<string, IProp> | undefined;
     code: string;
     key: string;
     value: any;
     type: string;
-    owner: IMaterial,
-    parent: IProp | IProps;
+    owner: IMaterial | null,
+    parent: IProp | IProps | undefined;
   }
 }

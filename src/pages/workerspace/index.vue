@@ -6,12 +6,16 @@ import Canvas from "@/pages/workerspace/_components/Canvas.vue";
 import { ref } from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
+import BaseMaterial from "@/components/material/BaseMaterial.vue";
+import {ElEmpty} from "element-plus";
 
 
 
 
 const isMaterialCollapse = ref<boolean>(false)
 const isEditConfigCollapse = ref<boolean>(false)
+const defaultIndex = ref<string>('1');
+const defaultMaterial = ref(BaseMaterial);
 
 
 /**
@@ -30,6 +34,24 @@ function materialCollapseHandler(index: boolean) {
 function editorConfigCollapseHandler(index: boolean) {
   isEditConfigCollapse.value = index;
 }
+
+
+/**
+ * @description 处理tab栏切换事件
+ * @param index
+ */
+function tabChangeHandler(index: string) {
+  if (index) {
+    switch (index) {
+      case '1':
+        defaultMaterial.value = BaseMaterial;
+        break;
+      default:
+        defaultMaterial.value = ElEmpty as any;
+        break;
+    }
+  }
+}
 </script>
 
 <template>
@@ -44,7 +66,11 @@ function editorConfigCollapseHandler(index: boolean) {
             @collapse="materialCollapseHandler"
           >
             <template #component>
-              <MaterialTab v-if="!isMaterialCollapse" />
+              <MaterialTab
+                v-if="!isMaterialCollapse"
+                @change="tabChangeHandler"
+                :pane-comp="defaultMaterial"
+              />
             </template>
           </MaterialAside>
         </el-aside>

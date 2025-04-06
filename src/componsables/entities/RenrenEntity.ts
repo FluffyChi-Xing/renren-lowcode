@@ -10,7 +10,7 @@ import {ENTITY_ID} from "@/componsables/constants/RenrenConstant";
  * @description 人人实体类
  * @extends RenrenModel
  */
-export class RenrenEntity extends RenrenModel {
+export class RenrenEntity extends RenrenModel{
 
 
   id!: number;

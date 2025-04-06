@@ -10,17 +10,22 @@ import {RenrenModel} from "@/componsables/models/RenrenModel";
  * @description 物料模型
  */
 export class RenrenMaterialModel extends RenrenModel implements MaterialInterface.IMaterial {
-  id: string;
-  isLocked: boolean;
-  hidden: boolean;
-  isNode: boolean;
-  condition: string;
-  conditionGroup: string;
-  title: string;
-  props: MaterialPropsModel;
-  parent: RenrenMaterialModel;
-  zLevel: number;
-  children: RenrenMaterialModel[];
+  id: string = '0';
+  isLocked: boolean = false;
+  hidden: boolean = false;
+  isNode: boolean = false;
+  condition: string = '';
+  conditionGroup: string = '';
+  title: string = ''
+  zLevel: number = 0;
+  children: MaterialInterface.IMaterial[] | null = null;
+  parent: MaterialInterface.IMaterial | null = null;
+  props: MaterialInterface.IProps | null = null;
+  icon: string | null = null;
+
+
+
+
 
   constructor(params?: MaterialInterface.IMaterial) {
     super();
@@ -32,10 +37,11 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
       this.condition = params.condition;
       this.conditionGroup = params.conditionGroup;
       this.title = params.title;
-      this.props = params.props ? new MaterialPropsModel() : null;
-      this.parent = params.parent ? new RenrenMaterialModel(params.parent) : null;
+      this.props = params.props ? params.props : null;
+      this.parent = params.parent ? params.parent : null;
       this.zLevel = params.zLevel;
-      this.children = params.children ? params.children.map(item => new RenrenMaterialModel(item)) : [];
+      this.children = params.children ? params.children : [];
+      this.icon = params.icon ? params.icon : null;
     }
   }
 
@@ -62,10 +68,12 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
    */
   hasNode(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-      if (this.children?.length > 0) {
-        resolve(true);
-      } else {
-        resolve(false);
+      if (this.children) {
+        if (this.children?.length > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
       }
     });
   }
@@ -74,21 +82,22 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
 
 
 export class MaterialPropsModel extends RenrenModel implements MaterialInterface.IProps {
-  id: string;
-  items: MaterialPropModel[];
-  maps: Map<string, MaterialInterface.IProp>;
-  owner: RenrenMaterialModel;
-  size: number;
-  type: string;
+  id: string = '';
+  size: number = 0;
+  type: string = '';
+  items: MaterialInterface.IProp[] | null = [];
+  maps: Map<string, MaterialInterface.IProp> | undefined = undefined;
+  owner: MaterialInterface.IMaterial | null = null;
+
   constructor(params?: MaterialInterface.IProps) {
     super();
     if (params) {
       this.id = params.id;
       this.size = params.size;
       this.type = params.type;
-      this.items = params.items ? params.items.map(item => new MaterialPropModel(item)) : [];
+      this.items = params.items ? params.items : [];
       this.maps = new Map<string, MaterialInterface.IProp>();
-      this.owner = params.owner ? new RenrenMaterialModel(params.owner) : null;
+      this.owner = params.owner ? params.owner : null;
     }
   }
 
@@ -100,7 +109,9 @@ export class MaterialPropsModel extends RenrenModel implements MaterialInterface
   add(params: MaterialInterface.IProp): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
-        this.items.push(new MaterialPropModel(params));
+        if (this.items) {
+          this.items.push(params);
+        }
         resolve('插入新的物料属性成功');
       } catch (e) {
         console.log('插入新的物料属性失败', e);
@@ -117,7 +128,9 @@ export class MaterialPropsModel extends RenrenModel implements MaterialInterface
   delete(key: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
-        this.items = this.items.filter(item => item.key !== key);
+        if (this.items) {
+          this.items = this.items.filter(item => item.key !== key);
+        }
       } catch (e) {
         console.log('删除物料属性失败', e);
         reject('删除物料属性失败');
@@ -130,22 +143,27 @@ export class MaterialPropsModel extends RenrenModel implements MaterialInterface
    * @description 获取物料的特定属性
    * @param key
    */
-  getProp(key: string): MaterialPropModel {
-    this.items.find(item => item.key === key);
+  getProp(key: string): MaterialInterface.IProp | undefined {
+    if (this.items) {
+      if (this.items?.length > 0) {
+        return this.items.find(item => item.key === key);
+      }
+    }
   }
 }
 
 
 
 export class MaterialPropModel extends RenrenModel implements MaterialInterface.IProp {
-  code: string;
-  items: MaterialPropModel[];
-  key: string; // 属性主键
-  maps: Map<string, MaterialInterface.IProp>;
-  owner: RenrenMaterialModel;
-  parent: MaterialPropModel | MaterialPropsModel;
-  type: string;
+  code: string = '';
+  key: string = ''; // 属性主键
+  maps: Map<string, MaterialInterface.IProp> | undefined = undefined;
+  type: string = '';
   value: any;
+  items: MaterialInterface.IProp[] | null = [];
+  owner: MaterialInterface.IMaterial | null = null;
+  parent: MaterialInterface.IProp | MaterialInterface.IProps | undefined = undefined;
+
 
   constructor(params?: MaterialInterface.IProp) {
     super();
@@ -154,9 +172,9 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
       this.key = params.key;
       this.type = params.type;
       this.value = params.value;
-      this.items = params.items ? params.items.map(item => new MaterialPropModel(item)) : [];
+      this.items = params.items ? params.items : [];
       this.maps = new Map<string, MaterialInterface.IProp>();
-      this.parent = null;
+      this.parent = params.parent;
     }
   }
 
@@ -188,7 +206,7 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
    * @description 设置物料节点的父级
    * @param owner
    */
-  setOwner(owner: RenrenMaterialModel): void {
+  setOwner(owner: MaterialInterface.IMaterial): void {
     this.owner = owner;
   }
 
@@ -197,21 +215,22 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
    * @description 设置父级物料属性
    * @param parent
    */
-  setParent(parent: MaterialPropModel | MaterialPropsModel): void {
+  setParent(parent: MaterialInterface.IProp | MaterialInterface.IProps): void {
     this.parent = parent;
   }
 }
 
 
 export class MaterialChildrenModel extends RenrenModel implements MaterialInterface.INodeChildren {
-  children: RenrenMaterialModel[];
-  owner: RenrenMaterialModel;
-  size: number;
+  size: number = 0;
+  children: MaterialInterface.IMaterial[] = [];
+  owner: MaterialInterface.IMaterial | null = null;
+
 
   constructor(params?: MaterialInterface.INodeChildren) {
     super();
     if (params) {
-      this.children = params.children ? params.children.map(item => new RenrenMaterialModel(item)) : [];
+      this.children = params.children ? params.children : [];
       this.size = params.size;
     }
   }
@@ -221,7 +240,7 @@ export class MaterialChildrenModel extends RenrenModel implements MaterialInterf
    * @description 设置物料节点的父级
    * @param owner
    */
-  setOwner(owner: RenrenMaterialModel): void {
+  setOwner(owner: MaterialInterface.IMaterial): void {
     this.owner = owner;
   }
 
@@ -231,7 +250,7 @@ export class MaterialChildrenModel extends RenrenModel implements MaterialInterf
    * @param params
    */
   insert(params: MaterialInterface.IMaterial): void {
-    this.children.push(new RenrenMaterialModel(params));
+    this.children.push(params);
   }
 
 

@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BaseMaterial: typeof import('./src/components/material/BaseMaterial.vue')['default']
     Context: typeof import('./src/components/Context.vue')['default']
     Draggable: typeof import('./src/components/Draggable.vue')['default']
     DrawerTransition: typeof import('./src/components/DrawerTransition.vue')['default']
@@ -29,6 +30,7 @@ declare module 'vue' {
     ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Grid: typeof import('./src/components/Grid.vue')['default']
+    MaterialItem: typeof import('./src/components/MaterialItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
