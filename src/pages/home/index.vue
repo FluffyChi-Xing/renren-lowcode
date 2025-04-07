@@ -1,44 +1,20 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
+import type {Component} from "vue";
 import Draggable from "@/components/Draggable.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {createSchema, deleteNode, getSchema, insertNode2Document} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
+import {createMaterialElement} from "@/renren-engine/renderer/renderer";
+import {buttonSchema} from "@/material/base/Button";
+import MaterialItem from "@/components/MaterialItem.vue";
 const schemaStore = useSchemaStore();
 
 
 
 const list1 = ref<RenrenMaterialModel[]>([
-  new RenrenMaterialModel({
-    id: generateUUID(),
-    isLocked: false,
-    hidden: true,
-    isNode: true,
-    condition: '1',
-    conditionGroup: '1',
-    title: '测试组件1',
-    zLevel: 0,
-    children: [],
-    parent: null,
-    props: null,
-    icon: ''
-  }),
-  new RenrenMaterialModel({
-    id: generateUUID(),
-    isLocked: false,
-    hidden: true,
-    isNode: true,
-    condition: '1',
-    conditionGroup: '1',
-    title: '测试组件2',
-    zLevel: 0,
-    children: [],
-    parent: null,
-    props: null,
-    icon: ''
-  }),
+  new RenrenMaterialModel(buttonSchema)
 ]);
 const list2 = ref<RenrenMaterialModel[]>([]);
 
@@ -54,7 +30,9 @@ async function handleUpdate(index: any) {
 }
 
 
-function deleteNodeHandler(index: string) {
+function deleteNodeHandler(index: string, e?: MouseEvent) {
+  e?.stopPropagation();
+  e?.preventDefault();
   list2.value = list2.value.filter(item => item.id !== index);
   deleteNode(index).catch(err => {
     $message({
@@ -64,14 +42,16 @@ function deleteNodeHandler(index: string) {
   });
 }
 
+const comp = ref<Component>();
 
 onMounted(async () =>{
   const schema: MaterialDocumentModel = await getSchema();
-  if (schema.nodes) {
-    schema.nodes.forEach(item => {
-      list2.value.push(new RenrenMaterialModel(item));
-    });
-  }
+  // await createSchema().catch(err => {
+  //   $message({
+  //     type: 'warning',
+  //     message: err,
+  //   });
+  // });
   if (!schema) {
     await createSchema().catch(err => {
       $message({
@@ -80,6 +60,13 @@ onMounted(async () =>{
       });
     });
   }
+  if (schema.nodes) {
+    schema.nodes.forEach(item => {
+      list2.value.push(new RenrenMaterialModel(item));
+    });
+  }
+  comp.value = await createMaterialElement(new RenrenMaterialModel(buttonSchema)) as Component;
+  // console.log(comp.value);
 })
 </script>
 
@@ -93,12 +80,12 @@ onMounted(async () =>{
         :sort="false"
         class="w-full h-full"
       >
-        <div
-          v-for="(item, index) in list1"
-          :key="index"
-          class="w-full h-10 flex items-center px-4 justify-center text-white mb-4 bg-yellow-500"
-        >
-          {{ item.title }}
+        <div class="w-full h-full grid grid-cols-3 gap-4">
+          <MaterialItem
+            v-for="(item, index) in list1"
+            :key="index"
+            :item="item"
+          />
         </div>
       </Draggable>
     </div>
@@ -110,18 +97,19 @@ onMounted(async () =>{
         class="w-full h-full"
         @update="handleUpdate"
       >
-        <div
-          v-for="(item, index) in list2"
-          :key="index"
-          class="w-full h-10 flex items-center px-4 justify-center text-white mb-4 bg-yellow-500"
-        >
-          {{ item.title }}
-          <el-button @click="deleteNodeHandler(item.id)" class="ml-auto" type="danger" plain>删除</el-button>
+        <div class="w-full h-full grid grid-cols-3 gap-4">
+          <MaterialItem
+            v-for="(item, index) in list2"
+            :key="index"
+            :item="item"
+            @dblclick="deleteNodeHandler(item.id)"
+          />
         </div>
       </Draggable>
     </div>
-    <div class="w-full h-full flex flex-col bg-red-500">
-
+    <div class="w-full h-full flex flex-col bg-red-500 p-4">
+      <!-- 测试物料->组件渲染 -->
+      <component :is="comp" />
     </div>
   </div>
 </template>

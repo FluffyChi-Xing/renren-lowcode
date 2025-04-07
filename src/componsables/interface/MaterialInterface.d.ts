@@ -20,7 +20,7 @@ export namespace MaterialInterface {
     hidden: boolean; // 是否隐藏
     id: string; // 物料 ID
     children?: IMaterial[] | null; // 物料子项
-    parent?: IMaterial | null; // 物料父项
+    parent?: string | null; // 物料父项
     zLevel: number; // 物料层级
     props?: IProps | null; // 物料属性
     icon?: string | null; // 物料图标
@@ -33,7 +33,7 @@ export namespace MaterialInterface {
   export interface IProps {
     id: string;
     items: IProp[] | null;
-    owner: IMaterial | null;
+    owner: string | null;
     maps: Map<string, IProp> | undefined;
     type: string;
     size: number;
@@ -57,8 +57,8 @@ export namespace MaterialInterface {
     key: string;
     value: any;
     type: string;
-    owner: IMaterial | null,
-    parent: IProps | undefined;
+    owner: string | null,
+    parent: string | undefined;
   }
 
 

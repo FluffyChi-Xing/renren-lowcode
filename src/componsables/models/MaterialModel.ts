@@ -19,7 +19,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
   title: string = ''
   zLevel: number = 0;
   children: MaterialInterface.IMaterial[] | null = null;
-  parent: MaterialInterface.IMaterial | null = null;
+  parent: string | null = null;
   props: MaterialInterface.IProps | null = null;
   icon: string = '';
 
@@ -38,7 +38,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
       this.conditionGroup = params.conditionGroup;
       this.title = params.title;
       this.props = params.props ? params.props as unknown as MaterialPropsModel : null;
-      this.parent = params.parent ? params.parent as RenrenMaterialModel : null;
+      this.parent = params.parent ? params.parent : null;
       this.zLevel = params.zLevel;
       this.children = params.children ? params.children.map(child => new RenrenMaterialModel(child)) : [];
       this.icon = params.icon ? params.icon : '';
@@ -97,7 +97,7 @@ export class MaterialPropsModel extends RenrenModel implements MaterialInterface
   type: string = '';
   items: MaterialInterface.IProp[] | null = [];
   maps: Map<string, MaterialInterface.IProp> | undefined = undefined;
-  owner: MaterialInterface.IMaterial | null = null;
+  owner: string | null = null;
 
   constructor(params?: MaterialInterface.IProps) {
     super();
@@ -171,8 +171,8 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
   type: string = '';
   value: any;
   items: MaterialInterface.IProp[] | null = [];
-  owner: MaterialInterface.IMaterial | null = null;
-  parent: MaterialInterface.IProps | undefined = undefined;
+  owner: string | null = null;
+  parent: string | undefined = undefined;
 
 
   constructor(params?: MaterialInterface.IProp) {
@@ -184,8 +184,8 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
       this.value = params.value;
       this.items = params.items ? params.items.map(item => new MaterialPropModel(item)) : [];
       this.maps = new Map<string, MaterialInterface.IProp>();
-      this.parent = params.parent ? params.parent as unknown as MaterialPropsModel : undefined;
-      this.owner = params.owner ? params.owner as unknown as RenrenMaterialModel : null;
+      this.parent = params.parent ? params.parent : undefined;
+      this.owner = params.owner ? params.owner : null;
     }
   }
 

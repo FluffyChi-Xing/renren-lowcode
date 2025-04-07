@@ -6,44 +6,57 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
+const materialId = generateUUID();
+const propsId = generateUUID();
+
 export const buttonSchema: MaterialInterface.IMaterial = {
-  isNode: false,
+  isNode: true,
   title: '按钮',
   isLocked: false,
   condition: '',
   conditionGroup: '',
   hidden: false,
-  id: generateUUID(),
+  id: materialId,
   children: null,
   parent: null,
   zLevel: 0,
   props: {
-    id: generateUUID(),
+    id: propsId,
     items: [
       {
         items: null,
         maps: undefined,
         code: '',
-        key: 'width',
-        value: 80,
-        type: 'number',
-        owner: null,
-        parent: undefined
+        key: 'type',
+        value: 'primary',
+        type: 'string',
+        owner: materialId,
+        parent: propsId
       },
       {
         items: null,
         maps: undefined,
         code: '',
-        key: 'height',
-        value: 32,
-        type: 'number',
-        owner: null,
-        parent: undefined
+        key: 'text',
+        value: '按钮',
+        type: 'string',
+        owner: materialId,
+        parent: propsId
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'plain',
+        value: 'plain',
+        type: 'string',
+        owner: materialId,
+        parent: propsId
       }
     ],
-    owner: null,
+    owner: materialId,
     maps: undefined,
-    type: 'button',
+    type: 'el-button',
     size: 20,
   },
   icon: 'Pointer'
