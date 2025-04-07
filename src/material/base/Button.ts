@@ -43,7 +43,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
     ],
     owner: null,
     maps: undefined,
-    type: '#button',
+    type: 'button',
     size: 20,
   },
   icon: 'Pointer'

@@ -21,7 +21,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
   children: MaterialInterface.IMaterial[] | null = null;
   parent: MaterialInterface.IMaterial | null = null;
   props: MaterialInterface.IProps | null = null;
-  icon: string | null = null;
+  icon: string = '';
 
 
 
@@ -37,20 +37,30 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
       this.condition = params.condition;
       this.conditionGroup = params.conditionGroup;
       this.title = params.title;
-      this.props = params.props ? params.props : null;
-      this.parent = params.parent ? params.parent : null;
+      this.props = params.props ? params.props as unknown as MaterialPropsModel : null;
+      this.parent = params.parent ? params.parent as RenrenMaterialModel : null;
       this.zLevel = params.zLevel;
-      this.children = params.children ? params.children : [];
-      this.icon = params.icon ? params.icon : null;
+      this.children = params.children ? params.children.map(child => new RenrenMaterialModel(child)) : [];
+      this.icon = params.icon ? params.icon : '';
     }
   }
 
   /**
    * @description 创建节点
    */
-  createNode(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-
+  createNode(params: MaterialInterface.IMaterial): Promise<RenrenMaterialModel> {
+    return new Promise<RenrenMaterialModel>((resolve, reject) => {
+      try {
+        if (params) {
+          const node = new RenrenMaterialModel(params);
+          resolve(node);
+        } else {
+          reject('创建节点失败');
+        }
+      } catch (e) {
+        console.log('创建节点失败', e);
+        reject('创建节点失败');
+      }
     });
   }
 
@@ -95,7 +105,7 @@ export class MaterialPropsModel extends RenrenModel implements MaterialInterface
       this.id = params.id;
       this.size = params.size;
       this.type = params.type;
-      this.items = params.items ? params.items : [];
+      this.items = params.items ? params.items.map(item => new MaterialPropModel(item)) : [];
       this.maps = new Map<string, MaterialInterface.IProp>();
       this.owner = params.owner ? params.owner : null;
     }
@@ -162,7 +172,7 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
   value: any;
   items: MaterialInterface.IProp[] | null = [];
   owner: MaterialInterface.IMaterial | null = null;
-  parent: MaterialInterface.IProp | MaterialInterface.IProps | undefined = undefined;
+  parent: MaterialInterface.IProps | undefined = undefined;
 
 
   constructor(params?: MaterialInterface.IProp) {
@@ -172,9 +182,10 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
       this.key = params.key;
       this.type = params.type;
       this.value = params.value;
-      this.items = params.items ? params.items : [];
+      this.items = params.items ? params.items.map(item => new MaterialPropModel(item)) : [];
       this.maps = new Map<string, MaterialInterface.IProp>();
-      this.parent = params.parent;
+      this.parent = params.parent ? params.parent as unknown as MaterialPropsModel : undefined;
+      this.owner = params.owner ? params.owner as unknown as RenrenMaterialModel : null;
     }
   }
 
@@ -215,7 +226,7 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
    * @description 设置父级物料属性
    * @param parent
    */
-  setParent(parent: MaterialInterface.IProp | MaterialInterface.IProps): void {
+  setParent(parent: MaterialInterface.IProps): void {
     this.parent = parent;
   }
 }
@@ -267,5 +278,32 @@ export class MaterialChildrenModel extends RenrenModel implements MaterialInterf
         reject('删除物料失败');
       }
     });
+  }
+}
+
+/**
+ * @description 文档节点模型
+ */
+export class MaterialDocumentModel extends RenrenModel implements MaterialInterface.IDocument {
+  activated: boolean = false;
+  blank: boolean = true;
+  fileName: string | null = null;
+  nodes: MaterialInterface.IMaterial[] | undefined;
+  opened: boolean = false;
+  rootNode: boolean = true;
+  sections: MaterialInterface.IMaterial[] | undefined;
+
+
+  constructor(params?: MaterialInterface.IDocument) {
+    super();
+    if (params) {
+      this.activated = params.activated;
+      this.blank = params.blank;
+      this.fileName = params.fileName;
+      this.nodes = params.nodes ? params.nodes.map(node => new RenrenMaterialModel(node)) : [];
+      this.opened = params.opened;
+      this.rootNode = params.rootNode;
+      this.sections = params.sections ? params.sections.map(section => new RenrenMaterialModel(section)) : [];
+    }
   }
 }

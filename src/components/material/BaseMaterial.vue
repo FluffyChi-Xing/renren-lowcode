@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import Draggable from "@/components/Draggable.vue";
-import {buttonSchema} from "@/material/Button";
+import {buttonSchema} from "@/material/base/Button";
 import MaterialItem from "@/components/MaterialItem.vue";
 
 const baseMaterialList = ref<RenrenMaterialModel[]>([new RenrenMaterialModel(buttonSchema)]);

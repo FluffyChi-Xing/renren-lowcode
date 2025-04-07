@@ -58,6 +58,18 @@ export namespace MaterialInterface {
     value: any;
     type: string;
     owner: IMaterial | null,
-    parent: IProp | IProps | undefined;
+    parent: IProps | undefined;
+  }
+
+
+
+  export interface IDocument {
+    rootNode: boolean; // 是否是根节点
+    nodes: IMaterial[] | undefined; // 普通物料节点
+    fileName: string | null; // 文件名
+    opened: boolean; // 是否打开
+    blank: boolean; // 是否空白
+    activated: boolean; // 是否激活
+    sections: IMaterial[] | undefined; // 容器物料
   }
 }

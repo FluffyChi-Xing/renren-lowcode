@@ -5,7 +5,6 @@
     @update:modelValue="updateModelValue"
     @start="startDrag"
     :group="group"
-    :ghost-class="ghostClass"
     :animation="animation"
   >
     <slot />
@@ -14,16 +13,17 @@
 
 <script lang="ts" setup>
 import { VueDraggable } from 'vue-draggable-plus';
-defineProps({
-  modelValue: { type: Array, default: () => [] },
-  group: { type: String, default: 'default' },
-  ghostClass: { type: String, default: 'ghost' },
-  animation: { type: Number, default: 150 }
+withDefaults(defineProps<{
+  modelValue?: any[];
+  group?: any;
+  animation?: number | undefined;
+}>(), {
+  modelValue: () => [],
 });
 
-const emit = defineEmits(['update:modelValue', 'start']);
-function updateModelValue(value: any) {
-  emit('update:modelValue', value);
+const emit = defineEmits(['update', 'start']);
+function updateModelValue(value: any[]) {
+  emit('update', value[value.length - 1]);
 }
 
 function startDrag(index: any) {
