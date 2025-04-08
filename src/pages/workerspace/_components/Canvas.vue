@@ -8,10 +8,12 @@ import SelectArea from "@/components/SelectArea.vue";
 import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
 import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/renderer/renderer";
-import {getPersistNodeList, insertNode2Document} from "@/renren-engine/arrangement/arrangement";
+import {getPersistNodeList, getSchema, insertNode2Document} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
+import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
+import {useSchemaStore} from "@/stores/schema";
 
 
 
@@ -34,6 +36,7 @@ const isShow = ref<boolean>(false);
 const isShowArea = ref<boolean>(false);
 const areaWidth = ref<number>(0);
 const areaHeight = ref<number>(0);
+const schemaStore = useSchemaStore();
 const canvasSize = computed(() => {
   return {
     width: `${canvasStore.width}px`,
@@ -293,6 +296,25 @@ async function keepMaterialAlive() {
 
 
 /**
+ * @description 处理网格背景点击事件
+ * 1. 如果点击背景，就将当前元素设为背景
+ * @param event
+ */
+async function gridClickHandler(event: MouseEvent) {
+  event.preventDefault();
+  const schema: MaterialDocumentModel | void = await getSchema().catch((err: string) => {
+    $message({
+      type: 'warning',
+      message: err
+    });
+  });
+  if (schema) {
+    schemaStore.currentElement = schema;
+  }
+}
+
+
+/**
  * @description 监听 clearFlag 变化
  */
 watch(() => props.clearFlag, (newVal: boolean) => {
@@ -325,6 +347,7 @@ onMounted(async () => {
         @mousedown.left="mousedownHandler"
         :height="canvasSize.height"
         :width="canvasSize.width"
+        @click="gridClickHandler"
       />
       <!-- 右键单选框 -->
       <Context

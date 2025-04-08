@@ -292,6 +292,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
   opened: boolean = false;
   rootNode: boolean = true;
   sections: MaterialInterface.IMaterial[] | undefined;
+  prop: MaterialInterface.IProps | null = null;
 
 
   constructor(params?: MaterialInterface.IDocument) {
@@ -304,6 +305,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
       this.opened = params.opened;
       this.rootNode = params.rootNode;
       this.sections = params.sections ? params.sections.map(section => new RenrenMaterialModel(section)) : [];
+      this.prop = params.prop ? params.prop : null;
     }
   }
 }

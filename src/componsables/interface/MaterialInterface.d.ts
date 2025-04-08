@@ -71,5 +71,6 @@ export namespace MaterialInterface {
     blank: boolean; // 是否空白
     activated: boolean; // 是否激活
     sections: IMaterial[] | undefined; // 容器物料
+    prop: IProps | null;
   }
 }

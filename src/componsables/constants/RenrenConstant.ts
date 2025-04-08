@@ -23,6 +23,45 @@ export const PAGE_SCHEMA: MaterialInterface.IDocument = {
   opened: true,
   rootNode: true,
   sections: [],
+  prop: {
+    id: '1',
+    items: [
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: 'background-color: #fff;',
+        type: 'string',
+        owner: null,
+        parent: undefined,
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: 'opacity: 1;',
+        type: 'string',
+        owner: null,
+        parent: undefined,
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: 'font-size: 16px;',
+        type: 'string',
+        owner: null,
+        parent: undefined,
+      }
+    ],
+    owner: '页面01',
+    maps: undefined,
+    type: '',
+    size: 0,
+  }
 };
 
 

@@ -9,9 +9,9 @@ import {PAGE_SCHEMA} from "@/componsables/constants/RenrenConstant";
 
 export const useSchemaStore = defineStore('schema', () => {
   const schema = ref<MaterialDocumentModel>(new MaterialDocumentModel(PAGE_SCHEMA));
-  const currentElement = ref<RenrenMaterialModel>();
+  const currentElement = ref<RenrenMaterialModel | MaterialDocumentModel>();
 
-  const initCurrent = (item: RenrenMaterialModel) => {
+  const initCurrent = (item: RenrenMaterialModel | MaterialDocumentModel) => {
     currentElement.value = item;
   };
   return {

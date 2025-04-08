@@ -28,17 +28,6 @@ const list1 = ref<RenrenMaterialModel[]>([
 const list2 = ref<RenrenMaterialModel[]>([]);
 const container = ref();
 
-// async function handleUpdate(index: any) {
-//   // console.log(index);
-//   // schemaStore.schema.nodes.push(index);
-//   await insertNode2Document(index).catch(err => {
-//     $message({
-//       type: 'warning',
-//       message: err,
-//     });
-//   });
-// }
-
 
 async function deleteNodeHandler(index: string) {
   // console.log(index);
@@ -137,20 +126,6 @@ function handleDragover(e: DragEvent) {
   <!-- 测试拖拽 -->
   <div class="w-full h-full grid grid-cols-3 gap-4 p-4">
     <div class="w-full h-full flex flex-col bg-red-500 p-4">
-<!--      <Draggable-->
-<!--        v-model:model-value="list1"-->
-<!--        :group="{ name: 'test', pull: 'clone', put: false }"-->
-<!--        :sort="false"-->
-<!--        class="w-full h-full"-->
-<!--      >-->
-<!--        <div class="w-full h-full grid grid-cols-3 gap-4">-->
-<!--          <MaterialItem-->
-<!--            v-for="(item, index) in list1"-->
-<!--            :key="index"-->
-<!--            :item="item"-->
-<!--          />-->
-<!--        </div>-->
-<!--      </Draggable>-->
       <div class="w-full h-full grid grid-cols-3 gap-4">
         <MaterialItem
           v-for="(item, index) in list1"
@@ -161,23 +136,6 @@ function handleDragover(e: DragEvent) {
       </div>
     </div>
     <div class="w-full h-full flex flex-col bg-red-500">
-<!--      <Draggable-->
-<!--        v-model:model-value="list2"-->
-<!--        :sort="false"-->
-<!--        group="test"-->
-<!--        class="w-full h-full"-->
-<!--        @update="handleUpdate"-->
-<!--      >-->
-<!--        <div class="w-full h-full grid grid-cols-3 gap-4">-->
-<!--          <TestItem-->
-<!--            v-for="(item, index) in list2"-->
-<!--            :key="index"-->
-<!--            :item="item"-->
-<!--            @click.right="selectCurrent(item)"-->
-<!--            @dblclick="deleteNodeHandler(item.id)"-->
-<!--          />-->
-<!--        </div>-->
-<!--      </Draggable>-->
       <div
         ref="container"
         @mousemove="handleMousedown"
