@@ -3,15 +3,21 @@
  */
 import {defineStore} from "pinia";
 import {ref} from "vue";
-import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {PAGE_SCHEMA} from "@/componsables/constants/RenrenConstant";
 
 
 export const useSchemaStore = defineStore('schema', () => {
   const schema = ref<MaterialDocumentModel>(new MaterialDocumentModel(PAGE_SCHEMA));
+  const currentElement = ref<RenrenMaterialModel>();
 
+  const initCurrent = (item: RenrenMaterialModel) => {
+    currentElement.value = item;
+  };
   return {
-    schema
+    schema,
+    currentElement,
+    initCurrent
   };
 }, {
   persist: true

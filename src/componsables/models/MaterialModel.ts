@@ -92,7 +92,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
 
 
 export class MaterialPropsModel extends RenrenModel implements MaterialInterface.IProps {
-  id: string = '';
+  readonly id: string = '';
   size: number = 0;
   type: string = '';
   items: MaterialInterface.IProp[] | null = [];
@@ -217,7 +217,7 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
    * @description 设置物料节点的父级
    * @param owner
    */
-  setOwner(owner: MaterialInterface.IMaterial): void {
+  setOwner(owner: string): void {
     this.owner = owner;
   }
 
@@ -226,7 +226,7 @@ export class MaterialPropModel extends RenrenModel implements MaterialInterface.
    * @description 设置父级物料属性
    * @param parent
    */
-  setParent(parent: MaterialInterface.IProps): void {
+  setParent(parent: string): void {
     this.parent = parent;
   }
 }

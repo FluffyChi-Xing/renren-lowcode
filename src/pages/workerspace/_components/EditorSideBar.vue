@@ -1,9 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import {createSchema} from "@/renren-engine/arrangement/arrangement";
+import {$message} from "@/componsables/element-plus";
 
 
-const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>>([
+
+
+
+
+const emits = defineEmits(['clear']);
+/**
+ * @description 清空画布
+ */
+async function clearCanvas() {
+  await createSchema().then(() => {
+    emits('clear')
+    $message({
+      type: 'info',
+      message: '清空画布成功'
+    });
+  }).catch(err => {
+    $message({
+      type: 'warning',
+      message: err
+    });
+  });
+}
+
+
+const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
     key: 'JSON',
     value: () => {},
@@ -16,7 +42,7 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>>([
   },
   {
     key: '清空画布',
-    value: () => {},
+    value: clearCanvas,
     index: 'Delete'
   },
   {

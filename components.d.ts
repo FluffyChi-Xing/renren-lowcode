@@ -8,8 +8,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BaseDialog: typeof import('./src/components/BaseDialog.vue')['default']
     BaseMaterial: typeof import('./src/components/material/BaseMaterial.vue')['default']
     Context: typeof import('./src/components/Context.vue')['default']
+    DisplayItem: typeof import('./src/components/DisplayItem.vue')['default']
     Draggable: typeof import('./src/components/Draggable.vue')['default']
     DrawerTransition: typeof import('./src/components/DrawerTransition.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
@@ -18,6 +20,7 @@ declare module 'vue' {
     ElCollapse: typeof import('element-plus/es')['ElCollapse']
     ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
     ElContainer: typeof import('element-plus/es')['ElContainer']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDrawerTransition: typeof import('element-plus/es')['ElDrawerTransition']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
@@ -35,6 +38,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
     Shape: typeof import('./src/components/Shape.vue')['default']
+    TestItem: typeof import('./src/components/TestItem.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
 }

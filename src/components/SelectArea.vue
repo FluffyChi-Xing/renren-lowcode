@@ -21,8 +21,8 @@ const props = withDefaults(defineProps<{
     v-if="show"
     class="area"
     :style="{
-      left: start.x + 'px',
-      top: start.y + 'px',
+      left: start?.x + 'px',
+      top: start?.y + 'px',
       width: width + 'px',
       height: height + 'px',
     }"

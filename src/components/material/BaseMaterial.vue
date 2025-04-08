@@ -17,13 +17,22 @@ function startHandler(index: any): Promise<any> {
     resolve(index);
   });
 }
+
+
+/**
+ * @description 处理拖拽开始事件
+ * @param event
+ * @param item
+ */
+function startDrag(event: DragEvent, item: RenrenMaterialModel) {
+  event.dataTransfer?.setData('material', JSON.stringify(item));
+}
 </script>
 
 <template>
   <Draggable
     v-model:model-value="baseMaterialList"
-    group="base-material"
-    ghost-class="ghost"
+    :group="{ name: 'simulator', pull: 'clone', put: false }"
     :animation="150"
     class="w-full h-full"
     @start="startHandler"
@@ -33,6 +42,7 @@ function startHandler(index: any): Promise<any> {
         v-for="item in baseMaterialList"
         :key="item.id"
         :item="item"
+        @start="startDrag($event, item)"
       />
     </div>
   </Draggable>

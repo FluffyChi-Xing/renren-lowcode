@@ -7,6 +7,8 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import type {Component} from "vue";
 import { h, defineComponent } from 'vue';
 import {ElButton} from "element-plus";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import {getSchema, updateSchema} from "@/renren-engine/arrangement/arrangement";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';
@@ -41,7 +43,7 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
       if (element && element.isNode) {
         const props = element?.props;
         if (props) {
-          const type = props.type as string;
+          const type = props.type as SupportedComponentType;
           const prop = props.items;
           if (prop) {
             if (prop?.length > 0 && type) {
@@ -72,7 +74,7 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
  * @param attr
  * @param type
  */
-export function insertCSSAttributes<T extends Component>(attr: MaterialInterface.IProp[], type: string): Promise<T> {
+export function insertCSSAttributes<T extends Component>(attr: MaterialInterface.IProp[], type: SupportedComponentType): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     try {
       if (attr.length > 0 && type) {
@@ -93,6 +95,94 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
     } catch (e) {
       console.log('插入 CSS 属性失败', e);
       reject('插入 CSS 属性失败');
+    }
+  });
+}
+
+
+/**
+ * @description 创建 CSS 属性
+ * @param item
+ * @param prop
+ * @return Promise<RenrenMaterialModel>
+ */
+export function createCSSAttributes<T extends RenrenMaterialModel>(item: T, prop: RenrenInterface.KeyValueIndexType<string, string>[]): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    try {
+      if (item && prop.length > 0) {
+        prop.forEach(attr => {
+          let pro: MaterialInterface.IProp = {
+            code: "",
+            items: null,
+            key: attr.key,
+            maps: undefined,
+            owner: null,
+            parent: undefined,
+            type: attr.index,
+            value: attr.value,
+          };
+          if (item.props?.items) {
+            if (item.props.items?.length > 0) {
+              item.props.items.push(pro);
+            }
+          } else {
+            reject('插入 CSS 属性失败');
+          }
+        });
+        resolve(item);
+      } else {
+        reject('插入 CSS 属性失败，参数异常');
+      }
+    } catch (e) {
+      console.log('插入 CSS 属性失败', e);
+      reject('插入 CSS 属性失败');
+    }
+  });
+}
+
+
+/**
+ * @description 更新 material 的 CSS 属性
+ * 1. index 为 material 的 id
+ * 2. attr 为一个 CSS 属性
+ * @param index
+ * @param attr
+ */
+export function updateMaterialCSSAttribute<T extends RenrenMaterialModel>(index: string, attr: RenrenInterface.KeyValueIndexType<string, string>): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    try {
+      const schema = await getSchema();
+      if (schema) {
+        if (schema.nodes) {
+          if (schema.nodes.length > 0) {
+            // 根据 index 索引找到 schema nodes 中的对应 node
+            let node: MaterialInterface.IMaterial = schema.nodes.filter(node => node.id === index)[0];
+            if (node && node.props?.items) {
+              if (node.props.items.length > 0) {
+                // 根据 attr 的 key 索引找到 node.props.items 中的对应 prop
+                let prop: MaterialInterface.IProp = node.props.items.filter(prop => prop.key === attr.key)[0];
+                if (prop) {
+                  // 修改 prop.value
+                  prop.value = attr.value;
+                  prop.type = attr.index;
+                  // 更新 schema
+                  await updateSchema(schema).catch(err => {
+                    console.log('更新 schema 失败', err);
+                    reject('更新 schema 失败');
+                  });
+                  const newNode: T = new RenrenMaterialModel(node) as T;
+                  resolve(newNode);
+                }
+              }
+            }
+          } else {
+            reject('更新 CSS Attributes 失败，节点列表为空');
+          }
+        }
+      }
+    } catch (e) {
+      console.log('更新 CSS Attributes 失败', e);
+      reject('更新 CSS Attributes 失败');
     }
   });
 }

@@ -16,7 +16,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
   condition: '',
   conditionGroup: '',
   hidden: false,
-  id: materialId,
+  id: '1',
   children: null,
   parent: null,
   zLevel: 0,
@@ -30,7 +30,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         key: 'type',
         value: 'primary',
         type: 'string',
-        owner: materialId,
+        owner: '1',
         parent: propsId
       },
       {
@@ -40,7 +40,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         key: 'text',
         value: '按钮',
         type: 'string',
-        owner: materialId,
+        owner: '1',
         parent: propsId
       },
       {
@@ -50,11 +50,11 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         key: 'plain',
         value: 'plain',
         type: 'string',
-        owner: materialId,
+        owner: '1',
         parent: propsId
       }
     ],
-    owner: materialId,
+    owner: '1',
     maps: undefined,
     type: 'el-button',
     size: 20,

@@ -1,6 +1,6 @@
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
-export const styleAttributes: RenrenInterface.keyValueType<string>[] = [
+export const propsAttributes: RenrenInterface.keyValueType<string>[] = [
   {
     key: 'left',
     value: 'x 坐标'
@@ -76,26 +76,26 @@ export const styleAttributes: RenrenInterface.keyValueType<string>[] = [
 ];
 
 
-export const styleAttributesMap = new Map({
-  left: 'x 坐标',
-  top: 'y 坐标',
-  rotate: '旋转角度',
-  width: '宽度',
-  height: '高度',
-  color: '颜色',
-  backgroundColor: '背景颜色',
-  borderWidth: '边框宽度',
-  borderStyle: '边框样式',
-  borderColor: '边框颜色',
-  borderRadius: '边框半径',
-  fontSize: '字体大小',
-  fontWeight: '字体粗细',
-  lineHeight: '字体行高',
-  letterSpacing: '字母间距',
-  textAlign: '水平对齐方式',
-  verticalAlign: '垂直对齐方式',
-  opacity: '透明度'
-});
+export const propsAttributesMap = new Map<string, string>([
+  ['left', 'x 坐标'],
+  ['top', 'y 坐标'],
+  ['rotate', '旋转角度'],
+  ['width', '宽度'],
+  ['height', '高度'],
+  ['color', '颜色'],
+  ['backgroundColor', '背景颜色'],
+  ['borderWidth', '边框宽度'],
+  ['borderStyle', '边框样式'],
+  ['borderColor', '边框颜色'],
+  ['borderRadius', '边框半径'],
+  ['fontSize', '字体大小'],
+  ['fontWeight', '字体粗细'],
+  ['lineHeight', '字体行高'],
+  ['letterSpacing', '字母间距'],
+  ['textAlign', '水平对齐方式'],
+  ['verticalAlign', '垂直对齐方式'],
+  ['opacity', '透明度']
+]);
 
 
 
@@ -144,7 +144,7 @@ export const verticalAlignOptions: RenrenInterface.keyValueType<string>[] = [
 ];
 
 
-export const styleOptions = {
+export const propsOptions = {
   textAlign: textAlignOptions,
   borderStyle: borderStyleOptions,
   verticalAlign: verticalAlignOptions

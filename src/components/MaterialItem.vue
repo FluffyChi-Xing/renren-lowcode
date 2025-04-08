@@ -7,12 +7,27 @@ withDefaults(defineProps<{
 }>(), {
   item: undefined
 });
+
+
+const emits = defineEmits(['start']);
+
+
+/**
+ * @description 处理组件拖拽开始事件
+ * @param event
+ */
+function dragStartHandler(event: DragEvent) {
+  event.stopPropagation();
+  emits('start', event);
+}
 </script>
 
 <template>
   <div
     v-bind="item"
     class="w-full h-[100px] item flex cursor-pointer flex-col p-4 rounded-[3px] hover:shadow-md"
+    draggable="true"
+    @dragstart="dragStartHandler"
   >
     <!-- icon -->
     <div class="w-full h-auto flex items-center justify-center">

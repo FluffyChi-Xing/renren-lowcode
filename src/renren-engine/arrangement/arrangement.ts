@@ -153,16 +153,79 @@ export function deleteNode(index: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       const schema = await getSchema();
-      if (schema && schema.nodes) {
-        schema.nodes = schema.nodes.filter(node => node.id !== index);
-        await updateSchema(schema);
-        resolve('删除节点成功');
+      if (schema) {
+        if (schema.nodes) {
+          // TODO: deleteNode 当前无法正确的删除 node
+          schema.nodes = schema.nodes.filter(node => String(node.id) !== String(index));
+          await updateSchema(schema);
+          resolve('删除节点成功');
+        } else {
+          reject('删除失败');
+        }
       } else {
         reject('删除失败');
       }
     } catch (e) {
       console.log('删除节点失败', e);
       reject('删除节点失败');
+    }
+  });
+}
+
+
+/**
+ * @description 初始化 schema
+ */
+export function initSchema(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+       const schema = await getSchema();
+       if (!schema) {
+         await createSchema().catch(e => {
+           console.log('创建 schema 失败', e);
+           reject('初始化 schema 失败');
+         });
+       } else {
+         resolve('初始化 schema 成功');
+       }
+    } catch (e) {
+      console.log('初始化 schema 失败', e);
+      reject('初始化 schema 失败');
+    }
+  });
+}
+
+
+/**
+ * @description 获取保存的 node 列表
+ * 1. 用于在页面不正确刷新后 重新加载页面时，恢复页面的 node 列表
+ */
+export function getPersistNodeList<T extends RenrenMaterialModel>(): Promise<T[]> {
+  return new Promise<T[]>(async (resolve, reject) => {
+    try {
+    // 获取保存的 schema 信息
+      const schema = await getSchema();
+      if (schema) {
+        // 判断是否存在 nodes 属性，否则 schema 损坏
+        if (schema.nodes) {
+          // 判断 nodes 是否为空， 如果为空，则返回空数组
+          if (schema.nodes.length > 0) {
+            resolve(schema.nodes as T[]);
+          } else {
+            resolve([]);
+          }
+        } else {
+          reject('保存节点列表失败');
+        }
+      } else {
+        await createSchema().catch(e => {
+          console.log('初始化 schema 失败', e);
+          reject('初始化 schema 失败');
+        })
+      }
+    } catch (e) {
+      console.log('保存节点列表失败', e);
+      reject('保存节点列表失败');
     }
   });
 }

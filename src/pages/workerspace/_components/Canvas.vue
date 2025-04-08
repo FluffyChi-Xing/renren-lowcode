@@ -1,12 +1,28 @@
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {useCanvasStore} from "@/stores/canvas";
-import {computed, ref} from "vue";
-import { debounce } from "lodash-es";
+import {computed, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
-import {$message} from "@/componsables/element-plus";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import SelectArea from "@/components/SelectArea.vue";
+import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
+import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/renderer/renderer";
+import {getPersistNodeList, insertNode2Document} from "@/renren-engine/arrangement/arrangement";
+import {$message} from "@/componsables/element-plus";
+import DisplayItem from "@/components/DisplayItem.vue";
+import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
+
+
+
+const props = withDefaults(defineProps<{
+  clearFlag?: boolean; // 清空画布标识
+}>(), {
+  clearFlag: false
+});
+
+
+
 
 
 const editor = ref();
@@ -24,6 +40,7 @@ const canvasSize = computed(() => {
     height: `${canvasStore.height}px`,
   }
 });
+const materialContainer = ref<RenrenMaterialModel[]>([]);
 const selectAreaStart = ref<RenrenInterface.XAndYType<number, number>>({
   x: 0,
   y: 0
@@ -168,6 +185,129 @@ function pasteComp() {
   //   message: '请先复制需要粘贴的组件'
   // });
 }
+/** ===== 画布拖拽业务-start ===== **/
+
+/**
+ * @description 处理拖拽结束事件
+ * @param e
+ */
+function handleDragover(e: DragEvent) {
+  if (e) {
+    e.preventDefault();
+  }
+}
+
+
+/**
+ * @description 处理物料拖入事件
+ * @param e
+ */
+async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
+  // 接受物料
+  if (e) {
+    // 获取位置信息
+    let material: T = getDataTransformMaterial(e) as T;
+    if (material) {
+      // 设置 props
+      let position = {
+        x: 0,
+        y: 0
+      };
+      if (editor.value) {
+        position = await getCursorPosition(e, editor.value, 300);
+        // console.log('position', position);
+      }
+      const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+        key: 'style',
+        value: `left: ${position.x}px;top: ${position.y}px;`,
+        index: 'string'
+      };
+      // 注册物料到 materialContainer & schema
+      material = await createCSSAttributes(material, [prop]);
+      materialContainer.value.push(material);
+      // 保存 schema
+      await insertNode2Document(material).catch(err => {
+        $message({
+          type: 'warning',
+          message: err
+        });
+      });
+    }
+  }
+}
+
+
+/**
+ * @description 处理物料拖拽事件
+ * @param item
+ * @param event
+ */
+async function materialMousemoveHandler<T extends RenrenMaterialModel>(item: T, event?: DragEvent) {
+  // let material: T = await getSchema();
+  let node: RenrenMaterialModel | void;
+  // 获取物料拖动位置
+  let position = {
+    x: 0,
+    y: 0
+  };
+  if (editor.value) {
+    position = await getCursorPosition(event, editor.value, 500);
+  }
+  const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+    key: 'style',
+    value: `left: ${position.x}px;top: ${position.y}px;`,
+    index: 'string'
+  };
+  // 更新 schema
+  node = await updateMaterialCSSAttribute(item.id, prop).catch(err => {
+    $message({
+      type: 'warning',
+      message: err,
+    });
+  });
+  if (node) {
+    materialContainer.value = materialContainer.value.map(item => {
+      if (item.id === node.id) {
+        return node;
+      }
+      return item;
+    });
+  }
+  // console.log('position', prop, item);
+}
+/** ===== 画布拖拽业务-end ===== **/
+/**
+ * @description 保持物料容器数据持久化
+ */
+async function keepMaterialAlive() {
+  const nodes: RenrenMaterialModel[] | void = await getPersistNodeList().catch((err: string) => {
+    $message({
+      type: 'warning',
+      message: err
+    });
+  });
+  if (nodes && nodes.length > 0) {
+    materialContainer.value = nodes;
+  }
+}
+
+
+/**
+ * @description 监听 clearFlag 变化
+ */
+watch(() => props.clearFlag, (newVal: boolean) => {
+  if (newVal) {
+    materialContainer.value = []; // 清空物料容器
+  }
+});
+
+
+/**
+ * @description 页面挂载时，保持物料容器数据持久化
+ */
+onMounted(async () => {
+  await keepMaterialAlive();
+});
 </script>
 
 <template>
@@ -175,8 +315,10 @@ function pasteComp() {
     <div
       ref="editor"
       @click.right="canvasRightClickHandler"
-      :style="`height: ${canvasStore.height}`"
-      class="w-full flex flex-col items-center relative"
+      @dragover="handleDragover"
+      @drop="handleDragEvent"
+      :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
+      class="w-full flex items-center justify-center relative"
     >
       <!-- 网格线 -->
       <Grid
@@ -201,6 +343,12 @@ function pasteComp() {
         :height="areaHeight"
       />
       <!-- 物料容器 -->
+      <DisplayItem
+        v-for="(item, index) in materialContainer"
+        :key="index"
+        :item="item"
+        @move="materialMousemoveHandler(item, $event)"
+      />
     </div>
   </el-scrollbar>
 </template>
