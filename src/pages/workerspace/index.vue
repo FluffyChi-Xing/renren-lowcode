@@ -11,6 +11,8 @@ import {ElEmpty} from "element-plus";
 import {initSchema} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
+import {$engine} from "@/renren-engine/engine";
+import HighLightLang from "@/components/HighLightLang.vue";
 
 
 
@@ -20,6 +22,8 @@ const isEditConfigCollapse = ref<boolean>(false)
 const defaultIndex = ref<string>('1');
 const defaultMaterial = ref(BaseMaterial);
 const clearCanvasFlag = ref<boolean>(false); // 清空画布标识
+const showDrawer = ref<boolean>(false);
+const schema2String = ref<string>();
 
 
 /**
@@ -67,6 +71,20 @@ function tabChangeHandler(index: string) {
 
 
 /**
+ * @description 处理高亮 schema 事件
+ */
+async function showSchemaHandler() {
+  showDrawer.value = !showDrawer.value;
+  const schema = await $engine.getSchema();
+  const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
+  if (!isEmpty) {
+    schema2String.value = JSON.stringify(schema, null, 2);
+    // console.log(schema2String.value);
+  }
+}
+
+
+/**
  * @description 初始化 schema
  */
 onMounted(async () => {
@@ -105,14 +123,47 @@ onMounted(async () => {
           </MaterialAside>
         </el-aside>
         <el-main>
+          <!-- canvas -->
           <Canvas v-model:clear-flag="clearCanvasFlag" />
+          <!-- schema drawer -->
+          <el-drawer
+            v-model="showDrawer"
+            style="width: 300px;"
+            direction="rtl"
+            :show-close="false"
+            :close-on-click-modal="false"
+          >
+            <template #header>
+              <div class="w-full h-auto flex items-center justify-between">
+                <!-- title -->
+                <span class="font-bold text-black">Schema</span>
+                <!-- btns -->
+                <div class="w-auto h-auto flex">
+                  <el-button type="primary" plain>导出</el-button>
+                  <el-button @click="showDrawer = false" type="info">关闭</el-button>
+                </div>
+              </div>
+            </template>
+            <template #default>
+              <div class="w-full h-full flex flex-col">
+                <!-- highlight-block -->
+                <HighLightLang
+                  :code="schema2String"
+                  lang="json"
+                />
+              </div>
+            </template>
+          </el-drawer>
         </el-main>
         <el-aside :width="isEditConfigCollapse ? '150px' : '350px'">
           <EditorConfiguration
             @collapse="editorConfigCollapseHandler"
           >
             <template #side>
-              <EditorSideBar @clear="clearCanvasHandler" />
+              <EditorSideBar
+                @clear="clearCanvasHandler"
+                @schema="showSchemaHandler"
+              />
             </template>
           </EditorConfiguration>
         </el-aside>

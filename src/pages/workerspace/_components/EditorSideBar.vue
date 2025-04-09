@@ -10,7 +10,7 @@ import {useCanvasStore} from "@/stores/canvas";
 
 
 
-const emits = defineEmits(['clear']);
+const emits = defineEmits(['clear', 'schema']);
 const canvasStore = useCanvasStore();
 /**
  * @description 清空画布
@@ -31,6 +31,13 @@ async function clearCanvas() {
   });
 }
 
+/**
+ * @description 查看页面 schema 代码
+ */
+function checkSchema() {
+  emits('schema');
+}
+
 
 /**
  * @description 页面刷新
@@ -43,7 +50,7 @@ function refreshPage() {
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
     key: 'JSON',
-    value: () => {},
+    value: checkSchema,
     index: 'Document'
   },
   {

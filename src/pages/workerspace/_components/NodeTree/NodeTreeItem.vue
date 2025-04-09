@@ -2,7 +2,7 @@
 withDefaults(defineProps<{
   icon?: string;
   name?: string;
-  index?: string;
+  index?: string | number;
 }>(), {
   icon: 'Menu',
   name: '未命名',

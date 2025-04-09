@@ -36,7 +36,7 @@ export namespace RenrenInterface {
   /**
    * @description tree interface
    */
-  export interface ITree extends RenrenEntity {
+  export interface ITree {
 
     name: string; // 节点名称
 

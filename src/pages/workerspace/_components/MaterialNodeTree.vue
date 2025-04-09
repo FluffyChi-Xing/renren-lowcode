@@ -30,8 +30,8 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
         const nodeSchema: MaterialInterface.MaterialTreeType = {
           children: [],
           icon: "Document",
-          index: undefined,
-          name: schema.fileName,
+          index: '',
+          name: schema.fileName ? schema.fileName : '',
           parentId: undefined
         };
         materialNodeTreeList.value?.push(new MaterialTreeModel(nodeSchema));
@@ -52,25 +52,27 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
 function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (nodes?.length > 0) {
-        nodes?.forEach((node: RenrenMaterialModel) => {
-          const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
-          if (!existingNode) {
-            let params: MaterialInterface.MaterialTreeType = {
-              children: [],
-              icon: node.icon ? node.icon : 'Menu',
-              index: node.id ? node.id : generateUUID(),
-              name: node.title ? node.title : '未命名',
-              parentId: node.parent ? node.parent : undefined,
-            };
-            materialNodeTreeList.value?.push(new MaterialTreeModel(params));
-          } else {
-            // 更新现有节点（可选）
-            existingNode.icon = node.icon || 'Menu';
-            existingNode.parentId = node.parent || undefined;
-          }
-        });
-        resolve('插入物料节点成功');
+      if (nodes) {
+        if (nodes?.length > 0) {
+          nodes?.forEach((node: RenrenMaterialModel) => {
+            const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
+            if (!existingNode) {
+              let params: MaterialInterface.MaterialTreeType = {
+                children: [],
+                icon: node.icon ? node.icon : 'Menu',
+                index: node.id ? node.id : generateUUID(),
+                name: node.title ? node.title : '未命名',
+                parentId: node.parent ? node.parent : undefined,
+              };
+              materialNodeTreeList.value?.push(new MaterialTreeModel(params));
+            } else {
+              // 更新现有节点（可选）
+              existingNode.icon = node.icon || 'Menu';
+              existingNode.parentId = node.parent || 0;
+            }
+          });
+          resolve('插入物料节点成功');
+        }
       }
     } catch (e) {
       console.error('插入物料节点失败', e);
@@ -86,29 +88,31 @@ function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<s
 async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-      if (!isEmpty) {
-        // 同步 document 节点
-        if (!materialNodeTreeList.value.some(node => node.name === schema.fileName)) {
-          await createDocumentNode(schema).catch(err => reject(err));
+      if (schema) {
+        const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
+        if (!isEmpty) {
+          // 同步 document 节点
+          if (!materialNodeTreeList.value.some(node => node.name === schema.fileName)) {
+            await createDocumentNode(schema).catch(err => reject(err));
+          }
+
+          if (schema?.nodes) {
+            // 将 schema.nodes 转换为 Map，便于查找
+            const newNodeMap = new Map<string, RenrenMaterialModel>();
+            schema.nodes.forEach(node => newNodeMap.set(node.title, new RenrenMaterialModel(node)));
+
+            // 删除不存在的节点
+            materialNodeTreeList.value = materialNodeTreeList.value.filter(node =>
+              node.name === schema.fileName || newNodeMap.has(node.name)
+            );
+
+            // 插入或更新节点
+            await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).catch(err => reject(err));
+          }
+          resolve('初始化物料节点树成功');
+        } else {
+          reject('未找到物料文档');
         }
-
-        if (schema?.nodes) {
-          // 将 schema.nodes 转换为 Map，便于查找
-          const newNodeMap = new Map<string, RenrenMaterialModel>();
-          schema.nodes.forEach(node => newNodeMap.set(node.title, node));
-
-          // 删除不存在的节点
-          materialNodeTreeList.value = materialNodeTreeList.value.filter(node =>
-            node.name === schema.fileName || newNodeMap.has(node.name)
-          );
-
-          // 插入或更新节点
-          await insertMaterialNode(schema.nodes).catch(err => reject(err));
-        }
-        resolve('初始化物料节点树成功');
-      } else {
-        reject('未找到物料文档');
       }
     } catch (e) {
       console.error('初始化物料节点树失败', e);
