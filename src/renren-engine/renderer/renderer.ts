@@ -49,17 +49,9 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
             if (prop?.length > 0 && type) {
               const component = await insertCSSAttributes(prop, type);
               resolve(component as T);
-            } else {
-              reject('创建物料元素失败，组件属性为空');
             }
-          } else {
-            reject('创建物料元素失败，组件属性为空');
           }
-        } else {
-          reject('创建物料元素失败，组件类型为空');
         }
-      } else {
-        reject('创建物料元素失败，元素为空');
       }
     } catch (e) {
       console.log('创建物料元素失败', e);
@@ -125,16 +117,15 @@ export function createCSSAttributes<T extends RenrenMaterialModel>(item: T, prop
             if (item.props.items?.length > 0) {
               item.props.items.push(pro);
             }
-          } else {
-            reject('插入 CSS 属性失败');
           }
         });
         resolve(item);
       } else {
+        console.error('插入 CSS 属性失败，参数异常');
         reject('插入 CSS 属性失败，参数异常');
       }
     } catch (e) {
-      console.log('插入 CSS 属性失败', e);
+      console.error('插入 CSS 属性失败', e);
       reject('插入 CSS 属性失败');
     }
   });

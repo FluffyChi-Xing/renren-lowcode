@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {useCanvasStore} from "@/stores/canvas";
+import { throttle } from "lodash-es";
 import {computed, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
@@ -12,8 +13,8 @@ import {getPersistNodeList, getSchema, insertNode2Document} from "@/renren-engin
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
-import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import {useSchemaStore} from "@/stores/schema";
+import {CONTEXT_MENU_LIST, DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 
 
 
@@ -48,12 +49,8 @@ const selectAreaStart = ref<RenrenInterface.XAndYType<number, number>>({
   x: 0,
   y: 0
 });
-// const contextMenuList = ref<RenrenInterface.keyValueType<Function>[]>([
-//   {
-//     key: '粘贴',
-//     value: () => emits('paste'),
-//   }
-// ]);
+// 邮件菜单列表
+const contextMenuList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(DEFAULT_CONTEXT_MENU_LIST);
 
 
 /**
@@ -84,6 +81,7 @@ function getCurrentCursorPosition<T extends MouseEvent>(event: T): Promise<strin
  * @param event
  */
 function initMousedownEvent<T extends MouseEvent>(event: T): RenrenInterface.XAndYType<number, number> {
+  event?.preventDefault();
   const reactInfo = editor.value?.getBoundingClientRect();
   let editorX = reactInfo?.x;
   let editorY = reactInfo?.y;
@@ -222,7 +220,7 @@ async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
       }
       const prop: RenrenInterface.KeyValueIndexType<string, string> = {
         key: 'style',
-        value: `left: ${position.x}px;top: ${position.y}px;`,
+        value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
         index: 'string'
       };
       // 注册物料到 materialContainer & schema
@@ -245,40 +243,42 @@ async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
  * @param item
  * @param event
  */
-async function materialMousemoveHandler<T extends RenrenMaterialModel>(item: T, event?: DragEvent) {
-  // let material: T = await getSchema();
-  let node: RenrenMaterialModel | void;
-  // 获取物料拖动位置
-  let position = {
-    x: 0,
-    y: 0
-  };
-  if (editor.value) {
-    position = await getCursorPosition(event, editor.value, 500);
-  }
-  const prop: RenrenInterface.KeyValueIndexType<string, string> = {
-    key: 'style',
-    value: `left: ${position.x}px;top: ${position.y}px;`,
-    index: 'string'
-  };
-  // 更新 schema
-  node = await updateMaterialCSSAttribute(item.id, prop).catch(err => {
-    $message({
-      type: 'warning',
-      message: err,
-    });
-  });
-  if (node) {
-    materialContainer.value = materialContainer.value.map(item => {
-      if (item.id === node.id) {
-        return node;
+const throttledMaterialMousemoveHandler = throttle(
+  async function materialMousemoveHandler<T extends RenrenMaterialModel>(item: T, event?: DragEvent) {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    // 获取物料拖动位置
+    let position = { x: 0, y: 0 };
+    if (editor.value) {
+      position = await getCursorPosition(event, editor.value, 500);
+    }
+
+    // 使用 requestAnimationFrame 更新样式
+    requestAnimationFrame(async () => {
+      const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+        key: 'style',
+        value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
+        index: 'string',
+      };
+
+      // 更新 schema
+      const node = await updateMaterialCSSAttribute(item.id, prop).catch(err => {
+        $message({
+          type: 'warning',
+          message: err,
+        });
+      });
+
+      if (node) {
+        materialContainer.value = materialContainer.value.map(material => {
+          return material.id === node.id ? node : material;
+        });
       }
-      return item;
     });
-  }
-  // console.log('position', prop, item);
-}
-/** ===== 画布拖拽业务-end ===== **/
+  },
+  16 // 节流时间设为16ms，与浏览器帧率（60fps）同步
+);/** ===== 画布拖拽业务-end ===== **/
 /**
  * @description 保持物料容器数据持久化
  */
@@ -297,22 +297,69 @@ async function keepMaterialAlive() {
 
 /**
  * @description 处理网格背景点击事件
- * 1. 如果点击背景，就将当前元素设为背景
+ * 1. 如果点击背景，就将当前元素设为背景置空
  * @param event
  */
 async function gridClickHandler(event: MouseEvent) {
   event.preventDefault();
-  const schema: MaterialDocumentModel | void = await getSchema().catch((err: string) => {
-    $message({
-      type: 'warning',
-      message: err
-    });
-  });
-  if (schema) {
-    schemaStore.currentElement = schema;
-  }
+  schemaStore.currentElement = undefined;
+  // console.log('click grid');
+  // const schema: MaterialDocumentModel | void = await getSchema().catch((err: string) => {
+  //   $message({
+  //     type: 'warning',
+  //     message: err
+  //   });
+  // });
+  // if (schema) {
+  //   schemaStore.currentElement = schema;
+  // }
 }
 
+
+/**
+ * @description 处理组件点击选中事件
+ * @param item
+ * @param e
+ */
+function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
+  if (e) {
+    e.preventDefault();
+  }
+  schemaStore.currentElement = item as RenrenMaterialModel;
+}
+
+
+/**
+ * @description 初始化右键菜单列表
+ * 1. 如果当前选中的元素不存在，则使用默认菜单列表初始化
+ * 2. 如果当前选中的元素存在，则使用物料专用的菜单列表初始化
+ * @returns {Promise<string>}
+ */
+function initContextMenuItem(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      // 如果不存在当前选中的元素则使用默认菜单列表初始化
+      if (!schemaStore.currentElement) {
+        contextMenuList.value = DEFAULT_CONTEXT_MENU_LIST;
+      } else {
+        contextMenuList.value = CONTEXT_MENU_LIST;
+      }
+      resolve('初始化右键菜单列表成功');
+    } catch (e) {
+      console.log('初始化右键菜单列表失败', e);
+      reject('初始化右键菜单列表失败');
+    }
+  });
+}
+
+
+/**
+ * @description
+ * @param e
+ */
+function displayItemDragendHandler(e: DragEvent) {
+  e?.preventDefault();
+}
 
 /**
  * @description 监听 clearFlag 变化
@@ -330,6 +377,18 @@ watch(() => props.clearFlag, (newVal: boolean) => {
 onMounted(async () => {
   await keepMaterialAlive();
 });
+
+/**
+ * @description 初始化右键菜单列表
+ */
+watch(() => schemaStore.currentElement, () => {
+  initContextMenuItem().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+})
 </script>
 
 <template>
@@ -339,6 +398,7 @@ onMounted(async () => {
       @click.right="canvasRightClickHandler"
       @dragover="handleDragover"
       @drop="handleDragEvent"
+      draggable="false"
       :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
       class="w-full flex items-center justify-center relative"
     >
@@ -352,6 +412,7 @@ onMounted(async () => {
       <!-- 右键单选框 -->
       <Context
         v-model:show="isShow"
+        :menu-list="contextMenuList"
         :top="cursorY"
         :left="cursorX"
         @click="handleContextClick"
@@ -368,9 +429,11 @@ onMounted(async () => {
       <!-- 物料容器 -->
       <DisplayItem
         v-for="(item, index) in materialContainer"
+        @click="selectCurrentElement(item, $event);"
         :key="index"
         :item="item"
-        @move="materialMousemoveHandler(item, $event)"
+        @dragover="displayItemDragendHandler"
+        @move="throttledMaterialMousemoveHandler(item, $event)"
       />
     </div>
   </el-scrollbar>

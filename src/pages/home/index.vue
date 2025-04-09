@@ -106,7 +106,7 @@ async function handleDropEvent(e: DragEvent) {
     owner: null,
     parent: undefined,
     type: "",
-    value: `left: ${position.x}px;top: ${position.y}px;`
+    value: `transform: translate(${position.x}px, ${position.y}px);`
   };
   item.props?.items?.push(prop);
   // 注册 item 到 list2 & schema

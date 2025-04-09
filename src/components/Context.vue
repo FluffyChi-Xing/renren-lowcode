@@ -28,7 +28,8 @@ const props = withDefaults(defineProps<{
 const isShow = ref<boolean>(props.show || false)
 const positionX = ref<number>(0); // 菜单距离左侧的距离
 const positionY = ref<number>(0); // 菜单距离顶部的距离
-const emits = defineEmits(['paste']);
+type emitsOptionType = 'paste' | 'copy' | 'cut' | 'delete' | 'up' | 'down' | 'lock';
+const emits = defineEmits(['paste', 'copy', 'cut', 'delete', 'up', 'down', 'lock']);
 
 
 /**
@@ -93,7 +94,7 @@ watch(() => props.show, (newVal: boolean) => {
     <div
       v-for="(item, index) in menuList"
       :key="index"
-      @click="() => {item.value(); emits(item.index as 'paste')}"
+      @click="() => {item.value(); emits(item.index as emitsOptionType)}"
       class="w-full h-[32px] p-4 mb-1 flex items-center cursor-pointer justify-center hover:text-blue-500 hover:bg-gray-100"
     >
       {{ item.key }}

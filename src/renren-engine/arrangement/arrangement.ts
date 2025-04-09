@@ -180,7 +180,8 @@ export function initSchema(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
        const schema = await getSchema();
-       if (!schema) {
+      const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
+       if (isEmpty) {
          await createSchema().catch(e => {
            console.log('创建 schema 失败', e);
            reject('初始化 schema 失败');
@@ -205,7 +206,8 @@ export function getPersistNodeList<T extends RenrenMaterialModel>(): Promise<T[]
     try {
     // 获取保存的 schema 信息
       const schema = await getSchema();
-      if (schema) {
+      const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
+      if (!isEmpty) {
         // 判断是否存在 nodes 属性，否则 schema 损坏
         if (schema.nodes) {
           // 判断 nodes 是否为空， 如果为空，则返回空数组

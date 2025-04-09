@@ -21,8 +21,9 @@ const item = ref<RenrenMaterialModel>(props.item as RenrenMaterialModel);
  * @param e
  */
 async function materialMoveHandler(e: DragEvent) {
+  e.preventDefault();
   if (e) {
-    emits('move', e)
+    emits('move', e);
   }
 }
 
@@ -59,9 +60,8 @@ watch(() => props.item, async (newValue) => {
   <component
     :is="comp"
     draggable="true"
-    class="absolute"
-    @dragend="materialMoveHandler"
-    @dragover="dragoverHandler"
+    @dragend="materialMoveHandler($event)"
+    @dragover="dragoverHandler($event)"
   />
 </template>
 

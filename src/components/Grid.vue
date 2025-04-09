@@ -3,16 +3,22 @@ withDefaults(defineProps<{
   isDarkMode?: boolean;
   width?: string;
   height?: string;
+  backColor?: string;
 }>(), {
   isDarkMode: false,
   width: '100%',
   height: '100%',
+  backColor: '#fff'
 });
 </script>
 
 <template>
   <svg
-    class="grid bg-white" :width="width" :height="height" xmlns="http://www.w3.org/2000/svg"
+    class="grid"
+    :width="width"
+    :height="height"
+    :style="{backgroundColor: backColor}"
+    xmlns="http://www.w3.org/2000/svg"
   >
     <defs>
       <pattern id="smallGrid" width="7.236328125" height="7.236328125" patternUnits="userSpaceOnUse">
