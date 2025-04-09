@@ -5,16 +5,18 @@
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import type {Component} from "vue";
-import { h, defineComponent } from 'vue';
-import {ElButton} from "element-plus";
+import { h, defineComponent, shallowReactive } from 'vue';
+import {ElButton, ElText} from "element-plus";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {getSchema, updateSchema} from "@/renren-engine/arrangement/arrangement";
+import { throttle } from "lodash-es";
+import {$engine} from "@/renren-engine/engine";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';
 
 const componentMap = {
   'el-button': ElButton,
+  'el-text': ElText,
 } as const;
 
 /**
@@ -23,14 +25,18 @@ const componentMap = {
  * @param props
  * @param children
  */
-export function createVueComponent<T extends Component>(type: SupportedComponentType, props: Record<string, any>, children?: any): T {
-  const resolvedType = componentMap[type] || type; // 映射到真实的组件
-  return defineComponent({
-    render() {
-      return h(resolvedType, props, children || props.text);
-    }
-  }) as T;
-}
+const throttleCreateVueComponent = throttle(
+  function createVueComponent<T extends Component>(type: SupportedComponentType, props: Record<string, any>, children?: any): T {
+    const resolvedType = componentMap[type] || type;
+    const reactiveProps = shallowReactive(props); // 浅层响应式
+    return defineComponent({
+      render() {
+        return h(resolvedType, reactiveProps, children || reactiveProps.text);
+      }
+    }) as T;
+  },
+  16
+);
 
 
 /**
@@ -79,7 +85,7 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
             props[css.key] = css.value; // 其他属性
           }
         });
-        const el = createVueComponent(type, props, textContent);
+        const el = throttleCreateVueComponent(type, props, textContent);
         resolve(el as T);
       } else {
         reject('插入 CSS 属性失败，属性为空');
@@ -142,8 +148,9 @@ export function createCSSAttributes<T extends RenrenMaterialModel>(item: T, prop
 export function updateMaterialCSSAttribute<T extends RenrenMaterialModel>(index: string, attr: RenrenInterface.KeyValueIndexType<string, string>): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     try {
-      const schema = await getSchema();
-      if (schema) {
+      const schema = await $engine.getSchema();
+      const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
+      if (!isEmpty) {
         if (schema.nodes) {
           if (schema.nodes.length > 0) {
             // 根据 index 索引找到 schema nodes 中的对应 node
@@ -157,7 +164,7 @@ export function updateMaterialCSSAttribute<T extends RenrenMaterialModel>(index:
                   prop.value = attr.value;
                   prop.type = attr.index;
                   // 更新 schema
-                  await updateSchema(schema).catch(err => {
+                  await $engine.updateSchema(schema).catch(err => {
                     console.log('更新 schema 失败', err);
                     reject('更新 schema 失败');
                   });

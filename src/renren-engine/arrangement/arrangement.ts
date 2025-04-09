@@ -179,7 +179,7 @@ export function deleteNode(index: string): Promise<string> {
 export function initSchema(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-       const schema = await getSchema();
+      const schema = await getSchema();
       const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
        if (isEmpty) {
          await createSchema().catch(e => {

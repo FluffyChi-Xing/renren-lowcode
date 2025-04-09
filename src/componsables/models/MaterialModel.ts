@@ -309,3 +309,27 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
     }
   }
 }
+
+
+/**
+ * @description 物料节点树型模型类
+ */
+export class MaterialTreeModel extends RenrenModel implements MaterialInterface.MaterialTreeType {
+  children: MaterialInterface.MaterialTreeType[] = [];
+  icon: string = '';
+  index: number | string = '';
+  name: string = '';
+  parentId: number | string = '';
+
+
+  constructor(params?: MaterialInterface.MaterialTreeType) {
+    super();
+    if (params) {
+      this.children = params.children? params.children : [];
+      this.icon = params.icon ? params.icon : '';
+      this.index = params.index;
+      this.parentId = params.parentId ? params.parentId : '';
+      this.name = params.name;
+    }
+  }
+}

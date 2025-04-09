@@ -3,6 +3,7 @@
  * @author FluffyChi-Xing
  */
 import { RenrenEntity } from "@/componsables/entities/RenrenEntity";
+import {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 export namespace MaterialInterface {
@@ -72,5 +73,17 @@ export namespace MaterialInterface {
     activated: boolean; // 是否激活
     sections: IMaterial[] | undefined; // 容器物料
     prop: IProps | null;
+  }
+
+
+  /**
+   * @description 物料树形结构类型
+   */
+  export interface MaterialTreeType extends RenrenInterface.ITree {
+    index: number | string; // 当前节点索引
+    icon?: string; // 节点图标
+    name: string;
+    parentId?: number | string;
+    children?: MaterialTreeType[];
   }
 }

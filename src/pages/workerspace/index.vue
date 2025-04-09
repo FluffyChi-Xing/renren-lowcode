@@ -10,6 +10,7 @@ import BaseMaterial from "@/components/material/BaseMaterial.vue";
 import {ElEmpty} from "element-plus";
 import {initSchema} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
+import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
 
 
 
@@ -94,6 +95,11 @@ onMounted(async () => {
                 v-if="!isMaterialCollapse"
                 @change="tabChangeHandler"
                 :pane-comp="defaultMaterial"
+              />
+            </template>
+            <template #pageTree>
+              <MaterialNodeTree
+                v-if="!isMaterialCollapse"
               />
             </template>
           </MaterialAside>

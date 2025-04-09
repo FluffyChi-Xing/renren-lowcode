@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {watch} from "vue";
 const props = withDefaults(defineProps<{
   show?: boolean | undefined;
   width?: number;
@@ -9,11 +8,6 @@ const props = withDefaults(defineProps<{
 }>(), {
   show: false
 });
-
-//
-// watch(() => props.show, () => {
-//   console.log('start', props.start, props.width, props.height);
-// });
 </script>
 
 <template>

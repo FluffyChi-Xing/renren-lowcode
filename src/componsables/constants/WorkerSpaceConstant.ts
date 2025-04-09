@@ -4,7 +4,6 @@
  */
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
-import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 
 export const DEVICE_TYPES: RenrenInterface.keyValueType<string>[] = [

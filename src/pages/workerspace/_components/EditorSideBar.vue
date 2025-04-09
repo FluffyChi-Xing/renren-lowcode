@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {createSchema} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
+import {$engine} from "@/renren-engine/engine";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 
@@ -10,12 +11,14 @@ import {$message} from "@/componsables/element-plus";
 
 
 const emits = defineEmits(['clear']);
+const canvasStore = useCanvasStore();
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
-  await createSchema().then(() => {
+  await $engine.createSchema().then(() => {
     emits('clear')
+    canvasStore.isAdd = !canvasStore.isAdd;
     $message({
       type: 'info',
       message: '清空画布成功'
@@ -26,6 +29,14 @@ async function clearCanvas() {
       message: err
     });
   });
+}
+
+
+/**
+ * @description 页面刷新
+ */
+function refreshPage() {
+  location.reload();
 }
 
 
@@ -54,6 +65,11 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
     key: '解锁',
     value: () => {},
     index: 'Unlock'
+  },
+  {
+    key: '刷新',
+    value: refreshPage,
+    index: 'Refresh'
   }
 ]);
 </script>

@@ -4,8 +4,12 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import Draggable from "@/components/Draggable.vue";
 import {buttonSchema} from "@/material/base/Button";
 import MaterialItem from "@/components/MaterialItem.vue";
+import {textSchema} from "@/material/base/Text";
 
-const baseMaterialList = ref<RenrenMaterialModel[]>([new RenrenMaterialModel(buttonSchema)]);
+const baseMaterialList = ref<RenrenMaterialModel[]>([
+  new RenrenMaterialModel(buttonSchema),
+  new RenrenMaterialModel(textSchema),
+]);
 
 
 /**

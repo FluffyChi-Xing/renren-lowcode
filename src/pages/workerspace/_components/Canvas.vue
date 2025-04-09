@@ -9,12 +9,13 @@ import SelectArea from "@/components/SelectArea.vue";
 import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
 import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/renderer/renderer";
-import {getPersistNodeList, getSchema, insertNode2Document} from "@/renren-engine/arrangement/arrangement";
+import {insertNode2Document} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {useSchemaStore} from "@/stores/schema";
 import {CONTEXT_MENU_LIST, DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
+import {$engine} from "@/renren-engine/engine";
 
 
 
@@ -103,30 +104,30 @@ function initMousedownEvent<T extends MouseEvent>(event: T): RenrenInterface.XAn
  * @description 处理鼠标移动事件
  * @param startX
  * @param startY
+ * @param e
  */
 function initMousemoveEvent(startX: number, startY: number) {
   return function (event: MouseEvent) {
+    event.preventDefault();
     const currentX = event.clientX;
     const currentY = event.clientY;
     const editorRect = editor.value?.getBoundingClientRect();
 
     // 计算选区的宽度和高度
-    areaWidth.value = Math.abs(currentX - startX);
-    areaHeight.value = Math.abs(currentY - startY);
+    requestAnimationFrame(() => {
+      areaWidth.value = Math.abs(currentX - startX);
+      areaHeight.value = Math.abs(currentY - startY);
 
-    // 计算选区的起始位置
-    selectAreaStart.value.x = Math.min(currentX, startX) - editorRect?.x;
-    selectAreaStart.value.y = Math.min(currentY, startY) - editorRect?.y;
-
-    // console.log('鼠标移动', areaWidth.value, areaHeight.value, selectAreaStart.value.x, selectAreaStart.value.y);
+      // 计算选区的起始位置
+      selectAreaStart.value.x = Math.min(currentX, startX) - editorRect?.x;
+      selectAreaStart.value.y = Math.min(currentY, startY) - editorRect?.y;
+    });
   }
 }
 
 
 
 function resetData() {
-  // areaWidth.value = 0;
-  // areaHeight.value = 0;
   selectAreaStart.value.x = 0;
   selectAreaStart.value.y = 0;
 }
@@ -203,39 +204,52 @@ function handleDragover(e: DragEvent) {
  * @description 处理物料拖入事件
  * @param e
  */
-async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
-  // 接受物料
-  if (e) {
-    // 获取位置信息
-    let material: T = getDataTransformMaterial(e) as T;
-    if (material) {
-      // 设置 props
-      let position = {
-        x: 0,
-        y: 0
-      };
-      if (editor.value) {
-        position = await getCursorPosition(e, editor.value, 300);
-        // console.log('position', position);
-      }
-      const prop: RenrenInterface.KeyValueIndexType<string, string> = {
-        key: 'style',
-        value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
-        index: 'string'
-      };
-      // 注册物料到 materialContainer & schema
-      material = await createCSSAttributes(material, [prop]);
-      materialContainer.value.push(material);
-      // 保存 schema
-      await insertNode2Document(material).catch(err => {
-        $message({
-          type: 'warning',
-          message: err
+const throttleDragEventHandler = throttle(
+  async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
+    // console.log('组件拖入');
+    // 接受物料
+    if (e) {
+      e?.preventDefault();
+      // 获取位置信息
+      let material: T = getDataTransformMaterial(e) as T;
+      if (material) {
+        // 设置 props
+        let position = {
+          x: 0,
+          y: 0
+        };
+        if (editor.value) {
+          position = await getCursorPosition(e, editor.value, 300);
+          // console.log('position', position);
+        }
+        // 更新新增物料标识
+        canvasStore.isAdd = !canvasStore.isAdd;
+        requestAnimationFrame(async () => {
+          const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+            key: 'style',
+            value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
+            index: 'string'
+          };
+          // 注册物料到 materialContainer & schema
+          material = await createCSSAttributes(material, [prop]);
+          materialContainer.value.push(material);
+          // 防止误触导致插入空值
+          const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+          // 保存 schema
+          if (!isEmpty) {
+            await $engine.insertNode2Document(material).catch(err => {
+              $message({
+                type: 'warning',
+                message: err
+              });
+            });
+          }
         });
-      });
+      }
     }
-  }
-}
+  },
+  16
+);
 
 
 /**
@@ -283,7 +297,7 @@ const throttledMaterialMousemoveHandler = throttle(
  * @description 保持物料容器数据持久化
  */
 async function keepMaterialAlive() {
-  const nodes: RenrenMaterialModel[] | void = await getPersistNodeList().catch((err: string) => {
+  const nodes: RenrenMaterialModel[] | void = await $engine.getPersistNodeList().catch((err: string) => {
     $message({
       type: 'warning',
       message: err
@@ -303,16 +317,6 @@ async function keepMaterialAlive() {
 async function gridClickHandler(event: MouseEvent) {
   event.preventDefault();
   schemaStore.currentElement = undefined;
-  // console.log('click grid');
-  // const schema: MaterialDocumentModel | void = await getSchema().catch((err: string) => {
-  //   $message({
-  //     type: 'warning',
-  //     message: err
-  //   });
-  // });
-  // if (schema) {
-  //   schemaStore.currentElement = schema;
-  // }
 }
 
 
@@ -397,7 +401,7 @@ watch(() => schemaStore.currentElement, () => {
       ref="editor"
       @click.right="canvasRightClickHandler"
       @dragover="handleDragover"
-      @drop="handleDragEvent"
+      @drop="throttleDragEventHandler($event)"
       draggable="false"
       :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
       class="w-full flex items-center justify-center relative"
