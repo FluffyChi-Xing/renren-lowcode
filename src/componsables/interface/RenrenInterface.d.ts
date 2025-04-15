@@ -44,4 +44,15 @@ export namespace RenrenInterface {
 
     parentId?: number; // 父节点id
   }
+
+
+  /**
+   * @description 特性卡片类型
+   */
+  export interface FeatureCardType {
+    hover: boolean;
+    title: string;
+    icon: string;
+    description: string;
+  }
 }

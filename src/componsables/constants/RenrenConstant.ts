@@ -10,6 +10,8 @@ export const ENTITY_ID: string = 'id';
 
 export const SCHEMA_STORAGE_ID: string = 'project-schema:';
 
+export const PROJECT_LOGO_URL: string = 'https://nest-upload-oss.oss-cn-beijing.aliyuncs.com/images/favicon.png';
+
 /**
  * @description 页面的最顶层为一个 document 节点，一个项目只能有一个 document node,页面有两种搭建方式
  * 1. 直接搭建，editor 触发 hooks 后将数据直接插入到 nodes 中
@@ -87,3 +89,33 @@ export const MATERIAL_SCHEMA_MAP: RenrenInterface.keyValueType<string>[] = [
     value: '@/material/navigator/.ts'
   }
 ];
+
+
+/**
+ * @description 特性介绍列表
+ */
+export const FEATURE_INFO_LIST: RenrenInterface.FeatureCardType[] = [
+  {
+    icon: '🥰',
+    hover: false,
+    title: '类型友好',
+    description: '使用TS编写'
+  },
+  {
+    icon: '🚀',
+    hover: false,
+    title: '快捷使用',
+    description: '帮助用户快速搭建页面'
+  },
+  {
+    icon: '🍾',
+    hover: false,
+    title: '完全开源',
+    description: '人人都可编辑分发代码'
+  }
+];
+
+/**
+ * @description 项目的 github 地址
+ */
+export const GITHUB_REPOSITORY: string = 'https://github.com/FluffyChi-Xing/renren-lowcode';
