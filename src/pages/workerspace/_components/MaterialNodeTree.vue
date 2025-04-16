@@ -140,7 +140,7 @@ onMounted(async () => {
  */
 async function refreshTree() {
   const schema: MaterialDocumentModel | void = await $engine.getSchema();
-  console.log(schema);
+  // console.log(schema);
   await initMaterialNodeTree(schema).catch(err => {
     $message({
       type: 'warning',

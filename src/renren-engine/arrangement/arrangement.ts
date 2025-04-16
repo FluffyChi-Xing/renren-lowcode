@@ -11,6 +11,7 @@ import {
 } from "@/componsables/constants/RenrenConstant";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import { v4 as uuidv4 } from 'uuid';
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 /**
@@ -274,7 +275,7 @@ export function getPersistNodeList<T extends RenrenMaterialModel>(): Promise<T[]
  * @param params
  */
 export function initProject(params: MaterialInterface.createProjectParamsType): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
       // 检查是否存在同名项目
       const projectName: string = SCHEMA_PROJECT_STORAGE_ID + params?.name;
@@ -293,7 +294,13 @@ export function initProject(params: MaterialInterface.createProjectParamsType): 
         props: undefined,
         simulatorHost: params.host ? params.host : '',
       });
+      // 保存项目
       localStorage.setItem(projectName, JSON.stringify(newProject));
+      // 更新项目映射表
+      // TODO: 目前无法保证数据的一致性(事务)
+      await insertProject2Map(id, projectName).catch(err => {
+        reject(err as string);
+      });
       resolve('创建项目成功');
     } catch (e) {
       console.error('创建项目失败', e);
@@ -386,15 +393,12 @@ export function queryProjectList(): Promise<string[]> {
 /**
  * @description 创建项目键名映射表
  */
-export function createProjectKeyNameMap(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+export function createProjectKeyNameMap<T extends RenrenInterface.keyValueType<string>>(): Promise<T[]> {
+  return new Promise<T[]>((resolve, reject) => {
     try {
-      const map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
-      if (!map) {
-        const newMap: Map<string, string> = new Map<string, string>();
-        localStorage.setItem(PROJECT_KEY_TO_NAME_MAP_ID, JSON.stringify(newMap));
-        resolve('创建项目键名映射表成功');
-      }
+      const map: T[] = [];
+      localStorage.setItem(PROJECT_KEY_TO_NAME_MAP_ID, JSON.stringify(map));
+      resolve(map as unknown as T[]);
     } catch (e) {
       console.error('创建项目键名映射表失败', e);
       reject('创建项目键名映射表失败');
@@ -409,18 +413,31 @@ export function createProjectKeyNameMap(): Promise<string> {
  * @param projectName
  */
 export function insertProject2Map(projectId: string, projectName: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
-      let map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
-      if (map) {
-        map.set(projectId, projectName);
-        resolve('插入项目键名映射表成功');
+      // Initialize map as null
+      const m: string | null = localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID);
+      let map = JSON.parse(m as string);
+
+      // If map is null, create a new one
+      if (!m) {
+        await createProjectKeyNameMap()
+          .catch(err => {
+            console.error('创建项目键名映射表失败:', err);
+            reject(`创建项目键名映射表失败: ${err}`);
+          });
       } else {
-        reject('插入项目键名映射表失败');
+        map.push({
+          key: projectId,
+          value: projectName
+        });
+        // Save the updated map to localStorage
+        localStorage.setItem(PROJECT_KEY_TO_NAME_MAP_ID, JSON.stringify(map));
+        resolve('插入项目键名映射表成功');
       }
     } catch (e) {
-      console.error('插入项目键名映射表失败', e);
-      reject('插入项目键名映射表失败');
+      console.error('插入项目键名映射表失败:', e);
+      reject(`插入项目键名映射表失败: ${e}`);
     }
   });
 }
@@ -432,7 +449,7 @@ export function insertProject2Map(projectId: string, projectName: string): Promi
 export function clearProjectMap(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      let map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
+      let map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string) as Map<string, string>;
       if (map) {
         map.clear();
         resolve('清除项目键名映射表成功');
@@ -442,6 +459,35 @@ export function clearProjectMap(): Promise<string> {
     } catch (e) {
       console.error('清除项目键名映射表失败', e);
       reject('清除项目键名映射表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 获取项目id对应的项目名称
+ * @param id
+ */
+export function getProjectNameByKey(id: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      // 初始化 map 为 null
+      const m: string | null = localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID);
+      let map = JSON.parse(m as string);
+      // 如果 map 存在，尝试获取项目名称
+      if (m) {
+        const name = map.find((item: RenrenInterface.keyValueType<string>) => item.key === id)?.value;
+        if (name) {
+          resolve(name);
+        } else {
+          reject(`未找到 ID 为 ${id} 的项目名称`);
+        }
+      } else {
+        reject('项目键名映射表不存在或无效');
+      }
+    } catch (e) {
+      console.error('获取项目键名映射表失败:', e);
+      reject(`获取项目键名映射表失败: ${e}`);
     }
   });
 }

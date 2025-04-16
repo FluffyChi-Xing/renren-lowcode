@@ -9,6 +9,7 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
+import {useRouter} from "vue-router";
 
 
 /** ===== 新建项目-start ===== **/
@@ -18,14 +19,52 @@ const createProject = reactive<MaterialInterface.createProjectParamsType>({
   name: "",
   path: ""
 });
+const router = useRouter();
 // 项目列表
 const projectList = ref<RenrenInterface.keyValueType<string>[]>([]);
 // 文档节点列表
 const documentList = ref<RenrenInterface.keyValueType<string>[]>([]);
 
+const documentSelectedList = ref<string[]>([]);
 
-function createNewProject() {
+
+async function createNewProject() {
   isShow.value = true;
+  resetData();
+  // 获取缓存的项目和文档节点列表
+  await $engine.queryProjectList().then((res: string[]) => {
+    // console.log('res', res);
+    if (res.length > 0) {
+      res.forEach(async (item: string) => {
+        projectList.value.push({
+          key: item,
+          value: item,
+        });
+      })
+    }
+  }).catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+  // 获取缓存的 文档节点列表
+  await $engine.queryDocumentStorageIdList().then((res: string[]) => {
+    if (res.length > 0) {
+      res.forEach((item: string) => {
+        documentList.value.push({
+          key: item,
+          value: item
+        });
+      });
+    }
+  }).catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  })
+  // console.log(projectList.value, documentList.value);
 }
 
 
@@ -36,6 +75,8 @@ function resetData() {
   createProject.name = "";
   createProject.host = "";
   createProject.path = "";
+  documentList.value = [];
+  projectList.value = [];
 }
 
 
@@ -55,7 +96,10 @@ async function createProjectHandler() {
         type: 'success',
         message: res as string
       });
+      // 关闭 drawer
       isShow.value = false;
+      // 页面跳转
+      router.push('/workerspace');
     }).catch(err => {
       $message({
         type: 'warning',
@@ -163,10 +207,24 @@ async function createProjectHandler() {
                 style="width: 240px"
               />
             </el-form-item>
-            <!-- TODO: 绑定页面到项目 -->
             <el-form-item
               label="页面绑定"
-            />
+            >
+              <el-select
+                v-model="documentSelectedList"
+                multiple
+                placeholder="请选择要绑定的页面"
+                clearable
+                style="width: 240px"
+              >
+                <el-option
+                  v-for="(item, index) in documentList"
+                  :key="index"
+                  :label="item.key"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
           </el-form>
           <!-- btns -->
           <div class="w-full h-auto mt-auto flex justify-end">

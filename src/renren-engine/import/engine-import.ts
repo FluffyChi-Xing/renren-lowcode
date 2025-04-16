@@ -19,3 +19,7 @@ export function materialRegister(path: RenrenInterface.keyValueType<string>[]): 
     }
   });
 }
+
+
+
+// TODO: 创建 JS 沙箱环境
