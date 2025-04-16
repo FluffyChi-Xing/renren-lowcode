@@ -13,6 +13,7 @@ import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
 import {$engine} from "@/renren-engine/engine";
 import HighLightLang from "@/components/HighLightLang.vue";
+import AttributesPane from "@/pages/workerspace/_components/AttributesPane.vue";
 
 
 
@@ -159,6 +160,9 @@ onMounted(async () => {
           <EditorConfiguration
             @collapse="editorConfigCollapseHandler"
           >
+            <template #attributes>
+              <AttributesPane />
+            </template>
             <template #side>
               <EditorSideBar
                 @clear="clearCanvasHandler"
@@ -178,6 +182,10 @@ onMounted(async () => {
 }
 
 :deep(.el-aside) {
+  padding: 0;
+}
+
+:deep(.el-main) {
   padding: 0;
 }
 </style>

@@ -4,8 +4,10 @@ import {ArrowLeft, ArrowRight} from "@element-plus/icons-vue";
 const emits = defineEmits(['collapse']);
 const toolBarIcon = ref(ArrowLeft);
 import DrawerTransition from "@/components/DrawerTransition.vue";
+import {useSchemaStore} from "@/stores/schema";
 
 const isCollapse = ref<boolean>(false);
+const schemaStore = useSchemaStore();
 
 
 /**
@@ -20,6 +22,15 @@ function collapseBanner() {
     toolBarIcon.value = ArrowLeft;
   }
 }
+
+/**
+ * @description 处理鼠标点击在画布外的，物料失焦事件
+ * @param e
+ */
+function outerCanvasClickHandler(e: MouseEvent) {
+  e.stopPropagation();
+  schemaStore.currentElement = undefined;
+}
 </script>
 
 <template>
@@ -28,6 +39,7 @@ function collapseBanner() {
       class="material-aside grid grid-rows-3 gap-4 bg-white relative shadow-sm"
       :class="isCollapse ? 'w-10' : 'w-[90%]'"
       style="padding: 16px;"
+      @click="outerCanvasClickHandler"
     >
       <!-- components draggable area -->
       <div

@@ -19,6 +19,9 @@ function collapseBanner() {
     collapseIcon.value = ArrowRight;
   }
 }
+
+
+// TODO: 待处理画布清空可能出现的不一致问题以及清空画布后右侧属性绑定栏未初始化的问题
 </script>
 
 <template>
@@ -29,7 +32,7 @@ function collapseBanner() {
         class="editor-aside flex shadow-sm flex-col bg-white relative p-4"
       >
         <!-- attributes configuration slot -->
-        <slot name="attributes" />
+        <slot v-if="!isCollapse" name="attributes" />
         <!-- collapse-bar -->
         <div @click="collapseBanner" class="editor-aside-bar">
           <el-icon size="20">

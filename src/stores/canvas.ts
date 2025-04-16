@@ -8,7 +8,7 @@ import { ref } from "vue";
 export const useCanvasStore = defineStore('canvas', () => {
   const height = ref<number>(720);
   const width = ref<number>(1080);
-  const isAdd = ref<boolean>(false);
+  const isAdd = ref<string>('000');
 
 
   return {

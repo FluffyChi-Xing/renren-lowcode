@@ -16,6 +16,7 @@ import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {useSchemaStore} from "@/stores/schema";
 import {CONTEXT_MENU_LIST, DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
+import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 
@@ -223,7 +224,7 @@ const throttleDragEventHandler = throttle(
           // console.log('position', position);
         }
         // 更新新增物料标识
-        canvasStore.isAdd = !canvasStore.isAdd;
+        canvasStore.isAdd = generateUUID();
         requestAnimationFrame(async () => {
           const prop: RenrenInterface.KeyValueIndexType<string, string> = {
             key: 'style',
@@ -315,7 +316,18 @@ async function keepMaterialAlive() {
  * @param event
  */
 async function gridClickHandler(event: MouseEvent) {
-  event.preventDefault();
+  event.stopPropagation();
+  console.log('click grid');
+  schemaStore.currentElement = await $engine.getSchema();
+}
+
+
+/**
+ * @description 处理 grid 外部点击事件
+ * @param e
+ */
+async function outerGridClickHandler(e: MouseEvent) {
+  e.stopPropagation();
   schemaStore.currentElement = undefined;
 }
 
@@ -328,8 +340,25 @@ async function gridClickHandler(event: MouseEvent) {
 function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
   if (e) {
     e.preventDefault();
+    e.stopPropagation();
   }
+  // 将[当前物料]元素设为当前点击选中的物料
   schemaStore.currentElement = item as RenrenMaterialModel;
+}
+
+
+function pasteMaterial() {
+  if (schemaStore.currentElement === void 0 && !schemaStore.currentElement?.rootNode) {
+    $message({
+      type: 'warning',
+      message: '请先选择要粘贴的组件'
+    });
+  } else {
+    $message({
+      type: 'info',
+      message: `粘贴组件: ${schemaStore.currentElement?.title}`
+    });
+  }
 }
 
 
@@ -343,10 +372,52 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if (!schemaStore.currentElement) {
-        contextMenuList.value = DEFAULT_CONTEXT_MENU_LIST;
+      if (!schemaStore.currentElement?.rootNode && schemaStore.currentElement !== void 0) {
+        contextMenuList.value = [
+          {
+            key: '复制',
+            value: () => {
+              $message({
+                type: 'info',
+                message: '复制成功'
+              });
+              isShow.value = false;
+            },
+            index: 'copy'
+          },
+          {
+            key: '粘贴',
+            value: pasteMaterial,
+            index: 'paste'
+          },
+          {
+            key: '剪切',
+            value: () => {},
+            index: 'cut'
+          },
+          {
+            key: '删除',
+            value: () => {},
+            index: 'delete'
+          },
+          {
+            key: '锁定',
+            value: () => {},
+            index: 'lock'
+          },
+          {
+            key: '上移',
+            value: () => {},
+            index: 'up'
+          },
+          {
+            key: '下移',
+            value: () => {},
+            index: 'down'
+          }
+        ];
       } else {
-        contextMenuList.value = CONTEXT_MENU_LIST;
+        contextMenuList.value = DEFAULT_CONTEXT_MENU_LIST;
       }
       resolve('初始化右键菜单列表成功');
     } catch (e) {
@@ -396,51 +467,53 @@ watch(() => schemaStore.currentElement, () => {
 </script>
 
 <template>
-  <el-scrollbar height="628">
-    <div
-      ref="editor"
-      @click.right="canvasRightClickHandler"
-      @dragover="handleDragover"
-      @drop="throttleDragEventHandler($event)"
-      draggable="false"
-      :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
-      class="w-full flex items-center justify-center relative"
-    >
-      <!-- 网格线 -->
-      <Grid
-        @mousedown.left="mousedownHandler"
-        :height="canvasSize.height"
-        :width="canvasSize.width"
-        @click="gridClickHandler"
-      />
-      <!-- 右键单选框 -->
-      <Context
-        v-model:show="isShow"
-        :menu-list="contextMenuList"
-        :top="cursorY"
-        :left="cursorX"
-        @click="handleContextClick"
-        @paste="pasteComp"
-      />
-      <!-- 对齐标线 -->
-      <!-- 鼠标拖拽区域 -->
-      <SelectArea
-        v-model:show="isShowArea"
-        :start="selectAreaStart"
-        :width="areaWidth"
-        :height="areaHeight"
-      />
-      <!-- 物料容器 -->
-      <DisplayItem
-        v-for="(item, index) in materialContainer"
-        @click="selectCurrentElement(item, $event);"
-        :key="index"
-        :item="item"
-        @dragover="displayItemDragendHandler"
-        @move="throttledMaterialMousemoveHandler(item, $event)"
-      />
-    </div>
-  </el-scrollbar>
+  <div @click="outerGridClickHandler" class="w-full h-full flex flex-col p-4">
+    <el-scrollbar height="628">
+      <div
+        ref="editor"
+        @click.right="canvasRightClickHandler"
+        @dragover="handleDragover"
+        @drop="throttleDragEventHandler($event)"
+        draggable="false"
+        :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
+        class="w-full flex items-center justify-center relative"
+      >
+        <!-- 网格线 -->
+        <Grid
+          @mousedown.left="mousedownHandler"
+          :height="canvasSize.height"
+          :width="canvasSize.width"
+          @click="gridClickHandler"
+        />
+        <!-- 右键单选框 -->
+        <Context
+          v-model:show="isShow"
+          :menu-list="contextMenuList"
+          :top="cursorY"
+          :left="cursorX"
+          @click="handleContextClick"
+          @paste="pasteComp"
+        />
+        <!-- 对齐标线 -->
+        <!-- 鼠标拖拽区域 -->
+        <SelectArea
+          v-model:show="isShowArea"
+          :start="selectAreaStart"
+          :width="areaWidth"
+          :height="areaHeight"
+        />
+        <!-- 物料容器 -->
+        <DisplayItem
+          v-for="(item, index) in materialContainer"
+          @click="selectCurrentElement(item, $event);"
+          :key="index"
+          :item="item"
+          @dragover="displayItemDragendHandler"
+          @move="throttledMaterialMousemoveHandler(item, $event)"
+        />
+      </div>
+    </el-scrollbar>
+  </div>
 </template>
 
 <style scoped>

@@ -21,6 +21,4 @@ export const useSchemaStore = defineStore('schema', () => {
     initCurrent,
     isAdd,
   };
-}, {
-  persist: true
 });

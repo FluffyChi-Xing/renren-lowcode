@@ -138,14 +138,24 @@ onMounted(async () => {
 /**
  * @description 刷新物料节点树
  */
-async function refreshTree() {
-  const schema: MaterialDocumentModel | void = await $engine.getSchema();
-  // console.log(schema);
-  await initMaterialNodeTree(schema).catch(err => {
-    $message({
-      type: 'warning',
-      message: err
-    });
+function refreshTree(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      const schema: MaterialDocumentModel | void = await $engine.getSchema();
+      // console.log(schema);
+      if (schema) {
+        await initMaterialNodeTree(schema).catch(err => {
+          $message({
+            type: 'warning',
+            message: err
+          });
+        });
+        resolve('刷新物料节点树成功');
+      }
+    } catch (e) {
+      console.error('刷新物料节点树失败', e);
+      reject('刷新物料节点树失败');
+    }
   });
 }
 
@@ -153,11 +163,15 @@ async function refreshTree() {
 /**
  * @description 自动更新物料节点树
  */
-watch(() => canvasStore.isAdd, async () => {
-  await refreshTree();
-}, {
-  deep: true,
-  immediate: false,
+watch(() => canvasStore.isAdd, async (newVal: string) => {
+  if (newVal !== '000') {
+    await refreshTree().catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+  }
 });
 </script>
 
