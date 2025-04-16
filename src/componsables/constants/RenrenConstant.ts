@@ -10,6 +10,16 @@ export const ENTITY_ID: string = 'id';
 
 export const SCHEMA_STORAGE_ID: string = 'project-schema:';
 
+/**
+ * @description 项目数据存储前缀标识
+ */
+export const SCHEMA_PROJECT_STORAGE_ID: string = 'project-storage:';
+
+/**
+ * @description 项目键对项目名映射关系表存储标识
+ */
+export const PROJECT_KEY_TO_NAME_MAP_ID: string = 'project-key-to-name-map';
+
 export const PROJECT_LOGO_URL: string = 'https://nest-upload-oss.oss-cn-beijing.aliyuncs.com/images/favicon.png';
 
 /**

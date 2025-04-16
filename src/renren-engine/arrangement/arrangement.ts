@@ -2,19 +2,31 @@
  * @description 人人低码-编排引擎 编排能力模块
  * @author FluffyChi-Xing
  */
-import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {PAGE_SCHEMA, SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
+import {MaterialDocumentModel, MaterialProjectModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {
+  PAGE_SCHEMA,
+  PROJECT_KEY_TO_NAME_MAP_ID,
+  SCHEMA_PROJECT_STORAGE_ID,
+  SCHEMA_STORAGE_ID
+} from "@/componsables/constants/RenrenConstant";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import { v4 as uuidv4 } from 'uuid';
 
 
 /**
  * @description 保存 schema 到本地
  * @param schema
+ * @param fileName
  */
-export function saveSchemaToJson(schema: MaterialDocumentModel): Promise<string> {
+export function saveSchemaToJson(schema: MaterialDocumentModel, fileName?: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (schema) {
-        localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
+        if (fileName) {
+          localStorage.setItem(SCHEMA_STORAGE_ID + fileName, JSON.stringify(schema));
+        } else {
+          localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
+        }
         resolve('保存 schema 成功');
       } else {
         reject('schema 为空');
@@ -30,10 +42,14 @@ export function saveSchemaToJson(schema: MaterialDocumentModel): Promise<string>
 /**
  * @description 获取本地的 schema
  */
-export function getSchema(): Promise<MaterialDocumentModel> {
+export function getSchema(key?: string): Promise<MaterialDocumentModel> {
   return new Promise<MaterialDocumentModel>((resolve, reject) => {
     try {
-      resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as MaterialDocumentModel);
+      if (!key) {
+        resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as MaterialDocumentModel);
+      } else {
+        resolve(JSON.parse(localStorage.getItem(key) || '{}') as MaterialDocumentModel);
+      }
     } catch (e) {
       console.log('获取 schema 失败', e);
       reject('获取 schema 失败');
@@ -76,6 +92,26 @@ export function queryNodeList<T extends RenrenMaterialModel>(): Promise<T[]> {
       reject('获取节点失败');
     }
   })
+}
+
+
+/**
+ * @description 删除文档节点
+ * @param key
+ */
+export function removeSchema(key?: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (key) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.removeItem(SCHEMA_STORAGE_ID);
+      }
+    } catch (e) {
+      console.error('删除 schema 失败', e);
+      reject('删除 schema 失败');
+    }
+  });
 }
 
 
@@ -231,3 +267,184 @@ export function getPersistNodeList<T extends RenrenMaterialModel>(): Promise<T[]
     }
   });
 }
+
+
+/**
+ * @description 初始化项目（创建一个新项目）
+ * @param params
+ */
+export function initProject(params: MaterialInterface.createProjectParamsType): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      // 检查是否存在同名项目
+      const projectName: string = SCHEMA_PROJECT_STORAGE_ID + params?.name;
+      const project = JSON.parse(localStorage.getItem(projectName) as string);
+      if (project) {
+        resolve('项目已存在');
+      }
+      const id: string = uuidv4(); // 生成项目的唯一 ID
+      const newProject = new MaterialProjectModel({
+        currentDocument: undefined,
+        documents: undefined,
+        documentsMap: undefined,
+        projectId: id,
+        projectName: params.name,
+        projectPath: params.path,
+        props: undefined,
+        simulatorHost: params.host ? params.host : '',
+      });
+      localStorage.setItem(projectName, JSON.stringify(newProject));
+      resolve('创建项目成功');
+    } catch (e) {
+      console.error('创建项目失败', e);
+      reject('创建项目失败');
+    }
+  });
+}
+
+
+/**
+ * @description 将文档节点保存到项目中
+ * @param projectName
+ * @param node
+ */
+export function saveDocument2Project(projectName: string, node: MaterialInterface.IDocument): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const project: MaterialProjectModel = JSON.parse(localStorage.getItem(SCHEMA_PROJECT_STORAGE_ID + projectName) as string);
+      if (!project || project === void 0) {
+        reject('项目不存在');
+      }
+      project.documents?.push(node);
+      // 保存 project
+      localStorage.setItem(SCHEMA_PROJECT_STORAGE_ID + projectName, JSON.stringify(project));
+      resolve('保存文档成功');
+    } catch (e) {
+      console.error('保存文档失败', e);
+      reject('保存文档失败');
+    }
+  });
+}
+
+
+/**
+ * @description 查询缓存的所有页面键列表
+ */
+export function queryDocumentStorageIdList(): Promise<string[]> {
+  return new Promise<string[]>((resolve, reject) => {
+    try {
+      // 获取当前域名下全部 以 SCHEMA_STORAGE_ID 开头的 key
+      const keys: string[] = Object.keys(localStorage).filter(key => key.startsWith(SCHEMA_STORAGE_ID));
+      resolve(keys);
+    } catch (e) {
+      console.error('查询文档列表失败', e);
+      reject('查询文档列表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 删除项目中指定的文档节点
+ * @param documentName
+ * @param projectName
+ */
+export function removeDocumentFromProject(documentName: string, projectName: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      let project: MaterialProjectModel = JSON.parse(localStorage.getItem(SCHEMA_PROJECT_STORAGE_ID + projectName) as string);
+      if (project && project.documents) {
+        project.documents = project.documents.filter(doc => doc.fileName !== documentName);
+      }
+      // 保存 project
+      localStorage.setItem(SCHEMA_PROJECT_STORAGE_ID + projectName, JSON.stringify(project));
+      resolve('删除文档成功');
+    } catch (e) {
+      console.error('删除文档失败', e);
+      reject('删除文档失败');
+    }
+  });
+}
+
+
+/**
+ * @description 查询缓存的全部项目键列表
+ */
+export function queryProjectList(): Promise<string[]> {
+  return new Promise<string[]>((resolve, reject) => {
+    try {
+      const keys: string[] = Object.keys(localStorage).filter(key => key.startsWith(SCHEMA_PROJECT_STORAGE_ID));
+      resolve(keys);
+    } catch (e) {
+      console.error('查询项目列表失败', e);
+      reject('查询项目列表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 创建项目键名映射表
+ */
+export function createProjectKeyNameMap(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
+      if (!map) {
+        const newMap: Map<string, string> = new Map<string, string>();
+        localStorage.setItem(PROJECT_KEY_TO_NAME_MAP_ID, JSON.stringify(newMap));
+        resolve('创建项目键名映射表成功');
+      }
+    } catch (e) {
+      console.error('创建项目键名映射表失败', e);
+      reject('创建项目键名映射表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 插入项目键名映射表
+ * @param projectId
+ * @param projectName
+ */
+export function insertProject2Map(projectId: string, projectName: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      let map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
+      if (map) {
+        map.set(projectId, projectName);
+        resolve('插入项目键名映射表成功');
+      } else {
+        reject('插入项目键名映射表失败');
+      }
+    } catch (e) {
+      console.error('插入项目键名映射表失败', e);
+      reject('插入项目键名映射表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 清空项目键名映射表
+ */
+export function clearProjectMap(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      let map: Map<string, string> = JSON.parse(localStorage.getItem(PROJECT_KEY_TO_NAME_MAP_ID) as string);
+      if (map) {
+        map.clear();
+        resolve('清除项目键名映射表成功');
+      } else {
+        reject('清除项目键名映射表失败');
+      }
+    } catch (e) {
+      console.error('清除项目键名映射表失败', e);
+      reject('清除项目键名映射表失败');
+    }
+  });
+}
+
+
+// TODO: 删除某个特定键的项目键名映射表条目

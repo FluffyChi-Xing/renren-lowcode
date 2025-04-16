@@ -86,4 +86,41 @@ export namespace MaterialInterface {
     parentId?: number | string;
     children?: MaterialTreeType[];
   }
+
+
+  /**
+   * @description 项目基类 类型
+   */
+  export interface IProject {
+    projectName: string;
+    projectId: string;
+    projectPath: string;
+    documents: IDocument[] | undefined; // 文档节点列表
+    documentsMap: Map<string, IDocument> | undefined; // 文档节点映射表
+    simulatorHost: string; // 模拟器地址
+    props: IProps[] | undefined;
+    currentDocument: IDocument | undefined; // 当前文档节点
+  }
+
+
+  /**
+   * @description 创建文档节点参数类型
+   */
+  export interface createDocumentParamsType {
+    isRoot: boolean;
+    fileName: string;
+    opened: boolean;
+    prop: IProps | null;
+    projectName: string;
+  }
+
+
+  /**
+   * @description 创建项目参数类型
+   */
+  export interface createProjectParamsType {
+    name: string;
+    path: string;
+    host?: string;
+  }
 }

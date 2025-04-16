@@ -4,6 +4,8 @@
  */
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {RenrenModel} from "@/componsables/models/RenrenModel";
+import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
+import {$engine} from "@/renren-engine/engine";
 
 
 /**
@@ -331,5 +333,102 @@ export class MaterialTreeModel extends RenrenModel implements MaterialInterface.
       this.parentId = params.parentId ? params.parentId : '';
       this.name = params.name;
     }
+  }
+}
+
+
+
+
+
+export class MaterialProjectModel extends RenrenModel implements MaterialInterface.IProject {
+  currentDocument: MaterialInterface.IDocument | undefined;
+  documents: MaterialInterface.IDocument[] | undefined;
+  documentsMap: Map<string, MaterialInterface.IDocument> | undefined;
+  props: MaterialInterface.IProps[] | undefined;
+  simulatorHost: string = '';
+  projectId: string = '';
+  projectName: string = '';
+  projectPath: string = '';
+
+  constructor(params?: MaterialInterface.IProject) {
+    super();
+    if (params) {
+      this.currentDocument = params.currentDocument? params.currentDocument : undefined;
+      this.documents = params.documents? params.documents.map(doc => new MaterialDocumentModel(doc)) : [];
+      this.documentsMap = new Map<string, MaterialInterface.IDocument>();
+      this.props = params.props? params.props.map(prop => new MaterialPropsModel(prop)) : [];
+      this.simulatorHost = params.simulatorHost;
+      this.projectPath = params.projectPath;
+      this.projectName = params.projectName;
+      this.projectId = params.projectId;
+    }
+  }
+
+
+  /**
+   * @description 在项目内创建新的文档节点
+   * @param params
+   */
+  createDocument(params?: MaterialInterface.createDocumentParamsType): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        if (params) {
+          // 新建文档节点参数列表
+          const documentParams: MaterialInterface.IDocument = {
+            rootNode: params.isRoot,
+            nodes: undefined,
+            fileName: params.fileName,
+            opened: params.opened,
+            blank: true,
+            activated: false,
+            sections: undefined,
+            prop: params.prop,
+          };
+          const documentModel: MaterialDocumentModel = new MaterialDocumentModel({...documentParams});
+          // 检查是否存在同名页面
+          const storageId: string = SCHEMA_STORAGE_ID + params?.fileName;
+          const doc = await $engine.getSchema(storageId);
+          if (!doc) {
+            // 保存文档节点
+            await $engine.saveSchemaToJson(documentModel, params.fileName).catch(err => {
+              reject(err);
+            });
+            // 保存文档节点到项目保存文档节点到项目
+            await $engine.saveDocument2Project(params.projectName, documentParams).catch(err => {
+              reject(err);
+            });
+            resolve('创建文档成功');
+          }
+        } else {
+          reject('参数错误');
+        }
+      } catch (e) {
+        console.error('创建文档失败', e);
+        reject('创建文档失败');
+      }
+    });
+  }
+
+
+  /**
+   * @description 删除文档节点
+   * @param documentName
+   */
+  removeDocument(documentName: string): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        // 删除本地缓存的文档节点
+        await $engine.removeSchema(SCHEMA_STORAGE_ID + documentName).catch(err => {
+          reject(err);
+        });
+        await $engine.removeDocumentFromProject(documentName, this.projectName).catch(err => {
+          reject(err);
+        })
+        // 移除项目内的文档节点
+        resolve('删除文档成功');
+      } catch (e) {
+        console.error('删除文档失败', e);
+      }
+    });
   }
 }
