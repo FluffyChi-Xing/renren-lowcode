@@ -179,8 +179,69 @@ export function updateMaterialCSSAttribute<T extends RenrenMaterialModel>(index:
         }
       }
     } catch (e) {
-      console.log('更新 CSS Attributes 失败', e);
+      console.error('更新 CSS Attributes 失败', e);
       reject('更新 CSS Attributes 失败');
+    }
+  });
+}
+
+
+/**
+ * @description 更新文档属性
+ * @param index
+ * @param prop
+ */
+export function updateDocumentCSSAttribute(index: string, prop: RenrenInterface.KeyValueIndexType<string, string>): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      let schema = await $engine.getSchema();
+      const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
+      if (!isEmpty) {
+        if (schema.prop && schema.prop.items) {
+          if (schema.prop.id === index) {
+            if (prop) {
+              // 判断是否存在相同的属性，如果存在则更新它的值，否则直接push
+              // TODO: 目前还不能准确的匹配已经存在的属性
+              const flag: boolean = !!schema.prop.items.find(item => item.key === prop.key && item.value.includes(prop.value));
+              if (flag) {
+                schema.prop.items.forEach(item => {
+                  if (item.value.includes(prop.value)) {
+                    item.value = prop.value;
+                  }
+                });
+              } else {
+                let pro: MaterialInterface.IProp = {
+                  code: "",
+                  items: null,
+                  key: prop.key,
+                  maps: undefined,
+                  owner: null,
+                  parent: undefined,
+                  type: prop.index,
+                  value: prop.value
+                };
+                schema.prop.items.push(pro);
+              }
+              // 保存更新后的schema
+              await $engine.updateSchema(schema).then(() => {
+                resolve('更新 schema 成功');
+              }).catch(err => {
+                console.error('更新 schema 失败', err);
+                reject('更新 schema 失败');
+              });
+            } else {
+              reject('需要更新的属性为空');
+            }
+          } else {
+            reject('没有找到匹配的prop节点');
+          }
+        }
+      } else {
+        reject('schema 不存在');
+      }
+    } catch (e) {
+      console.error('更新文档 CSS 属性失败', e);
+      reject('更新文档 CSS 属性失败');
     }
   });
 }

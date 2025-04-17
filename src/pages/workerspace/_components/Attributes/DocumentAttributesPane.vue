@@ -1,11 +1,96 @@
 <script setup lang="ts">
+import {ref, reactive, onMounted} from 'vue';
+import {useSchemaStore} from "@/stores/schema";
+import type {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import {$message} from "@/componsables/element-plus";
+import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
+import {useCanvasStore} from "@/stores/canvas";
 
+
+
+
+const schemaStore = useSchemaStore();
+const canvasStore = useCanvasStore();
+
+
+/** ===== 文档节点属性绑定-start =====**/
+const documentAttribute = ref<MaterialInterface.IProp[]>([]);
+
+
+/**
+ * @description 根据当前文档节点的属性初始化响应式对象
+ */
+function initDocumentAttributeData(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'document') {
+        const document: MaterialDocumentModel = schemaStore.currentElement as MaterialDocumentModel;
+        // 清空现有响应式对象
+        documentAttribute.value = [];
+        if (document.prop?.items && document.prop.items?.length > 0) {
+          document.prop.items.forEach((item: MaterialInterface.IProp) => {
+            documentAttribute.value.push(item);
+          });
+          // console.log(documentAttribute.value);
+          resolve('初始化文档节点响应式属性数据成功');
+        }
+      } else {
+        reject('当前元素不是文档类型');
+      }
+    } catch (e) {
+      console.error('初始化文档节点响应式属性数据失败', e);
+      reject('初始化文档节点响应式属性数据失败');
+    }
+  });
+}
+
+
+/**
+ * @description 处理画布颜色更新事件
+ * @param color
+ */
+function documentColorChangeHandler(color: string) {
+  if (color) {
+    canvasStore.canvasColor = color;
+  }
+}
+/** ====== 文档属性绑定-end ===== **/
+
+
+onMounted(() => {
+  initDocumentAttributeData().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+});
 </script>
 
 <template>
   <!-- 页面属性面板 -->
   <div class="w-full h-full flex flex-col">
-
+    <el-form label-width="auto">
+      <el-form-item
+        v-for="(item, index) in documentAttribute"
+        :key="index"
+        :label="propAttributesMap.get(item.type)"
+      >
+        <!-- 如果是 input -->
+        <el-input
+          v-if="propAttributesTypeMap.get(item.type) === 'input'"
+          v-model="documentAttribute[index].value"
+          clearable
+        />
+        <!-- 如果是 color-picker -->
+        <el-color-picker
+          v-if="propAttributesTypeMap.get(item.type) === 'picker'"
+          v-model="documentAttribute[index].value"
+          @change="documentColorChangeHandler"
+        />
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 

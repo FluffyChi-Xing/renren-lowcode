@@ -489,6 +489,7 @@ watch(() => schemaStore.currentElement, () => {
           @mousedown.left="mousedownHandler"
           :height="canvasSize.height"
           :width="canvasSize.width"
+          :back-color="canvasStore.canvasColor"
           @click="gridClickHandler"
         />
         <!-- 右键单选框 -->

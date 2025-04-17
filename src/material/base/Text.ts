@@ -32,7 +32,7 @@ export const textSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'type',
         value: 'success',
-        type: 'string',
+        type: 'type',
         owner: '2',
         parent: propsId
       },
@@ -42,7 +42,7 @@ export const textSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'size',
         value: 'default',
-        type: 'select',
+        type: 'size',
         owner: '2',
         parent: propsId
       },
@@ -52,7 +52,7 @@ export const textSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'text',
         value: '文本',
-        type: 'input',
+        type: 'text',
         owner: '2',
         parent: propsId
       }

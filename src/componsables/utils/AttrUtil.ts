@@ -76,26 +76,59 @@ export const propsAttributes: RenrenInterface.keyValueType<string>[] = [
 ];
 
 
-export const propsAttributesMap = new Map<string, string>([
+/**
+ * @description 映射属性和属性值
+ */
+export const propAttributesMap = new Map<string, string>([
   ['left', 'x 坐标'],
   ['top', 'y 坐标'],
   ['rotate', '旋转角度'],
   ['width', '宽度'],
   ['height', '高度'],
   ['color', '颜色'],
-  ['backgroundColor', '背景颜色'],
-  ['borderWidth', '边框宽度'],
-  ['borderStyle', '边框样式'],
-  ['borderColor', '边框颜色'],
-  ['borderRadius', '边框半径'],
-  ['fontSize', '字体大小'],
-  ['fontWeight', '字体粗细'],
-  ['lineHeight', '字体行高'],
-  ['letterSpacing', '字母间距'],
-  ['textAlign', '水平对齐方式'],
-  ['verticalAlign', '垂直对齐方式'],
-  ['opacity', '透明度']
+  ['background-color', '背景颜色'],
+  ['border-width', '边框宽度'],
+  ['border-style', '边框样式'],
+  ['border-color', '边框颜色'],
+  ['border-radius', '边框半径'],
+  ['font-size', '字体大小'],
+  ['font-weight', '字体粗细'],
+  ['line-height', '字体行高'],
+  ['letter-spacing', '字母间距'],
+  ['text-align', '水平对齐方式'],
+  ['vertical-align', '垂直对齐方式'],
+  ['opacity', '透明度'],
+  ['size', 'element 尺寸'],
+  ['type', 'element 类型'],
 ]);
+
+
+/**
+ * @description 属性值取值方式映射表
+ */
+export const propAttributesTypeMap: Map<string, string> = new Map<string, string>([
+  ['left', 'input'],
+  ['top', 'input'],
+  ['rotate', 'input'],
+  ['width', 'input'],
+  ['height', 'input'],
+  ['color', 'input'],
+  ['background-color', 'picker'],
+  ['border-width', 'input'],
+  ['border-style', 'select'],
+  ['border-color', 'picker'],
+  ['border-radius', 'input'],
+  ['font-size', 'input'],
+  ['font-weight', 'input'],
+  ['line-height', 'input'],
+  ['letter-spacing', 'input'],
+  ['text-align', 'select'],
+  ['vertical-align', 'select'],
+  ['opacity', 'input'],
+  ['size', 'select'],
+  ['type', 'select'],
+]);
+
 
 
 
@@ -144,8 +177,54 @@ export const verticalAlignOptions: RenrenInterface.keyValueType<string>[] = [
 ];
 
 
-export const propsOptions = {
-  textAlign: textAlignOptions,
-  borderStyle: borderStyleOptions,
-  verticalAlign: verticalAlignOptions
-}
+
+export const elementSizeOptions: RenrenInterface.keyValueType<string>[] = [
+  {
+    key: '标准',
+    value: 'default'
+  },
+  {
+    key: '小',
+    value: 'small'
+  },
+  {
+    key: '大',
+    value: 'large'
+  }
+];
+
+
+export const elementTypeOptions: RenrenInterface.keyValueType<string>[] = [
+  {
+    key: '成功',
+    value: 'success'
+  },
+  {
+    key: '警告',
+    value: 'warning'
+  },
+  {
+    key: '信息',
+    value: 'info'
+  },
+  {
+    key: '危险',
+    value: 'danger'
+  },
+  {
+    key: '主要',
+    value: 'primary'
+  }
+]
+
+
+/**
+ * @description 属性值对应的选项映射表
+ */
+const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<string>[]> = new Map<string, RenrenInterface.keyValueType<string>[]>([
+  ['border-style', borderStyleOptions],
+  ['text-align', textAlignOptions],
+  ['vertical-align', verticalAlignOptions],
+  ['size', elementSizeOptions],
+  ['type', elementTypeOptions],
+]);

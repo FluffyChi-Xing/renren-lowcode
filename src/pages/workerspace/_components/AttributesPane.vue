@@ -69,7 +69,10 @@ function isDocumentModel(): boolean {
           v-if="isDocumentModel()"
           class="w-full h-full"
         >
-          <el-tab-pane>属性</el-tab-pane>
+          <el-tab-pane label="属性">
+            <DocumentAttributesPane />
+          </el-tab-pane>
+          <el-tab-pane label="高级" />
         </el-tabs>
         <!-- 单组件属性适配器 -->
         <el-tabs

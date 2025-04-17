@@ -81,20 +81,6 @@ async function sizeChangeHandler(index?: any) {
     const value: string = index?.target._value as string;
     const schema = await $engine.getSchema();
     // 将宽度数据回写到 schema 中
-    if (schema !== void 0) {
-      const widthProps: RenrenInterface.KeyValueIndexType<string, string> = {
-        key: 'style',
-        value: `width: ${defaultWidth.value}px;height: ${DEFAULT_CANVAS_WIDTH}px;`,
-        index: 'input'
-      }
-      // TODO: 这里需要一个行方法 updateDocumentCSSAttribute 来更新文档的样式
-      await $engine.updateMaterialCSSAttribute(schema.prop?.id as string, widthProps).catch(err => {
-        $message({
-          type: 'warning',
-          message: err as string
-        });
-      });
-    }
     await syncValueWithType(value).then(() => {
       canvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
     }).catch(err => {
@@ -103,6 +89,20 @@ async function sizeChangeHandler(index?: any) {
         message: err
       });
     });
+    // 将画布尺寸变化同步到 schema 中
+    if (schema !== void 0) {
+      const widthProps: RenrenInterface.KeyValueIndexType<string, string> = {
+        key: 'style',
+        value: `width: ${defaultWidth.value}px;`,
+        index: 'input'
+      }
+      await $engine.updateDocumentCSSAttribute(schema.prop?.id as string, widthProps).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    }
   } catch (e) {
     console.log('处理画布大小变化失败', e);
     $message({
