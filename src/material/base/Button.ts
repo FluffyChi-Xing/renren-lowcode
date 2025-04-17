@@ -29,7 +29,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'type',
         value: 'primary',
-        type: 'string',
+        type: 'select',
         owner: '1',
         parent: propsId
       },
@@ -39,7 +39,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'text',
         value: '按钮',
-        type: 'string',
+        type: 'input',
         owner: '1',
         parent: propsId
       },
@@ -49,7 +49,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'plain',
         value: 'plain',
-        type: 'string',
+        type: 'switch',
         owner: '1',
         parent: propsId
       }

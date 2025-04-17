@@ -43,3 +43,25 @@ export function getPseudoElement<T extends HTMLElement | undefined, R extends CS
     }
   });
 }
+
+
+/**
+ * @description 打开外部链接工具函数
+ * @param link
+ * @param method
+ */
+export function openExternalLink(link: string, method?: '_self' | '_blank' | '_parent' | '_top'): Promise<string> {
+  return new Promise<string>((resolve, reject) =>{
+    try {
+      if (link) {
+        // TODO: 判断是否是外部链接
+        window.open(link, method || '_blank');
+      } else {
+        reject('链接不存在');
+      }
+    } catch (e) {
+      console.error('打开外部链接失败', e);
+      reject('打开外部链接失败');
+    }
+  });
+}

@@ -24,6 +24,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
   parent: string | null = null;
   props: MaterialInterface.IProps | null = null;
   icon: string = '';
+  type: string = 'material';
 
 
 
@@ -295,6 +296,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
   rootNode: boolean = true;
   sections: MaterialInterface.IMaterial[] | undefined;
   prop: MaterialInterface.IProps | null = null;
+  type: string = 'document';
 
 
   constructor(params?: MaterialInterface.IDocument) {

@@ -5,6 +5,7 @@ import type {ClassConstructor} from "@/componsables/type/RenrenType";
 import type {IJson} from "@/componsables/type/IJson";
 
 export class RenrenModel {
+  type: string = '';
 
 
   /**

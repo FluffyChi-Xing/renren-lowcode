@@ -8,6 +8,8 @@ import type { Component } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 
 
 const schemaStore = useSchemaStore();
@@ -27,6 +29,24 @@ const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
   }
 ]);
 const attributeTabPane = ref<Component>(DocumentAttributesPane || h(ElEmpty) as Component);
+
+
+/**
+ * @description 判断是否是一个文档节点
+ * @param item
+ */
+function isDocumentModel(): boolean {
+  const item: any = schemaStore.currentElement;
+  if (item !== void 0) {
+    if (item?.type === 'document') {
+      return item.rootNode;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
 </script>
 
 <template>
@@ -40,13 +60,13 @@ const attributeTabPane = ref<Component>(DocumentAttributesPane || h(ElEmpty) as 
         请在左侧画布中选中节点
       </div>
       <!-- 页面属性适配器 -->
-      <!-- 如果 currentElement 存在 rootNode 属性，则认为是页面元素 -->
+      <!-- 如果 currentElement 为 document model 节点，则认为是页面元素 -->
       <div
         v-else
         class="w-full h-full flex flex-col"
       >
         <el-tabs
-          v-if="schemaStore.currentElement?.rootNode"
+          v-if="isDocumentModel()"
           class="w-full h-full"
         >
           <el-tab-pane>属性</el-tab-pane>

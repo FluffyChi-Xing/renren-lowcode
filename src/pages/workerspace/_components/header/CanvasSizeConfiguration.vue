@@ -4,8 +4,14 @@ import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$enum} from "@/componsables/enum";
 import {DEVICE_TYPES} from "@/componsables/constants/WorkerSpaceConstant";
 import {$message} from "@/componsables/element-plus";
-import {DEFAULT_SIZE_LIST, MAX_CANVAS_WIDTH, MIN_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
+import {
+  DEFAULT_CANVAS_WIDTH,
+  DEFAULT_SIZE_LIST,
+  MAX_CANVAS_WIDTH,
+  MIN_CANVAS_WIDTH
+} from "@/componsables/constants/CanvasConstant";
 import {useCanvasStore} from "@/stores/canvas";
+import {$engine} from "@/renren-engine/engine";
 const props = withDefaults(defineProps<{
   canvasWidth?: number; // 画布宽度
   deviceType?: 'phone' | 'pad' | 'desktop'; // 设备类型
@@ -73,6 +79,22 @@ function syncValueWithType(index?: string | undefined): Promise<string> {
 async function sizeChangeHandler(index?: any) {
   try {
     const value: string = index?.target._value as string;
+    const schema = await $engine.getSchema();
+    // 将宽度数据回写到 schema 中
+    if (schema !== void 0) {
+      const widthProps: RenrenInterface.KeyValueIndexType<string, string> = {
+        key: 'style',
+        value: `width: ${defaultWidth.value}px;height: ${DEFAULT_CANVAS_WIDTH}px;`,
+        index: 'input'
+      }
+      // TODO: 这里需要一个行方法 updateDocumentCSSAttribute 来更新文档的样式
+      await $engine.updateMaterialCSSAttribute(schema.prop?.id as string, widthProps).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    }
     await syncValueWithType(value).then(() => {
       canvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
     }).catch(err => {

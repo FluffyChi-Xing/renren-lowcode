@@ -6,15 +6,14 @@ import {computed, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import SelectArea from "@/components/SelectArea.vue";
-import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
 import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/renderer/renderer";
-import {insertNode2Document} from "@/renren-engine/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {useSchemaStore} from "@/stores/schema";
-import {CONTEXT_MENU_LIST, DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
+import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
@@ -105,7 +104,6 @@ function initMousedownEvent<T extends MouseEvent>(event: T): RenrenInterface.XAn
  * @description 处理鼠标移动事件
  * @param startX
  * @param startY
- * @param e
  */
 function initMousemoveEvent(startX: number, startY: number) {
   return function (event: MouseEvent) {
@@ -318,7 +316,7 @@ async function keepMaterialAlive() {
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
   console.log('click grid');
-  schemaStore.currentElement = await $engine.getSchema();
+  schemaStore.currentElement = await $engine.getSchema() as MaterialDocumentModel;
 }
 
 
@@ -347,17 +345,23 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 }
 
 
+/**
+ * @description 粘贴物料
+ */
 function pasteMaterial() {
-  if (schemaStore.currentElement === void 0 && !schemaStore.currentElement?.rootNode) {
-    $message({
-      type: 'warning',
-      message: '请先选择要粘贴的组件'
-    });
-  } else {
-    $message({
-      type: 'info',
-      message: `粘贴组件: ${schemaStore.currentElement?.title}`
-    });
+  // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
+  if (schemaStore.currentElement !== void 0) {
+    if (schemaStore.currentElement?.type === 'material') {
+      $message({
+        type: 'info',
+        message: `粘贴组件: ${schemaStore.currentElement.title}`,
+      });
+    } else {
+      $message({
+        type: 'warning',
+        message: '请先选择要粘贴的组件'
+      });
+    }
   }
 }
 
@@ -372,50 +376,52 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if (!schemaStore.currentElement?.rootNode && schemaStore.currentElement !== void 0) {
-        contextMenuList.value = [
-          {
-            key: '复制',
-            value: () => {
-              $message({
-                type: 'info',
-                message: '复制成功'
-              });
-              isShow.value = false;
+      if (schemaStore.currentElement !== void 0) {
+        if (schemaStore.currentElement?.type === 'material') {
+          contextMenuList.value = [
+            {
+              key: '复制',
+              value: () => {
+                $message({
+                  type: 'info',
+                  message: '复制成功'
+                });
+                isShow.value = false;
+              },
+              index: 'copy'
             },
-            index: 'copy'
-          },
-          {
-            key: '粘贴',
-            value: pasteMaterial,
-            index: 'paste'
-          },
-          {
-            key: '剪切',
-            value: () => {},
-            index: 'cut'
-          },
-          {
-            key: '删除',
-            value: () => {},
-            index: 'delete'
-          },
-          {
-            key: '锁定',
-            value: () => {},
-            index: 'lock'
-          },
-          {
-            key: '上移',
-            value: () => {},
-            index: 'up'
-          },
-          {
-            key: '下移',
-            value: () => {},
-            index: 'down'
-          }
-        ];
+            {
+              key: '粘贴',
+              value: pasteMaterial,
+              index: 'paste'
+            },
+            {
+              key: '剪切',
+              value: () => {},
+              index: 'cut'
+            },
+            {
+              key: '删除',
+              value: () => {},
+              index: 'delete'
+            },
+            {
+              key: '锁定',
+              value: () => {},
+              index: 'lock'
+            },
+            {
+              key: '上移',
+              value: () => {},
+              index: 'up'
+            },
+            {
+              key: '下移',
+              value: () => {},
+              index: 'down'
+            }
+          ];
+        }
       } else {
         contextMenuList.value = DEFAULT_CONTEXT_MENU_LIST;
       }

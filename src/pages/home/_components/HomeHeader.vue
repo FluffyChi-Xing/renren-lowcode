@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import {GITHUB_REPOSITORY, PROJECT_LOGO_URL} from "@/componsables/constants/RenrenConstant";
 import TheHeader from "@/components/TheHeader.vue";
+import {openExternalLink} from "@/componsables/utils/RenrenUtil";
+import {$message} from "@/componsables/element-plus";
 
 function refreshPage() {
   location.reload();
@@ -11,7 +13,12 @@ function refreshPage() {
  * @description 查看项目的 github 主页
  */
 function jump2Github() {
-  window.open(GITHUB_REPOSITORY, '_blank');
+  openExternalLink(GITHUB_REPOSITORY).catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
 }
 </script>
 
