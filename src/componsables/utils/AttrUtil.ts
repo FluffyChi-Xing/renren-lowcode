@@ -130,6 +130,26 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
 ]);
 
 
+/**
+ * @description css 属性后缀映射表
+ */
+export const propAttributesSuffixOptions: Map<string, string> = new Map<string, string>([
+  ['left', 'px'],
+  ['top', 'px'],
+  ['rotate', 'deg'],
+  ['width', 'px'],
+  ['height', 'px'],
+  ['border-width', 'px'],
+  ['border-radius', 'px'],
+  ['font-size', 'px'],
+  ['font-weight', 'px'],
+  ['line-height', 'px'],
+  ['letter-spacing', 'px'],
+  ['opacity', '%'],
+  ['position', '']
+]);
+
+
 
 
 export const textAlignOptions: RenrenInterface.keyValueType<string>[] = [

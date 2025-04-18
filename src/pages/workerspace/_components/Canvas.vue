@@ -224,13 +224,23 @@ const throttleDragEventHandler = throttle(
         // 更新新增物料标识
         canvasStore.isAdd = generateUUID();
         requestAnimationFrame(async () => {
-          const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+          const left: RenrenInterface.KeyValueIndexType<string, string> = {
             key: 'style',
-            value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
-            index: 'string'
+            value: `${position.x}`,
+            index: 'left'
+          };
+          const top: RenrenInterface.KeyValueIndexType<string, string> = {
+            key: 'style',
+            value: `${position.y}`,
+            index: 'top'
+          }
+          const positions: RenrenInterface.KeyValueIndexType<string, string> = {
+            key: 'style',
+            value: 'absolute',
+            index: 'position'
           };
           // 注册物料到 materialContainer & schema
-          material = await createCSSAttributes(material, [prop]);
+          material = await createCSSAttributes(material, [left, top, positions]);
           materialContainer.value.push(material);
           // 防止误触导致插入空值
           const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
@@ -269,14 +279,24 @@ const throttledMaterialMousemoveHandler = throttle(
 
     // 使用 requestAnimationFrame 更新样式
     requestAnimationFrame(async () => {
-      const prop: RenrenInterface.KeyValueIndexType<string, string> = {
+      const left: RenrenInterface.KeyValueIndexType<string, string> = {
         key: 'style',
-        value: `left: ${position.x}px;top: ${position.y}px;position: absolute;`,
-        index: 'string',
+        value: `${position.x}`,
+        index: 'left',
+      };
+      const top: RenrenInterface.KeyValueIndexType<string, string> = {
+        key: 'style',
+        value: `${position.y}`,
+        index: 'top'
+      };
+      const positions: RenrenInterface.KeyValueIndexType<string, string> = {
+        key:'style',
+        value: 'absolute',
+        index: 'position'
       };
 
       // 更新 schema
-      const node = await updateMaterialCSSAttribute(item.id, prop).catch(err => {
+      const node = await updateMaterialCSSAttribute(item.id, [left, top, positions]).catch(err => {
         $message({
           type: 'warning',
           message: err,
@@ -315,7 +335,7 @@ async function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  console.log('click grid');
+  // console.log('click grid');
   schemaStore.currentElement = await $engine.getSchema() as MaterialDocumentModel;
 }
 
@@ -354,7 +374,7 @@ function pasteMaterial() {
     if (schemaStore.currentElement?.type === 'material') {
       $message({
         type: 'info',
-        message: `粘贴组件: ${schemaStore.currentElement.title}`,
+        message: `粘贴组件: ${schemaStore.currentElement?.title}`,
       });
     } else {
       $message({

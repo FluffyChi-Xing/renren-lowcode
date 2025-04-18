@@ -17,7 +17,7 @@ const canvasStore = useCanvasStore();
 /** ===== 文档节点属性绑定-start =====**/
 const documentAttribute = ref<MaterialInterface.IProp[]>([]);
 
-
+// TODO: 将数据同步到 schema 中
 /**
  * @description 根据当前文档节点的属性初始化响应式对象
  */
@@ -35,8 +35,6 @@ function initDocumentAttributeData(): Promise<string> {
           // console.log(documentAttribute.value);
           resolve('初始化文档节点响应式属性数据成功');
         }
-      } else {
-        reject('当前元素不是文档类型');
       }
     } catch (e) {
       console.error('初始化文档节点响应式属性数据失败', e);

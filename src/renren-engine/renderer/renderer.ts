@@ -10,6 +10,7 @@ import {ElButton, ElText} from "element-plus";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
+import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';
@@ -60,7 +61,7 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
         }
       }
     } catch (e) {
-      console.log('创建物料元素失败', e);
+      console.error('创建物料元素失败', e);
       reject('创建物料元素失败');
     }
   });
@@ -78,13 +79,23 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
       if (attr.length > 0 && type) {
         const props: Record<string, any> = {};
         let textContent = '';
+        let styleProp: string = '';
+        // console.log(attr);
         attr.forEach(css => {
+          // 如果属性是填充的文字，设置 textContent
           if (css.key === 'text') {
             textContent = css.value; // 插槽内容
+          } else if (css.key === 'style') {
+            styleProp = styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
+            // console.log(styleProp);
           } else {
-            props[css.key] = css.value; // 其他属性
+            props[css.key] = css.value;
           }
         });
+        if (styleProp) {
+          props['style'] = styleProp;
+        }
+        // console.log(props);
         const el = throttleCreateVueComponent(type, props, textContent);
         resolve(el as T);
       } else {
@@ -141,41 +152,53 @@ export function createCSSAttributes<T extends RenrenMaterialModel>(item: T, prop
 /**
  * @description 更新 material 的 CSS 属性
  * 1. index 为 material 的 id
- * 2. attr 为一个 CSS 属性
+ * 2. attr 为一个/多个 CSS 属性
  * @param index
  * @param attr
  */
-export function updateMaterialCSSAttribute<T extends RenrenMaterialModel>(index: string, attr: RenrenInterface.KeyValueIndexType<string, string>): Promise<T> {
+export function updateMaterialCSSAttribute<T extends RenrenMaterialModel, P extends RenrenInterface.KeyValueIndexType<string, string>>(index: string, attr: P | P[]): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     try {
       const schema = await $engine.getSchema();
       const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-      if (!isEmpty) {
-        if (schema.nodes) {
-          if (schema.nodes.length > 0) {
-            // 根据 index 索引找到 schema nodes 中的对应 node
-            let node: MaterialInterface.IMaterial = schema.nodes.filter(node => node.id === index)[0];
-            if (node && node.props?.items) {
-              if (node.props.items.length > 0) {
-                // 根据 attr 的 key 索引找到 node.props.items 中的对应 prop
-                let prop: MaterialInterface.IProp = node.props.items.filter(prop => prop.key === attr.key)[0];
+      if (!isEmpty && schema.nodes) {
+        if (schema.nodes.length > 0) {
+          // 根据 index 索引找到 schema nodes 中的对应 node
+          let node: MaterialInterface.IMaterial = schema.nodes.filter(node => node.id === index)[0];
+          if (node && node.props?.items) {
+            if (node.props.items.length > 0) {
+              /*
+                判断 attr 是否是一个数组，如果是则遍历 props.items 找到与 对应 attr[i] 相匹配的 prop
+               */
+              if (Array.isArray(attr)) {
+                node.props.items.forEach((prop) => {
+                  const matchingAttr = attr.find((item) => item.index === prop.type);
+                  if (matchingAttr) {
+                    // 类型转换，确保 prop.value 是字符串
+                    prop.value = String(matchingAttr.value);
+                    prop.type = matchingAttr.index;
+                  }
+                });
+              } else {
+                // 根据 attr 的 index 索引找到 node.props.items 中的对应 prop
+                let prop: MaterialInterface.IProp = node.props.items.filter(prop => prop.type === attr.index)[0];
                 if (prop) {
                   // 修改 prop.value
                   prop.value = attr.value;
                   prop.type = attr.index;
-                  // 更新 schema
-                  await $engine.updateSchema(schema).catch(err => {
-                    console.log('更新 schema 失败', err);
-                    reject('更新 schema 失败');
-                  });
-                  const newNode: T = new RenrenMaterialModel(node) as T;
-                  resolve(newNode);
                 }
               }
+              // 更新 schema
+              await $engine.updateSchema(schema).catch(err => {
+                console.error('更新 schema 失败', err);
+                reject('更新 schema 失败');
+              });
+              const newNode: T = new RenrenMaterialModel(node) as T;
+              resolve(newNode);
             }
-          } else {
-            reject('更新 CSS Attributes 失败，节点列表为空');
           }
+        } else {
+          reject('更新 CSS Attributes 失败，节点列表为空');
         }
       }
     } catch (e) {

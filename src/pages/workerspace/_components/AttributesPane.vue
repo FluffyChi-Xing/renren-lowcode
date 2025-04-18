@@ -8,8 +8,6 @@ import type { Component } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
-import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 
 
 const schemaStore = useSchemaStore();

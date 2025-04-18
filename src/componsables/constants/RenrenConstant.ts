@@ -52,9 +52,9 @@ export const PAGE_SCHEMA: MaterialInterface.IDocument = {
         items: null,
         maps: undefined,
         code: '',
-        key: 'style',
-        value: '1',
-        type: 'opacity',
+        key: 'style', // 属性名
+        value: '1', // 属性值
+        type: 'opacity', // 属性类型
         owner: null,
         parent: undefined,
       },
