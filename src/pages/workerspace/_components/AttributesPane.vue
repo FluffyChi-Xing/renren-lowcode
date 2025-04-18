@@ -3,11 +3,12 @@
  * @author FluffyChi-Xing
  */
 import {useSchemaStore} from "@/stores/schema";
-import {ref, h} from 'vue';
+import {ref, h, watch} from 'vue';
 import type { Component } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
+import MaterialAttributesPane from "@/pages/workerspace/_components/Attributes/MaterialAttributesPane.vue";
 
 
 const schemaStore = useSchemaStore();
@@ -26,7 +27,7 @@ const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
     value: '事件'
   }
 ]);
-const attributeTabPane = ref<Component>(DocumentAttributesPane || h(ElEmpty) as Component);
+const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as Component);
 
 
 /**
@@ -45,6 +46,21 @@ function isDocumentModel(): boolean {
     return false;
   }
 }
+
+
+
+watch(() => currentTabIndex.value, (newVal: string) => {
+  if (newVal) {
+    switch (newVal) {
+      case '1':
+        attributeTabPane.value = MaterialAttributesPane;
+        break;
+      default:
+        attributeTabPane.value = h(ElEmpty) as Component
+        break;
+    }
+  }
+});
 </script>
 
 <template>

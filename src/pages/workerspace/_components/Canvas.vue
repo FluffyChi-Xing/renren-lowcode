@@ -307,6 +307,8 @@ const throttledMaterialMousemoveHandler = throttle(
         materialContainer.value = materialContainer.value.map(material => {
           return material.id === node.id ? node : material;
         });
+        // 同步到 schemaStore 中
+        schemaStore.currentElement = node;
       }
     });
   },

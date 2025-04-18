@@ -100,6 +100,9 @@ export const propAttributesMap = new Map<string, string>([
   ['opacity', '透明度'],
   ['size', 'element 尺寸'],
   ['type', 'element 类型'],
+  ['position', '定位'],
+  ['plain', '线框'],
+  ['text', '填充文本'],
 ]);
 
 
@@ -127,6 +130,9 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
   ['opacity', 'input'],
   ['size', 'select'],
   ['type', 'select'],
+  ['text', 'input'],
+  ['position', 'select'],
+  ['plain','switch']
 ]);
 
 
@@ -241,7 +247,7 @@ export const elementTypeOptions: RenrenInterface.keyValueType<string>[] = [
 /**
  * @description 属性值对应的选项映射表
  */
-const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<string>[]> = new Map<string, RenrenInterface.keyValueType<string>[]>([
+export const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<string>[]> = new Map<string, RenrenInterface.keyValueType<string>[]>([
   ['border-style', borderStyleOptions],
   ['text-align', textAlignOptions],
   ['vertical-align', verticalAlignOptions],
