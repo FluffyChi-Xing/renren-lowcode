@@ -493,4 +493,42 @@ export function getProjectNameByKey(id: string): Promise<string> {
 }
 
 
+/**
+ * @description 根据id 更新物料节点
+ * @param item
+ */
+export function updateMaterialNodeById(item: MaterialInterface.IMaterial): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      if (item !== void 0) {
+        let schema = await getSchema();
+        const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
+        if (!isEmpty) {
+          // 使用空值合并操作符确保 schema.nodes 不为 undefined
+          const nodes = schema.nodes ?? [];
+          nodes.forEach((node, index) => {
+            if (node.id === item.id) {
+              nodes[index] = item;
+            }
+          });
+          // 更新 schema 的 nodes 属性
+          schema.nodes = nodes;
+          // 将更新后的 schema 保存到 localStorage
+          await updateSchema(schema).catch(err => {
+            console.error('更新 schema 失败', err);
+            reject('更新 schema 失败');
+          });
+          resolve('更新项目键名映射表成功');
+        }
+      } else {
+        reject(`更新项不存在`);
+      }
+    } catch (e) {
+      console.error('更新项目键名映射表失败', e);
+      reject(`更新项目键名映射表失败`);
+    }
+  });
+}
+
+
 // TODO: 删除某个特定键的项目键名映射表条目

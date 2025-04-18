@@ -16,7 +16,7 @@ import {useSchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
-
+import { nextTick } from "vue";
 
 
 const props = withDefaults(defineProps<{
@@ -464,6 +464,38 @@ function displayItemDragendHandler(e: DragEvent) {
   e?.preventDefault();
 }
 
+
+/**
+ * @description 更新物料数据
+ */
+function updateMaterialData(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const newMaterialContainer = materialContainer.value.map(material => {
+        if (schemaStore.currentElement?.type === 'material') {
+          if (material.id === schemaStore.currentElement?.id) {
+            return schemaStore.currentElement as RenrenMaterialModel;
+          } else {
+            return material;
+          }
+        } else {
+          return material;
+        }
+      });
+      materialContainer.value = newMaterialContainer;
+
+      // 等待 DOM 更新完成
+      nextTick(() => {
+        resolve('更新物料数据成功');
+      });
+    } catch (e) {
+      console.error('更新物料数据失败', e);
+      reject('更新物料数据失败');
+    }
+  });
+}
+
+
 /**
  * @description 监听 clearFlag 变化
  */
@@ -485,12 +517,35 @@ onMounted(async () => {
  * @description 初始化右键菜单列表
  */
 watch(() => schemaStore.currentElement, () => {
+  // 初始化右键菜单
   initContextMenuItem().catch(err => {
     $message({
       type: 'warning',
       message: err as string
     });
   });
+  // 更新 materialContainer 数据
+  updateMaterialData().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+}, {
+  deep: true
+})
+
+
+watch(() => canvasStore.updateFlag, (newVal: string) => {
+  if (newVal && newVal !== '000') {
+    // 更新 materialContainer 数据
+    updateMaterialData().catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+  }
 })
 </script>
 

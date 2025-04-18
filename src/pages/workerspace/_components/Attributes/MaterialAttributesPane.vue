@@ -4,9 +4,12 @@ import {useSchemaStore} from "@/stores/schema";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesOptionsMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
-import {useCanvasStore} from "@/stores/canvas";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import { throttle } from "lodash-es";
+import {$engine} from "@/renren-engine/engine";
+import {useCanvasStore} from "@/stores/canvas";
+import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 const schemaStore = useSchemaStore();
@@ -54,6 +57,100 @@ function getSelectOptionsList<T extends RenrenInterface.keyValueType<string>>(ty
     return undefined;
   }
 }
+
+
+
+const throttledCSSAttributesUpdateHandler = throttle(
+  async function cssAttributesUpdateHandler(item: RenrenMaterialModel, props: MaterialInterface.IProp[]): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        if (item && props) {
+          if (props.length > 0 && item.props) {
+            item.props.items = props;
+            // 更新 schema & schemaStore
+            await $engine.updateMaterialNodeById(item as MaterialInterface.IMaterial).catch(err => {
+              $message({
+                type: 'warning',
+                message: err as string
+              });
+            });
+            schemaStore.currentElement = item;
+            canvasStore.updateFlag = generateUUID();
+            resolve('样式更新成功');
+          }
+        }
+      } catch (e) {
+        console.error('样式更新失败', e);
+        reject('样式更新失败');
+      }
+    });
+  },
+  16
+);
+
+
+/**
+ * @description 处理输入型事件
+ * @param index
+ */
+function inputChangeHandler(index?: string): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // console.log(materialAttribute.value);
+      // 调用样式更新函数
+      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+      resolve('输入框事件处理成功');
+    } catch (e) {
+      console.error('输入框事件处理失败', e);
+      reject('输入框事件处理失败');
+    }
+  });
+}
+
+
+/**
+ * @description 处理 select 型事件
+ */
+function selectChangeHandler(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    } catch (e) {
+      console.error('select 事件处理失败', e);
+      reject('select 事件处理失败');
+    }
+  });
+}
+
+
+/**
+ * @description 处理 switch 型事件
+ */
+function switchChangeHandler(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    } catch (e) {
+      console.error('switch 事件处理失败', e);
+      reject('switch 事件处理失败');
+    }
+  });
+}
 /** ====== 物料属性绑定-end ===== **/
 
 
@@ -92,6 +189,7 @@ watch(() => schemaStore.currentElement, () => {
           v-if="propAttributesTypeMap.get(item.type) === 'input'"
           v-model="materialAttribute[index].value"
           clearable
+          @change="inputChangeHandler"
         />
         <!-- 如果是 select -->
         <el-select
@@ -99,6 +197,7 @@ watch(() => schemaStore.currentElement, () => {
           v-model="materialAttribute[index].value"
           clearable
           :disabled="item.type === 'position'"
+          @change="selectChangeHandler"
         >
           <el-option
             v-for="(itm, index) in getSelectOptionsList(item.type)"
@@ -107,6 +206,12 @@ watch(() => schemaStore.currentElement, () => {
             :value="itm.value"
           />
         </el-select>
+        <!-- 如果是 switch -->
+        <el-switch
+          v-if="propAttributesTypeMap.get(item.type) === 'switch'"
+          v-model="materialAttribute[index].value"
+          @change="switchChangeHandler"
+        />
       </el-form-item>
     </el-form>
   </div>

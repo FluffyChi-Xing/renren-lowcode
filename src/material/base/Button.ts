@@ -48,7 +48,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         maps: undefined,
         code: '',
         key: 'plain',
-        value: 'plain',
+        value: 'true',
         type: 'plain',
         owner: '1',
         parent: propsId

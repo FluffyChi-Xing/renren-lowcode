@@ -10,6 +10,7 @@ export const useCanvasStore = defineStore('canvas', () => {
   const width = ref<number>(1080);
   const isAdd = ref<string>('000');
   const canvasColor = ref<string>('#ffffff');
+  const updateFlag = ref<string>('000');
 
 
   return {
@@ -17,5 +18,6 @@ export const useCanvasStore = defineStore('canvas', () => {
     width,
     isAdd,
     canvasColor,
+    updateFlag,
   };
 });

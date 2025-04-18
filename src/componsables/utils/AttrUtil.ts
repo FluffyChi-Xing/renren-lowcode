@@ -241,16 +241,31 @@ export const elementTypeOptions: RenrenInterface.keyValueType<string>[] = [
     key: '主要',
     value: 'primary'
   }
-]
+];
+
+
+
+
+export const plainOptions: RenrenInterface.keyValueType<boolean>[] = [
+  {
+    key: '线框按钮',
+    value: true
+  },
+  {
+    key: '实心按钮',
+    value: false
+  }
+];
 
 
 /**
  * @description 属性值对应的选项映射表
  */
-export const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<string>[]> = new Map<string, RenrenInterface.keyValueType<string>[]>([
+export const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<string>[]> = new Map<string, RenrenInterface.keyValueType<any>[]>([
   ['border-style', borderStyleOptions],
   ['text-align', textAlignOptions],
   ['vertical-align', verticalAlignOptions],
   ['size', elementSizeOptions],
   ['type', elementTypeOptions],
+  ['plain', plainOptions],
 ]);
