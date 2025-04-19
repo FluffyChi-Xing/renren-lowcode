@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {useCanvasStore} from "@/stores/canvas";
-import { throttle } from "lodash-es";
-import {computed, onMounted, ref, watch} from "vue";
+import {throttle} from "lodash-es";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import SelectArea from "@/components/SelectArea.vue";
@@ -16,7 +16,6 @@ import {useSchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
-import { nextTick } from "vue";
 
 
 const props = withDefaults(defineProps<{
@@ -376,7 +375,7 @@ function pasteMaterial() {
     if (schemaStore.currentElement?.type === 'material') {
       $message({
         type: 'info',
-        message: `粘贴组件: ${schemaStore.currentElement?.title}`,
+        message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
       });
     } else {
       $message({
@@ -471,9 +470,9 @@ function displayItemDragendHandler(e: DragEvent) {
 function updateMaterialData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      const newMaterialContainer = materialContainer.value.map(material => {
+      materialContainer.value = materialContainer.value.map(material => {
         if (schemaStore.currentElement?.type === 'material') {
-          if (material.id === schemaStore.currentElement?.id) {
+          if (material.id === (schemaStore.currentElement as RenrenMaterialModel)?.id) {
             return schemaStore.currentElement as RenrenMaterialModel;
           } else {
             return material;
@@ -482,8 +481,6 @@ function updateMaterialData(): Promise<string> {
           return material;
         }
       });
-      materialContainer.value = newMaterialContainer;
-
       // 等待 DOM 更新完成
       nextTick(() => {
         resolve('更新物料数据成功');

@@ -168,7 +168,7 @@ export function hasNode(index: string): Promise<boolean> {
 /**
  * @description 创建 schema
  */
-export function createSchema(): Promise<string> {
+function createSchema(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       const schema = new MaterialDocumentModel(PAGE_SCHEMA);
@@ -177,6 +177,38 @@ export function createSchema(): Promise<string> {
     } catch (e) {
       console.log('创建 schema 失败', e);
       reject('创建 schema 失败');
+    }
+  });
+}
+
+
+/**
+ * @description 清空物料节点
+ */
+export function clearMaterialNodes(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      const document: MaterialDocumentModel | undefined = await getSchema();
+      if (document !== void 0) {
+        const isEmpty: boolean = Object.keys(document).length === 0 && document.constructor === Object;
+        if (!isEmpty) {
+          if (document.nodes) {
+            if (document.nodes.length > 0) {
+              document.nodes = [];
+              // 保存更新后的 schema
+              await updateSchema(document).then(() => {
+                resolve('清空物料节点成功');
+              }).catch(err => {
+                console.error('更新 schema 失败', err);
+                reject('更新 schema 失败');
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('清空物料节点失败', e);
+      reject('清空物料节点失败');
     }
   });
 }
@@ -526,6 +558,44 @@ export function updateMaterialNodeById(item: MaterialInterface.IMaterial): Promi
     } catch (e) {
       console.error('更新项目键名映射表失败', e);
       reject(`更新项目键名映射表失败`);
+    }
+  });
+}
+
+
+/**
+ * @description 更新文档的属性节点
+ * @param props
+ */
+export function updateDocumentPropNode(props: MaterialInterface.IProp[]): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      let item: MaterialDocumentModel | undefined = await getSchema();
+      if (item !== void 0 && props.length > 0) {
+        const isEmpty: boolean = Object.keys(item).length === 0 && item.constructor === Object;
+        if (!isEmpty) {
+          if (item?.prop && item?.prop.items) {
+            if (item.prop.items.length > 0) {
+              const nodes = item.prop.items ?? [];
+              nodes.forEach((node, index) => {
+                if (node.key === props[index].key) {
+                  node.value = props[index].value;
+                }
+              });
+              item.prop.items = nodes;
+              // 保存更新后的 schema
+              await updateSchema(item).then(() => {
+                resolve('更新 schema 成功');
+              }).catch(err => {
+                reject(err as string);
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('更新文档属性失败', e);
+      reject('更新文档属性失败');
     }
   });
 }

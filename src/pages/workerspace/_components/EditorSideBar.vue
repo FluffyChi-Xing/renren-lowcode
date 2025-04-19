@@ -16,7 +16,7 @@ const canvasStore = useCanvasStore();
  * @description 清空画布
  */
 async function clearCanvas() {
-  await $engine.createSchema().then(() => {
+  await $engine.clearMaterialNodes().then(() => {
     emits('clear')
     canvasStore.isAdd = '000';
     $message({

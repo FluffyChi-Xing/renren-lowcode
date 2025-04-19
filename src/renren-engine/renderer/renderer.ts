@@ -268,3 +268,36 @@ export function updateDocumentCSSAttribute(index: string, prop: RenrenInterface.
     }
   });
 }
+
+
+/**
+ * @description 获取给定物料元素的 style 属性列表
+ * @param item
+ */
+export function queryMaterialCSSAttributesList<T extends MaterialInterface.IProp>(item: RenrenMaterialModel | undefined): Promise<T[]> {
+  return new Promise<T[]>((resolve, reject) => {
+    try {
+      if (item !== void 0) {
+        const isEmpty: boolean = Object.keys(item).length === 0 && item.constructor === Object;
+        if (!isEmpty) {
+         let propItems: MaterialInterface.IProp[] = [];
+         if (item.props && item.props.items) {
+           if (item.props.items?.length > 0) {
+             item.props.items?.forEach(item => {
+               if (item.key === 'style') {
+                 propItems.push(item);
+               }
+             });
+             resolve(propItems as T[]);
+           }
+         }
+        }
+      } else {
+        reject('参数类型错误');
+      }
+    } catch (e) {
+      console.error('查询 CSS 属性列表失败', e);
+      reject('查询 CSS 属性列表失败');
+    }
+  });
+}

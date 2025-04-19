@@ -43,6 +43,7 @@ declare module 'vue' {
     FeatureCard: typeof import('./src/components/FeatureCard.vue')['default']
     Grid: typeof import('./src/components/Grid.vue')['default']
     HighLightLang: typeof import('./src/components/HighLightLang.vue')['default']
+    MarkLine: typeof import('./src/components/MarkLine.vue')['default']
     MaterialItem: typeof import('./src/components/MaterialItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -6,6 +6,7 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
 import {useCanvasStore} from "@/stores/canvas";
+import {$engine} from "@/renren-engine/engine";
 
 
 
@@ -51,6 +52,12 @@ function initDocumentAttributeData(): Promise<string> {
 function documentColorChangeHandler(color: string) {
   if (color) {
     canvasStore.canvasColor = color;
+    $engine.updateDocumentPropNode(documentAttribute.value).catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
   }
 }
 /** ====== 文档属性绑定-end ===== **/
