@@ -4,11 +4,15 @@ withDefaults(defineProps<{
   width?: string;
   height?: string;
   backColor?: string;
+  opacity?: number;
+  lineHeight?: number;
 }>(), {
   isDarkMode: false,
   width: '100%',
   height: '100%',
-  backColor: '#fff'
+  backColor: '#fff',
+  opacity: 1,
+  lineHeight: 16
 });
 </script>
 
@@ -17,7 +21,7 @@ withDefaults(defineProps<{
     class="grid"
     :width="width"
     :height="height"
-    :style="{backgroundColor: backColor}"
+    :style="{backgroundColor: backColor, opacity: opacity, lineHeight: `${lineHeight}px`}"
     xmlns="http://www.w3.org/2000/svg"
   >
     <defs>

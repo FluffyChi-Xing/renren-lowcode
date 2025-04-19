@@ -20,6 +20,7 @@
     "@types/uuid": "^10.0.0",
     "element-plus": "^2.9.7",
     "highlight.js": "^11.11.1",
+    "mitt": "^3.0.1",
     "nanoid": "^5.1.5",
     "nprogress": "^0.2.0",
     "pinia": "^2.2.4",

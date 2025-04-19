@@ -15,7 +15,7 @@ import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {useSchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import $event from "@/componsables/utils/EventBusUtil";
 
 
 const props = withDefaults(defineProps<{
@@ -221,7 +221,7 @@ const throttleDragEventHandler = throttle(
           // console.log('position', position);
         }
         // 更新新增物料标识
-        canvasStore.isAdd = generateUUID();
+        // canvasStore.isAdd = generateUUID();
         requestAnimationFrame(async () => {
           const left: RenrenInterface.KeyValueIndexType<string, string> = {
             key: 'style',
@@ -241,6 +241,8 @@ const throttleDragEventHandler = throttle(
           // 注册物料到 materialContainer & schema
           material = await createCSSAttributes(material, [left, top, positions]);
           materialContainer.value.push(material);
+          // 使用 eventBus 触发插入事件
+          $event.emit('insert');
           // 防止误触导致插入空值
           const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
           // 保存 schema
@@ -496,12 +498,18 @@ function updateMaterialData(): Promise<string> {
 /**
  * @description 监听 clearFlag 变化
  */
-watch(() => props.clearFlag, (newVal: boolean) => {
-  if (newVal) {
-    materialContainer.value = []; // 清空物料容器
-  }
-});
+// watch(() => props.clearFlag, (newVal: boolean) => {
+//   if (newVal) {
+//     materialContainer.value = []; // 清空物料容器
+//   }
+// });
 
+/**
+ * @description 清空画布
+ */
+$event.on('clearCanvas', () => {
+  materialContainer.value = [];
+});
 
 /**
  * @description 页面挂载时，保持物料容器数据持久化
@@ -564,6 +572,8 @@ watch(() => canvasStore.updateFlag, (newVal: string) => {
           :height="canvasSize.height"
           :width="canvasSize.width"
           :back-color="canvasStore.canvasColor"
+          :opacity="canvasStore.opacity"
+          :line-height="canvasStore.lineHeight"
           @click="gridClickHandler"
         />
         <!-- 右键单选框 -->

@@ -86,7 +86,9 @@ watch(() => currentTabIndex.value, (newVal: string) => {
           <el-tab-pane label="属性">
             <DocumentAttributesPane />
           </el-tab-pane>
-          <el-tab-pane label="高级" />
+          <el-tab-pane label="高级">
+            <el-empty description="暂无数据" />
+          </el-tab-pane>
         </el-tabs>
         <!-- 单组件属性适配器 -->
         <el-tabs

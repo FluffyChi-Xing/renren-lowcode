@@ -11,6 +11,8 @@ export const useCanvasStore = defineStore('canvas', () => {
   const isAdd = ref<string>('000');
   const canvasColor = ref<string>('#ffffff');
   const updateFlag = ref<string>('000');
+  const opacity = ref<number>(1);
+  const lineHeight = ref<number>(16);
 
 
   return {
@@ -19,5 +21,7 @@ export const useCanvasStore = defineStore('canvas', () => {
     isAdd,
     canvasColor,
     updateFlag,
+    opacity,
+    lineHeight,
   };
 });

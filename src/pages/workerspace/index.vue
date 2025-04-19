@@ -48,9 +48,9 @@ function editorConfigCollapseHandler(index: boolean) {
 /**
  * @description 处理画布清空事件
  */
-function clearCanvasHandler() {
-  clearCanvasFlag.value = !clearCanvasFlag.value;
-}
+// function clearCanvasHandler() {
+//   clearCanvasFlag.value = !clearCanvasFlag.value;
+// }
 
 
 /**
@@ -125,7 +125,7 @@ onMounted(async () => {
         </el-aside>
         <el-main>
           <!-- canvas -->
-          <Canvas v-model:clear-flag="clearCanvasFlag" />
+          <Canvas />
           <!-- schema drawer -->
           <el-drawer
             v-model="showDrawer"
@@ -165,7 +165,6 @@ onMounted(async () => {
             </template>
             <template #side>
               <EditorSideBar
-                @clear="clearCanvasHandler"
                 @schema="showSchemaHandler"
               />
             </template>

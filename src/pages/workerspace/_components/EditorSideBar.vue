@@ -3,22 +3,24 @@ import { ref } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
-import {useCanvasStore} from "@/stores/canvas";
+import $event from "@/componsables/utils/EventBusUtil";
+import {useSchemaStore} from "@/stores/schema";
 
 
 
 
 
-
+const schemaStore = useSchemaStore();
 const emits = defineEmits(['clear', 'schema']);
-const canvasStore = useCanvasStore();
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
   await $engine.clearMaterialNodes().then(() => {
     emits('clear')
-    canvasStore.isAdd = '000';
+    // canvasStore.isAdd = '000';
+    $event.emit('clearCanvas');
+    schemaStore.currentElement = undefined;
     $message({
       type: 'info',
       message: '清空画布成功'

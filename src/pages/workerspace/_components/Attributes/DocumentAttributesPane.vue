@@ -7,8 +7,7 @@ import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
 import {useCanvasStore} from "@/stores/canvas";
 import {$engine} from "@/renren-engine/engine";
-
-
+import { debounce } from "lodash-es";
 
 
 const schemaStore = useSchemaStore();
@@ -60,6 +59,29 @@ function documentColorChangeHandler(color: string) {
     });
   }
 }
+
+/**
+ * @description 输入框事件处理
+ */
+const inputChangeDebounceHandler = debounce(() => {
+  function inputChangeHandler() {
+    documentAttribute.value.forEach(style => {
+      if (style.type === 'opacity') {
+        canvasStore.opacity = style.value || 1;
+      } else if (style.type === 'line-height') {
+        canvasStore.lineHeight = style.value || 16;
+      }
+    });
+    // 由于输入框事件可能频繁触发，这里使用 debounce 节流处理
+    $engine.updateDocumentPropNode(documentAttribute.value).catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+  }
+  inputChangeHandler();
+}, 50);
 /** ====== 文档属性绑定-end ===== **/
 
 
@@ -87,6 +109,8 @@ onMounted(() => {
           v-if="propAttributesTypeMap.get(item.type) === 'input'"
           v-model="documentAttribute[index].value"
           clearable
+          @change="inputChangeDebounceHandler"
+          @keydown.enter="inputChangeDebounceHandler"
         />
         <!-- 如果是 color-picker -->
         <el-color-picker

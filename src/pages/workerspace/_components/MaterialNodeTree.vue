@@ -8,6 +8,7 @@ import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
 import {useCanvasStore} from "@/stores/canvas";
 import {Refresh} from "@element-plus/icons-vue";
+import $event from "@/componsables/utils/EventBusUtil";
 
 
 
@@ -52,27 +53,27 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
 function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (nodes) {
-        if (nodes?.length > 0) {
-          nodes?.forEach((node: RenrenMaterialModel) => {
-            const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
-            if (!existingNode) {
-              let params: MaterialInterface.MaterialTreeType = {
-                children: [],
-                icon: node.icon ? node.icon : 'Menu',
-                index: node.id ? node.id : generateUUID(),
-                name: node.title ? node.title : '未命名',
-                parentId: node.parent ? node.parent : undefined,
-              };
-              materialNodeTreeList.value?.push(new MaterialTreeModel(params));
-            } else {
-              // 更新现有节点（可选）
-              existingNode.icon = node.icon || 'Menu';
-              existingNode.parentId = node.parent || 0;
-            }
-          });
-          resolve('插入物料节点成功');
-        }
+      if (nodes !== void 0 && nodes?.length > 0) {
+        // console.log('inserted', nodes);
+        nodes?.forEach((node: RenrenMaterialModel) => {
+          const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
+          if (!existingNode) {
+            let params: MaterialInterface.MaterialTreeType = {
+              children: [],
+              icon: node.icon ? node.icon : 'Menu',
+              index: node.id ? node.id : generateUUID(),
+              name: node.title ? node.title : '未命名',
+              parentId: node.parent ? node.parent : undefined,
+            };
+            materialNodeTreeList.value?.push(new MaterialTreeModel(params));
+            console.log(materialNodeTreeList.value);
+          } else {
+            // 更新现有节点（可选）
+            existingNode.icon = node.icon || 'Menu';
+            existingNode.parentId = node.parent || 0;
+          }
+        });
+        resolve('插入物料节点成功');
       }
     } catch (e) {
       console.error('插入物料节点失败', e);
@@ -144,13 +145,14 @@ function refreshTree(): Promise<string> {
       const schema: MaterialDocumentModel | void = await $engine.getSchema();
       // console.log(schema);
       if (schema) {
-        await initMaterialNodeTree(schema).catch(err => {
+        await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).then(() => {
+          resolve('刷新物料节点树成功');
+        }).catch(err => {
           $message({
             type: 'warning',
             message: err
           });
         });
-        resolve('刷新物料节点树成功');
       }
     } catch (e) {
       console.error('刷新物料节点树失败', e);
@@ -161,17 +163,47 @@ function refreshTree(): Promise<string> {
 
 
 /**
- * @description 自动更新物料节点树
+ * @description 清空节点树
  */
-watch(() => canvasStore.isAdd, async (newVal: string) => {
-  if (newVal !== '000') {
-    await refreshTree().catch(err => {
-      $message({
-        type: 'warning',
-        message: err as string
-      });
+function clearTreeNode(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // 获取 schema
+      const schema: MaterialDocumentModel | void = await $engine.getSchema();
+      // 去除除了 document 节点外的其他所有节点
+      materialNodeTreeList.value = materialNodeTreeList.value.filter(node => node.name === schema?.fileName);
+      resolve('清空节点成功');
+    } catch (e) {
+      console.error('清空节点失败', e);
+      reject('清空节点失败');
+    }
+  });
+}
+
+
+/**
+ * @description 处理物料插入事件
+ */
+$event.on('insert', async () => {
+  await refreshTree().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
     });
-  }
+  });
+});
+
+
+/**
+ * @description 处理画布清空事件
+ */
+$event.on('clearCanvas', () => {
+  clearTreeNode().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
 });
 </script>
 
