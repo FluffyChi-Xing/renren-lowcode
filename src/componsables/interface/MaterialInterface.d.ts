@@ -85,6 +85,7 @@ export namespace MaterialInterface {
     name: string;
     parentId?: number | string;
     children?: MaterialTreeType[];
+    type: string;
   }
 
 

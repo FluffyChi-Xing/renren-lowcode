@@ -324,6 +324,7 @@ export class MaterialTreeModel extends RenrenModel implements MaterialInterface.
   index: number | string = '';
   name: string = '';
   parentId: number | string = '';
+  type: string = '';
 
 
   constructor(params?: MaterialInterface.MaterialTreeType) {
@@ -334,6 +335,7 @@ export class MaterialTreeModel extends RenrenModel implements MaterialInterface.
       this.index = params.index;
       this.parentId = params.parentId ? params.parentId : '';
       this.name = params.name;
+      this.type = params.type;
     }
   }
 }

@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref} from 'vue';
 import {MaterialDocumentModel, MaterialTreeModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$engine} from "@/renren-engine/engine";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
-import {useCanvasStore} from "@/stores/canvas";
 import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
+import BaseDialog from "@/components/BaseDialog.vue";
 
 
 
 
 
 const materialNodeTreeList = ref<MaterialTreeModel[]>([]);
-const canvasStore = useCanvasStore();
+const showDocEditor = ref<boolean>(false);
+const documentNodeName = ref<string>();
+const currentNode = ref<MaterialTreeModel | undefined>(undefined);
 
 
 /**
@@ -33,7 +35,8 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
           icon: "Document",
           index: '',
           name: schema.fileName ? schema.fileName : '',
-          parentId: undefined
+          parentId: undefined,
+          type: 'document'
         };
         materialNodeTreeList.value?.push(new MaterialTreeModel(nodeSchema));
         resolve('插入 document 节点成功');
@@ -46,6 +49,9 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
 }
 
 
+
+// TODO: 插入组件同步存在延迟
+
 /**
  * @description 插入物料到节点树中
  * @param nodes
@@ -54,7 +60,6 @@ function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<s
   return new Promise<string>((resolve, reject) => {
     try {
       if (nodes !== void 0 && nodes?.length > 0) {
-        // console.log('inserted', nodes);
         nodes?.forEach((node: RenrenMaterialModel) => {
           const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
           if (!existingNode) {
@@ -64,9 +69,9 @@ function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<s
               index: node.id ? node.id : generateUUID(),
               name: node.title ? node.title : '未命名',
               parentId: node.parent ? node.parent : undefined,
+              type: 'material'
             };
             materialNodeTreeList.value?.push(new MaterialTreeModel(params));
-            console.log(materialNodeTreeList.value);
           } else {
             // 更新现有节点（可选）
             existingNode.icon = node.icon || 'Menu';
@@ -182,6 +187,21 @@ function clearTreeNode(): Promise<string> {
 
 
 /**
+ * @description 处理编辑文档事件
+ */
+async function settingDocumentHandler() {
+  showDocEditor.value = true;
+  const documentNode: MaterialDocumentModel | undefined = await $engine.getSchema();
+  if (documentNode !== void 0) {
+    const isEmpty: boolean = Object.keys(documentNode).length === 0 && documentNode.constructor === Object;
+    if (!isEmpty) {
+      documentNodeName.value = documentNode.fileName ?? '未知页面';
+    }
+  }
+}
+
+
+/**
  * @description 处理物料插入事件
  */
 $event.on('insert', async () => {
@@ -235,8 +255,34 @@ $event.on('clearCanvas', () => {
       :name="item.name"
       :icon="item.icon"
       :index="item.index"
+      :item="item"
+      @edit-document="settingDocumentHandler"
     />
   </div>
+  <!-- edit-document -->
+  <BaseDialog
+    v-model:show="showDocEditor"
+    title="编辑页面名称"
+    :footer="true"
+    width="500"
+  >
+    <template #default>
+      <el-form-item label="页面名称" required>
+        <el-input
+          v-model="documentNodeName"
+          clearable
+          placeholder="请输入页面名称"
+          style="width: 240px;"
+        />
+      </el-form-item>
+    </template>
+    <template #footer>
+      <div class="w-full h-auto flex items-center justify-end">
+        <el-button type="primary">确认</el-button>
+        <el-button @click="() => showDocEditor = false" type="info">取消</el-button>
+      </div>
+    </template>
+  </BaseDialog>
 </template>
 
 <style scoped>

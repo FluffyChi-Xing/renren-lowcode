@@ -272,46 +272,48 @@ const throttledMaterialMousemoveHandler = throttle(
     event?.preventDefault();
     event?.stopPropagation();
 
-    // 获取物料拖动位置
-    let position = { x: 0, y: 0 };
-    if (editor.value) {
-      position = await getCursorPosition(event, editor.value, 500);
-    }
-
-    // 使用 requestAnimationFrame 更新样式
-    requestAnimationFrame(async () => {
-      const left: RenrenInterface.KeyValueIndexType<string, string> = {
-        key: 'style',
-        value: `${position.x}`,
-        index: 'left',
-      };
-      const top: RenrenInterface.KeyValueIndexType<string, string> = {
-        key: 'style',
-        value: `${position.y}`,
-        index: 'top'
-      };
-      const positions: RenrenInterface.KeyValueIndexType<string, string> = {
-        key:'style',
-        value: 'absolute',
-        index: 'position'
-      };
-
-      // 更新 schema
-      const node = await updateMaterialCSSAttribute(item.id, [left, top, positions]).catch(err => {
-        $message({
-          type: 'warning',
-          message: err,
-        });
-      });
-
-      if (node) {
-        materialContainer.value = materialContainer.value.map(material => {
-          return material.id === node.id ? node : material;
-        });
-        // 同步到 schemaStore 中
-        schemaStore.currentElement = node;
+    if (!item.isLocked) {
+      // 获取物料拖动位置
+      let position = { x: 0, y: 0 };
+      if (editor.value) {
+        position = await getCursorPosition(event, editor.value, 500);
       }
-    });
+
+      // 使用 requestAnimationFrame 更新样式
+      requestAnimationFrame(async () => {
+        const left: RenrenInterface.KeyValueIndexType<string, string> = {
+          key: 'style',
+          value: `${position.x}`,
+          index: 'left',
+        };
+        const top: RenrenInterface.KeyValueIndexType<string, string> = {
+          key: 'style',
+          value: `${position.y}`,
+          index: 'top'
+        };
+        const positions: RenrenInterface.KeyValueIndexType<string, string> = {
+          key:'style',
+          value: 'absolute',
+          index: 'position'
+        };
+
+        // 更新 schema
+        const node = await updateMaterialCSSAttribute(item.id, [left, top, positions]).catch(err => {
+          $message({
+            type: 'warning',
+            message: err,
+          });
+        });
+
+        if (node) {
+          materialContainer.value = materialContainer.value.map(material => {
+            return material.id === node.id ? node : material;
+          });
+          // 同步到 schemaStore 中
+          schemaStore.currentElement = node;
+        }
+      });
+    }
   },
   16 // 节流时间设为16ms，与浏览器帧率（60fps）同步
 );/** ===== 画布拖拽业务-end ===== **/
@@ -390,6 +392,58 @@ function pasteMaterial() {
 
 
 /**
+ * @description 锁定物料节点
+ */
+function lockMaterialNode() {
+  if (schemaStore.currentElement !== void 0) {
+    if (schemaStore.currentElement?.type === 'material') {
+      const material = schemaStore.currentElement as RenrenMaterialModel;
+      if (!material?.isLocked) {
+        material.isLocked = true;
+        schemaStore.currentElement = material;
+        isShow.value = false;
+        $message({
+          type: 'info',
+          message: '节点已锁定',
+        });
+      } else {
+        $message({
+          type: 'warning',
+          message: '节点已锁定',
+        });
+      }
+    }
+  }
+}
+
+
+/**
+ * @description 解锁物料节点
+ */
+function unLockMaterialNode() {
+  if (schemaStore.currentElement !== void 0) {
+    if (schemaStore.currentElement?.type === 'material') {
+      const material = schemaStore.currentElement as RenrenMaterialModel;
+      if (material?.isLocked) {
+        material.isLocked = false;
+        schemaStore.currentElement = material;
+        isShow.value = false;
+        $message({
+          type: 'info',
+          message: '节点已解锁',
+        });
+      } else {
+        $message({
+          type: 'warning',
+          message: '节点未锁定',
+        });
+      }
+    }
+  }
+}
+
+
+/**
  * @description 初始化右键菜单列表
  * 1. 如果当前选中的元素不存在，则使用默认菜单列表初始化
  * 2. 如果当前选中的元素存在，则使用物料专用的菜单列表初始化
@@ -430,8 +484,13 @@ function initContextMenuItem(): Promise<string> {
             },
             {
               key: '锁定',
-              value: () => {},
+              value: lockMaterialNode,
               index: 'lock'
+            },
+            {
+              key: '解锁',
+              value: unLockMaterialNode,
+              index: 'unLock'
             },
             {
               key: '上移',
@@ -541,17 +600,15 @@ watch(() => schemaStore.currentElement, () => {
 })
 
 
-watch(() => canvasStore.updateFlag, (newVal: string) => {
-  if (newVal && newVal !== '000') {
-    // 更新 materialContainer 数据
-    updateMaterialData().catch(err => {
-      $message({
-        type: 'warning',
-        message: err as string
-      });
+
+$event.on('updateMaterial', () => {
+  updateMaterialData().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
     });
-  }
-})
+  });
+});
 </script>
 
 <template>

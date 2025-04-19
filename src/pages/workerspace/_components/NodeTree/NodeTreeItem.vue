@@ -1,17 +1,61 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+import {Delete, Setting} from "@element-plus/icons-vue";
+import { ref } from 'vue';
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+
+const props = withDefaults(defineProps<{
   icon?: string;
   name?: string;
   index?: string | number;
+  item?: MaterialInterface.MaterialTreeType | undefined;
 }>(), {
   icon: 'Menu',
   name: '未命名',
-  index: '1'
+  index: '1',
+  item: undefined
 });
+
+
+
+const isShow = ref<boolean>(false);
+const emits = defineEmits(['editDocument', 'editMaterial', 'delDocument', 'delMaterial']);
+
+/**
+ * @description 控制功能按钮显示隐藏
+ * @param e
+ */
+function showFunctionalBanner(e: MouseEvent) {
+  e?.stopPropagation();
+  isShow.value = true;
+}
+
+
+/**
+ * @description 处理 编辑物料/文档 事件
+ */
+function settingItemHandler(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (props.item !== void 0) {
+        console.log(props.item);
+        if (props.item?.type === 'material') {
+          emits('editMaterial');
+        } else if (props.item?.type === 'document') {
+          emits('editDocument');
+        }
+      }
+    } catch (e) {
+      console.error('设置物料失败', e);
+      reject('设置物料失败');
+    }
+  });
+}
 </script>
 
 <template>
   <div
+    @mouseenter="showFunctionalBanner"
+    @mouseleave="() => isShow = false"
     class="w-full h-8 grid text-black cursor-pointer grid-cols-2 gap-2 items-center px-4 mb-1 hover:bg-blue-200 hover:text-blue-500"
   >
     <div class="w-full h-full flex items-center">
@@ -23,6 +67,19 @@ withDefaults(defineProps<{
       <span>{{ name }}</span>
     </div>
     <!-- functional banner -->
+    <div
+      v-show="isShow"
+      class="w-full h-full flex items-center justify-end"
+    >
+      <!-- edit -->
+      <el-icon @click="settingItemHandler" class="mr-4 cursor-pointer">
+        <Setting />
+      </el-icon>
+      <!-- delete -->
+      <el-icon class="cursor-pointer">
+        <Delete />
+      </el-icon>
+    </div>
   </div>
 </template>
 

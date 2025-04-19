@@ -3,6 +3,8 @@ import {onMounted, ref, watch} from 'vue';
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {createMaterialElement} from "@/renren-engine/renderer/renderer";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import {$message} from "@/componsables/element-plus";
+import $event from "@/componsables/utils/EventBusUtil";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -37,6 +39,23 @@ function dragoverHandler(e: DragEvent) {
 }
 
 
+function updateMaterialHandler(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      comp.value = await createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    } catch (e) {
+      console.error('更新物料失败', e);
+      reject('更新物料失败');
+    }
+  });
+}
+
+
 onMounted(async () => {
   if (item.value) {
     // item.value.id = generateUUID(); // 重新生成组件的主键，防止组件复用时出现主键重复的问题
@@ -53,6 +72,19 @@ watch(() => props.item, async (newValue) => {
   } else {
     comp.value = undefined;
   }
+});
+
+
+/**
+ * @description 处理组件更新事件
+ */
+$event.on('updateMaterial', () => {
+  updateMaterialHandler().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
 });
 </script>
 

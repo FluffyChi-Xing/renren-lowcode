@@ -32,7 +32,6 @@ const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as 
 
 /**
  * @description 判断是否是一个文档节点
- * @param item
  */
 function isDocumentModel(): boolean {
   const item: any = schemaStore.currentElement;

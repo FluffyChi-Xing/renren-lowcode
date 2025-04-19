@@ -10,6 +10,7 @@ import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {useCanvasStore} from "@/stores/canvas";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import $event from "@/componsables/utils/EventBusUtil";
 
 
 const schemaStore = useSchemaStore();
@@ -75,7 +76,8 @@ const throttledCSSAttributesUpdateHandler = throttle(
               });
             });
             schemaStore.currentElement = item;
-            canvasStore.updateFlag = generateUUID();
+            // canvasStore.updateFlag = generateUUID();
+            $event.emit('updateMaterial');
             resolve('样式更新成功');
           }
         }
@@ -190,6 +192,7 @@ watch(() => schemaStore.currentElement, () => {
           v-model="materialAttribute[index].value"
           clearable
           @change="inputChangeHandler"
+          @keydown.enter="inputChangeHandler"
         />
         <!-- 如果是 select -->
         <el-select
