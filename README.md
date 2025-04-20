@@ -6,11 +6,17 @@
 ## 项目目录
 project
 ├─assets // 静态资源
+
 ├─components // 通用组件
+
 │  └─material
+
 ├─componsables 
+
 │  ├─apis // api
+
 │  ├─constants // 常量值
+
 │  ├─decorators // 装饰器
 │  ├─entities // 实体类
 │  ├─enums // 枚举类
