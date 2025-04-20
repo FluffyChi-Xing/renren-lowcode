@@ -230,34 +230,36 @@ $event.on('clearCanvas', () => {
 <template>
   <!-- 物料节点树 -->
   <div class="w-full h-full flex flex-col">
-    <!-- header -->
-    <div
-      class="w-full h-8 flex items-center justify-between"
-    >
-      <span>物料节点树</span>
-      <el-tooltip
-        effect="dark"
-        content="刷新"
-        placement="right"
-      >
-        <el-icon
-          @click="refreshTree"
-          size="15"
-          class="cursor-pointer"
-        >
-          <Refresh />
-        </el-icon>
-      </el-tooltip>
-    </div>
-    <NodeTreeItem
-      v-for="(item, index) in materialNodeTreeList"
-      :key="index"
-      :name="item.name"
-      :icon="item.icon"
-      :index="item.index"
-      :item="item"
-      @edit-document="settingDocumentHandler"
-    />
+   <el-scrollbar height="200">
+     <!-- header -->
+     <div
+       class="w-full h-8 flex items-center justify-between"
+     >
+       <span>物料节点树</span>
+       <el-tooltip
+         effect="dark"
+         content="刷新"
+         placement="right"
+       >
+         <el-icon
+           @click="refreshTree"
+           size="15"
+           class="cursor-pointer"
+         >
+           <Refresh />
+         </el-icon>
+       </el-tooltip>
+     </div>
+     <NodeTreeItem
+       v-for="(item, index) in materialNodeTreeList"
+       :key="index"
+       :name="item.name"
+       :icon="item.icon"
+       :index="item.index"
+       :item="item"
+       @edit-document="settingDocumentHandler"
+     />
+   </el-scrollbar>
   </div>
   <!-- edit-document -->
   <BaseDialog
@@ -286,5 +288,7 @@ $event.on('clearCanvas', () => {
 </template>
 
 <style scoped>
-
+:deep(.el-scrollbar__view) {
+  height: 100%;
+}
 </style>

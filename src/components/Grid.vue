@@ -8,7 +8,7 @@ withDefaults(defineProps<{
   lineHeight?: number;
 }>(), {
   isDarkMode: false,
-  width: '100%',
+  width: '1080px',
   height: '100%',
   backColor: '#fff',
   opacity: 1,
@@ -19,9 +19,7 @@ withDefaults(defineProps<{
 <template>
   <svg
     class="grid"
-    :width="width"
-    :height="height"
-    :style="{backgroundColor: backColor, opacity: opacity, lineHeight: `${lineHeight}px`}"
+    :style="{backgroundColor: backColor, opacity: opacity, lineHeight: `${lineHeight}px`, width: width, height: height}"
     xmlns="http://www.w3.org/2000/svg"
   >
     <defs>

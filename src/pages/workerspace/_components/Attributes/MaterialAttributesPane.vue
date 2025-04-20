@@ -77,7 +77,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
             });
             schemaStore.currentElement = item;
             // canvasStore.updateFlag = generateUUID();
-            $event.emit('updateMaterial');
+            $event.emit(`updateMaterial:${item.id}`);
             resolve('样式更新成功');
           }
         }
@@ -93,12 +93,10 @@ const throttledCSSAttributesUpdateHandler = throttle(
 
 /**
  * @description 处理输入型事件
- * @param index
  */
-function inputChangeHandler(index?: string): Promise<string> {
+function inputChangeHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      // console.log(materialAttribute.value);
       // 调用样式更新函数
       await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({

@@ -16,6 +16,7 @@ import {useSchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
+import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 const props = withDefaults(defineProps<{
@@ -240,6 +241,8 @@ const throttleDragEventHandler = throttle(
           };
           // 注册物料到 materialContainer & schema
           material = await createCSSAttributes(material, [left, top, positions]);
+          // 生成 唯一标识
+          material.id = generateUUID();
           materialContainer.value.push(material);
           // 使用 eventBus 触发插入事件
           $event.emit('insert');
@@ -366,7 +369,10 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
     e.stopPropagation();
   }
   // 将[当前物料]元素设为当前点击选中的物料
-  schemaStore.currentElement = item as RenrenMaterialModel;
+  schemaStore.currentElement = undefined;
+  if (item !== void 0) {
+    schemaStore.currentElement = item as RenrenMaterialModel;
+  }
 }
 
 
@@ -553,16 +559,6 @@ function updateMaterialData(): Promise<string> {
   });
 }
 
-
-/**
- * @description 监听 clearFlag 变化
- */
-// watch(() => props.clearFlag, (newVal: boolean) => {
-//   if (newVal) {
-//     materialContainer.value = []; // 清空物料容器
-//   }
-// });
-
 /**
  * @description 清空画布
  */
@@ -620,8 +616,8 @@ $event.on('updateMaterial', () => {
         @dragover="handleDragover"
         @drop="throttleDragEventHandler($event)"
         draggable="false"
-        :style="`height: ${canvasStore.height}px;width: ${MAX_CANVAS_WIDTH}px;`"
-        class="w-full flex items-center justify-center relative"
+        :style="`height: ${canvasStore.height}px;width: ${canvasStore.width};`"
+        class="flex items-center justify-center relative"
       >
         <!-- 网格线 -->
         <Grid
@@ -667,5 +663,6 @@ $event.on('updateMaterial', () => {
 <style scoped>
 :deep(.el-scrollbar__view) {
   height: 100%;
+  width: 100%;
 }
 </style>

@@ -39,15 +39,21 @@ function dragoverHandler(e: DragEvent) {
 }
 
 
+/**
+ * @description 处理组件更新事件
+ */
 function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
+      comp.value = undefined;
       comp.value = await createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
         $message({
           type: 'warning',
           message: err as string
         });
       });
+      // console.log(props.item);
+      resolve('更新物料成功');
     } catch (e) {
       console.error('更新物料失败', e);
       reject('更新物料失败');
@@ -58,7 +64,8 @@ function updateMaterialHandler(): Promise<string> {
 
 onMounted(async () => {
   if (item.value) {
-    // item.value.id = generateUUID(); // 重新生成组件的主键，防止组件复用时出现主键重复的问题
+    // 重新生成组件的主键，防止组件复用时出现主键重复的问题
+    //item.value.id = generateUUID();
     comp.value = await createMaterialElement(props.item as RenrenMaterialModel);
   }
 })
@@ -78,7 +85,7 @@ watch(() => props.item, async (newValue) => {
 /**
  * @description 处理组件更新事件
  */
-$event.on('updateMaterial', () => {
+$event.on(`updateMaterial:${props.item?.id}`, () => {
   updateMaterialHandler().catch(err => {
     $message({
       type: 'warning',
