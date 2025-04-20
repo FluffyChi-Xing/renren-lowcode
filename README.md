@@ -6,8 +6,8 @@
 ## 项目目录
 ```
 project
-├─assets // 静态资源 \n
-├─components // 通用组件 \n
+├─assets // 静态资源
+├─components // 通用组件
 │  └─material
 ├─componsables 
 │  ├─apis // api
