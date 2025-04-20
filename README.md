@@ -46,6 +46,7 @@ project
 │  └─renderer // 渲染模块
 ├─router // 路由
 └─stores // 状态管理
+```
 
 
 ## Recommended IDE Setup
