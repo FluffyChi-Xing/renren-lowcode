@@ -5,18 +5,12 @@
 ![image](https://github.com/user-attachments/assets/44db425c-448a-4f4c-aae8-288b1927285d)
 ## 项目目录
 project
-├─assets // 静态资源
-
-├─components // 通用组件
-
+├─assets // 静态资源 \n
+├─components // 通用组件 \n
 │  └─material
-
 ├─componsables 
-
 │  ├─apis // api
-
 │  ├─constants // 常量值
-
 │  ├─decorators // 装饰器
 │  ├─entities // 实体类
 │  ├─enums // 枚举类
