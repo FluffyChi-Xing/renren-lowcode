@@ -55,4 +55,13 @@ export namespace RenrenInterface {
     icon: string;
     description: string;
   }
+
+
+  /**
+   * @description 动画类型
+   */
+  export interface IAnimation {
+    label: string;
+    children: keyValueType<string>[];
+  }
 }

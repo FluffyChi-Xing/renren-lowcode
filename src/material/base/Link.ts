@@ -19,6 +19,7 @@ export const linkSchema: MaterialInterface.IMaterial = {
   isLocked: false,
   isNode: true,
   parent: null,
+  animation: [],
   props: {
     id: propsId,
     items: [

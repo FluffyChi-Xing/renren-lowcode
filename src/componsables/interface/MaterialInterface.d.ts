@@ -25,6 +25,7 @@ export namespace MaterialInterface {
     zLevel: number; // 物料层级
     props?: IProps | null; // 物料属性
     icon?: string | null; // 物料图标
+    animation?: RenrenInterface.keyValueType<string>[] | undefined; // 物料动画
   }
 
 

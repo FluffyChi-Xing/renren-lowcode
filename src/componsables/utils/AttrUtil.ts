@@ -244,6 +244,22 @@ export const elementTypeOptions: RenrenInterface.keyValueType<string>[] = [
 ];
 
 
+export const positionOptions: RenrenInterface.keyValueType<string>[] = [
+  {
+    key: '绝对定位',
+    value: 'absolute'
+  },
+  {
+    key: '相对定位',
+    value: 'relative'
+  },
+  {
+    key: '固定定位',
+    value: 'fixed'
+  },
+];
+
+
 
 
 export const plainOptions: RenrenInterface.keyValueType<boolean>[] = [
@@ -268,4 +284,5 @@ export const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<
   ['size', elementSizeOptions],
   ['type', elementTypeOptions],
   ['plain', plainOptions],
+  ['position', positionOptions],
 ]);

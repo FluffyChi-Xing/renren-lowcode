@@ -6,6 +6,7 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {RenrenModel} from "@/componsables/models/RenrenModel";
 import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 import {$engine} from "@/renren-engine/engine";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 /**
@@ -25,6 +26,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
   props: MaterialInterface.IProps | null = null;
   icon: string = '';
   type: string = 'material';
+  animation: RenrenInterface.keyValueType<string>[] | undefined = undefined;
 
 
 
@@ -45,6 +47,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
       this.zLevel = params.zLevel;
       this.children = params.children ? params.children.map(child => new RenrenMaterialModel(child)) : [];
       this.icon = params.icon ? params.icon : '';
+      this.animation = params.animation ?? [];
     }
   }
 

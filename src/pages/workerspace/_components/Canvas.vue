@@ -559,6 +559,32 @@ function updateMaterialData(): Promise<string> {
   });
 }
 
+
+/**
+ * @description 初始化网格背景颜色
+ */
+function checkGridBackgroundColor(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      const document: MaterialDocumentModel | undefined = await $engine.getSchema();
+      if (document !== void 0) {
+        const isEmpty: boolean = Object.keys(document).length === 0 && document.constructor === Object;
+        if (!isEmpty) {
+          if (document.prop && document.prop.items) {
+            if (document.prop.items.length > 0) {
+              canvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
+              resolve('检查网格背景颜色成功');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('检查网格背景颜色失败', e);
+      reject('检查网格背景颜色失败');
+    }
+  });
+}
+
 /**
  * @description 清空画布
  */
@@ -571,6 +597,12 @@ $event.on('clearCanvas', () => {
  */
 onMounted(async () => {
   await keepMaterialAlive();
+  await checkGridBackgroundColor().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
 });
 
 /**
