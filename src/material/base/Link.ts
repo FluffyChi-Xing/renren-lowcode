@@ -20,6 +20,7 @@ export const linkSchema: MaterialInterface.IMaterial = {
   isNode: true,
   parent: null,
   animation: [],
+  events: [],
   props: {
     id: propsId,
     items: [

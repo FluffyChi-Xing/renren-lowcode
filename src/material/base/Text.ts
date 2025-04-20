@@ -24,6 +24,7 @@ export const textSchema: MaterialInterface.IMaterial = {
   isNode: true,
   parent: null,
   animation: [],
+  events: [],
   props: {
     id: propsId,
     items: [

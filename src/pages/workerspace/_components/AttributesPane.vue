@@ -10,6 +10,7 @@ import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
 import MaterialAttributesPane from "@/pages/workerspace/_components/Attributes/MaterialAttributesPane.vue";
 import MaterialAnimationPane from "@/pages/workerspace/_components/Attributes/MaterialAnimationPane.vue";
+import EventAttributesPane from "@/pages/workerspace/_components/Attributes/EventAttributesPane.vue";
 
 
 const schemaStore = useSchemaStore();
@@ -57,6 +58,9 @@ watch(() => currentTabIndex.value, (newVal: string) => {
         break;
       case '2':
         attributeTabPane.value = MaterialAnimationPane;
+        break;
+      case '3':
+        attributeTabPane.value = EventAttributesPane;
         break;
       default:
         attributeTabPane.value = h(ElEmpty) as Component

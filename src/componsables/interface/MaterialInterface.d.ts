@@ -26,6 +26,7 @@ export namespace MaterialInterface {
     props?: IProps | null; // 物料属性
     icon?: string | null; // 物料图标
     animation?: RenrenInterface.keyValueType<string>[] | undefined; // 物料动画
+    events?: RenrenInterface.IEvent[] | undefined;
   }
 
 

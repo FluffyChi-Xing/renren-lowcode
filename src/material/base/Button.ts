@@ -21,6 +21,7 @@ export const buttonSchema: MaterialInterface.IMaterial = {
   parent: null,
   zLevel: 0,
   animation: [],
+  events: [],
   props: {
     id: propsId,
     items: [

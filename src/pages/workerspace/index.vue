@@ -19,6 +19,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
 
 
 
@@ -30,6 +31,7 @@ const defaultMaterial = ref(BaseMaterial);
 const clearCanvasFlag = ref<boolean>(false); // 清空画布标识
 const showDrawer = ref<boolean>(false);
 const animateDrawer = ref<boolean>(false); // 动画抽屉标识
+const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
 const schema2String = ref<string>();
 const schemaStore = useSchemaStore();
 
@@ -143,8 +145,13 @@ watch(() => schemaStore.currentElement, () => {
   const material = schemaStore.currentElement;
   if (material !== void 0) {
     if (material?.type === 'material') {
+      // 处理添加动画绑定事件
       $event.on(`addAnimation:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {
         animateDrawer.value = true;
+      });
+      // 处理事件绑定事件
+      $event.on(`addEvent:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {
+        eventDrawer.value = true;
       });
     }
   }
@@ -240,6 +247,30 @@ $event.on('addAnimation', () => {
                   <AnimationTabPane @add-animate="addAnimationHandler" />
                 </el-scrollbar>
               </div>
+            </template>
+          </el-drawer>
+          <!-- event-drawer -->
+          <el-drawer
+            v-model="eventDrawer"
+            size="350"
+            direction="ltr"
+            :show-close="false"
+            :close-on-click-modal="false"
+          >
+            <template #header>
+              <div class="w-full h-auto flex items-center justify-between">
+                <!-- title -->
+                <span class="font-bold text-black">事件绑定</span>
+                <!-- btns -->
+                <div class="w-auto h-auto flex">
+                  <el-button @click="eventDrawer = false" type="text" icon="close">关闭</el-button>
+                </div>
+              </div>
+            </template>
+            <template #default>
+              <el-scrollbar height="600">
+                <EventTabPane />
+              </el-scrollbar>
             </template>
           </el-drawer>
         </el-main>

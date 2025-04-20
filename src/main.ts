@@ -8,6 +8,7 @@ import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 
 const app = createApp(App)
 
@@ -19,5 +20,11 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 app.use(hljsVuePlugin);
+app.use(VueMonacoEditorPlugin, {
+  paths: {
+    // 在这里更改 CDN 链接加载不同版本
+    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs'
+  },
+});
 
 app.mount('#app')
