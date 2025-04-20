@@ -18,6 +18,7 @@ import {useSchemaStore} from "@/stores/schema";
 import $event from "@/componsables/utils/EventBusUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 
@@ -92,6 +93,40 @@ async function showSchemaHandler() {
 
 
 /**
+ * @description 处理动画绑定事件
+ * @param item
+ */
+function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // 将动画保存到 store 中
+      if (schemaStore.currentElement?.type === 'material') {
+        const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
+        if (material.animation && material.animation.length > 0) {
+         $message({
+           type: 'warning',
+           message: '每个物料只能绑定一种动画'
+         });
+         reject('每个物料只能绑定一种动画');
+        } else {
+          material.animation?.push(item);
+          schemaStore.currentElement = material;
+        }
+        // 将动画保存在 schema 中
+        await $engine.insertAnimation2Material(material.id, item).catch(err => {
+          reject(err as string);
+        });
+        resolve('保存动画成功');
+      }
+    } catch (e) {
+      console.error('同步动画到 store 失败', e);
+      reject('同步动画到 store 失败');
+    }
+  });
+}
+
+
+/**
  * @description 初始化 schema
  */
 onMounted(async () => {
@@ -115,6 +150,12 @@ watch(() => schemaStore.currentElement, () => {
   }
 }, {
   deep: true
+});
+
+
+
+$event.on('addAnimation', () => {
+  animateDrawer.value = false;
 });
 </script>
 
@@ -196,7 +237,7 @@ watch(() => schemaStore.currentElement, () => {
             <template #default>
               <div class="w-full h-full flex flex-col">
                 <el-scrollbar height="600">
-                  <AnimationTabPane />
+                  <AnimationTabPane @add-animate="addAnimationHandler" />
                 </el-scrollbar>
               </div>
             </template>

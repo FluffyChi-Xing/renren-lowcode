@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
+import { nextTick } from "vue";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {createMaterialElement} from "@/renren-engine/renderer/renderer";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import '@/assets/animation.css';
 import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
+import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
+import {useSchemaStore} from "@/stores/schema";
+import {$engine} from "@/renren-engine/engine";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -15,6 +18,8 @@ const emits = defineEmits(['create', 'move']);
 
 
 const comp = ref();
+const materialNode = ref();
+const schemaStore = useSchemaStore();
 const item = ref<RenrenMaterialModel>(props.item as RenrenMaterialModel);
 
 
@@ -46,7 +51,7 @@ function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       comp.value = undefined;
-      comp.value = await createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
+      comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -62,11 +67,72 @@ function updateMaterialHandler(): Promise<string> {
 }
 
 
+/**
+ * @description 处理运行动画事件
+ */
+function runAnimationOnMaterial(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (materialNode.value !== void 0) {
+        if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+          const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
+          if (material.animation !== void 0) {
+            // 获取 DOM 元素（处理组件实例的情况）
+            const domElement = materialNode.value?.$el;
+            // if (!(domElement instanceof HTMLElement)) {
+            //   console.error('materialNode 不是有效的 DOM 元素');
+            //   reject('运行动画失败');
+            // }
+            domElement.classList.add(
+              animationNameValueMap.get(material.animation[0].key) as string,
+              'animated',
+              'no-infinite'
+            );
+
+            const removeAnimation = () => {
+              if (material.animation) {
+                domElement.classList.remove(
+                  animationNameValueMap.get(material.animation[0].key) as string,
+                  'animated',
+                  'no-infinite'
+                );
+                console.log(domElement.classList);
+                resolve('运行动画成功');
+              }
+            };
+
+            domElement.addEventListener('animationend', removeAnimation);
+            domElement.addEventListener('animationcancel', removeAnimation);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('运行动画失败', e);
+      reject('运行动画失败');
+    }
+  });
+}
+
+
+/**
+ * @description 预览动画
+ */
+async function previewAnimationHandler() {
+  await nextTick();
+  await runAnimationOnMaterial().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string,
+    });
+  });
+}
+
+
 onMounted(async () => {
   if (item.value) {
     // 重新生成组件的主键，防止组件复用时出现主键重复的问题
     //item.value.id = generateUUID();
-    comp.value = await createMaterialElement(props.item as RenrenMaterialModel);
+    comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
   }
 })
 
@@ -75,7 +141,7 @@ watch(() => props.item, async (newValue) => {
   if (newValue) {
     item.value = newValue;
     // item.value.id = generateUUID(); // 重新生成组件的主键，防止组件复用时出现主键重复的问题
-    comp.value = await createMaterialElement(props.item as RenrenMaterialModel);
+    comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
   } else {
     comp.value = undefined;
   }
@@ -93,12 +159,21 @@ $event.on(`updateMaterial:${props.item?.id}`, () => {
     });
   });
 });
+
+
+/**
+ * @description 处理预览动画事件
+ */
+$event.on(`previewAnimation:${props.item?.id}`, () => {
+  previewAnimationHandler();
+});
 </script>
 
 <template>
   <component
     :is="comp"
     draggable="true"
+    ref="materialNode"
     @dragend="materialMoveHandler($event)"
     @dragover="dragoverHandler($event)"
   />

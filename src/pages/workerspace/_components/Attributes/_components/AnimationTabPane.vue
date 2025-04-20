@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import {animationList, animationNameValueMap} from "@/componsables/utils/AnimationUtil";
-import {ComponentPublicInstance, ref} from 'vue';
+import {ref} from 'vue';
+import type { ComponentPublicInstance } from 'vue';
 import '@/assets/animation.css';
 import {$message} from "@/componsables/element-plus";
+import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import $event from "@/componsables/utils/EventBusUtil";
 
 
 
 
 
 const animateRef = ref<Record<string, HTMLElement | null>>({});
-
+const emits = defineEmits(['addAnimate']);
 /**
  * @description 设置 element ref
  * @param el
@@ -28,9 +31,9 @@ const setRef = (el: Element | ComponentPublicInstance | null, item: string) => {
 function runAnimation(key: string): Promise<string> {
   return new Promise<string>((resolve, reject) =>{
     try {
-      animateRef.value[key]?.classList.add(animationNameValueMap.get(key), 'animated', 'no-infinite');
+      animateRef.value[key]?.classList.add(animationNameValueMap.get(key) as string, 'animated', 'no-infinite');
       const removeAnimation = () => {
-        animateRef.value[key]?.classList.remove(animationNameValueMap.get(key), 'animated', 'no-infinite');
+        animateRef.value[key]?.classList.remove(animationNameValueMap.get(key) as string, 'animated', 'no-infinite');
         // animateRef.value[key]?.removeEventListener('animationend', removeAnimation);
         // animateRef.value[key]?.removeEventListener('animationcancel', removeAnimation);
         resolve('运行动画效果成功');
@@ -68,6 +71,20 @@ function previewAnimation(key: string, e?: MouseEvent): Promise<string> {
     }
   });
 }
+
+
+/**
+ * @description 处理动画添加事件
+ * @param item
+ */
+function addAnimationHandler(item: RenrenInterface.keyValueType<string>) {
+  emits('addAnimate', item);
+  $event.emit('addAnimation');
+  $message({
+    type: 'info',
+    message: item.key
+  });
+}
 /** ===== 动画预览-end =====**/
 </script>
 
@@ -89,6 +106,7 @@ function previewAnimation(key: string, e?: MouseEvent): Promise<string> {
           :key="idx"
           :ref="(el) => setRef(el, itm.key)"
           @mouseenter="previewAnimation(itm.key, $event)"
+          @click="addAnimationHandler(itm)"
           class="w-full h-full select-none cursor-pointer flex items-center justify-center p-4 bg-main-background text-black"
         >
           {{ itm.key }}

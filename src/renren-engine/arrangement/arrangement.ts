@@ -601,4 +601,45 @@ export function updateDocumentPropNode(props: MaterialInterface.IProp[]): Promis
 }
 
 
+/**
+ * @description 向物料节点插入动画效果
+ * @param key 物料id
+ * @param animation 动画效果(RenrenInterface.keyValueType<string>)
+ */
+export function insertAnimation2Material(key: string, animation: RenrenInterface.keyValueType<string>): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      const schema: MaterialDocumentModel | undefined = await getSchema();
+      if (schema !== void 0) {
+        const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
+        if (!isEmpty) {
+          const nodes: MaterialInterface.IMaterial[] | undefined = schema?.nodes;
+          if (nodes !== void 0 && nodes?.length > 0) {
+            let material: MaterialInterface.IMaterial | undefined = nodes?.find(node => node.id === key);
+            if (material !== void 0 && material?.animation) {
+              if (material?.animation.length > 0) {
+                reject('每个节点只能插入一个动画');
+              } else {
+                material?.animation.push(animation);
+                // 保存更新后的 schema
+                await updateSchema(schema).catch(err => {
+                  reject(`更新 schema 失败: ${err}`);
+                });
+                resolve('插入动画成功');
+              }
+            } else {
+              reject('没有找到匹配的节点');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('插入动画失败', e);
+      reject('插入动画失败');
+    }
+  });
+}
+
+
 // TODO: 删除某个特定键的项目键名映射表条目
+
