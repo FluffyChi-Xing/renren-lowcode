@@ -49,7 +49,7 @@ export class RenrenMaterialModel extends RenrenModel implements MaterialInterfac
       this.children = params.children ? params.children.map(child => new RenrenMaterialModel(child)) : [];
       this.icon = params.icon ? params.icon : '';
       this.animation = params.animation ?? [];
-      this.events = params.events ??[];
+      this.events = params.events ?? [];
     }
   }
 

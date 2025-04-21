@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {eventNameValueMap} from "@/componsables/utils/EventAttrUtil";
 import $event from "@/componsables/utils/EventBusUtil";
@@ -43,6 +43,27 @@ function clearEventsHandler() {
     }
   }
 }
+
+
+function initEventData() {
+  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+    const material = schemaStore.currentElement as RenrenMaterialModel;
+    if (material && material.events) {
+      eventData.value = material.events as RenrenInterface.IEvent[];
+      // console.log(eventData.value);
+    }
+  }
+}
+
+
+$event.on('bindEvent', () => {
+  initEventData();
+});
+
+
+onMounted(() => {
+  initEventData();
+});
 /** ===== 事件绑定-end =====**/
 </script>
 
@@ -56,7 +77,7 @@ function clearEventsHandler() {
     <!-- event-attributes-list -->
     <div
       v-if="eventData?.length > 0"
-      class="w-full h-auto flex flex-col"
+      class="w-full h-auto flex mt-4 flex-col"
     >
       <el-table
         :data="eventData"
@@ -75,11 +96,8 @@ function clearEventsHandler() {
         />
         <el-table-column
           label="事件类型"
-        >
-          <template #default="{ row }">
-            <span>{{ eventNameValueMap.get(row?.type) as string }}</span>
-          </template>
-        </el-table-column>
+          prop="type"
+        />
         <el-table-column
           label="操作"
           :fixed="'right'"

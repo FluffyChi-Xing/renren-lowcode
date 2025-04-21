@@ -164,6 +164,11 @@ watch(() => schemaStore.currentElement, () => {
 $event.on('addAnimation', () => {
   animateDrawer.value = false;
 });
+
+$event.on('bindEvent', () => {
+  eventDrawer.value = false;
+});
+
 </script>
 
 <template>

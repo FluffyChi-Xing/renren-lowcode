@@ -2,7 +2,7 @@
  * @description renren-engine 渲染API模块
  * @author FluffyChi-Xing
  */
-import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import type {Component} from "vue";
 import { h, defineComponent, shallowReactive } from 'vue';
@@ -299,6 +299,76 @@ export function queryMaterialCSSAttributesList<T extends MaterialInterface.IProp
     } catch (e) {
       console.error('查询 CSS 属性列表失败', e);
       reject('查询 CSS 属性列表失败');
+    }
+  });
+}
+
+
+/**
+ * @description 向指定的 material 插入事件
+ * @param key
+ * @param event
+ */
+export function insertEvent2Material<T extends RenrenInterface.IEvent>(key: string, event: T): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      if (key && event) {
+        // 获取 schema 中对应的 material
+        const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.getSchema();
+        let material: MaterialInterface.IMaterial | void;
+        if (schema !== void 0 && schema.nodes) {
+          if (schema.nodes?.length > 0) {
+            material = schema.nodes.find(node => node.id === key) || undefined;
+            // 判断是否是事件数组，如果是则进行批量插入
+            if (material !== void 0) {
+              material = await eventBindingHandler(material, event).catch(err => {
+                reject(err);
+              });
+              if (material !== void 0) {
+                schema.nodes.find(node => node.id === material?.id)!.events = material.events || undefined;
+                // 更新 schema
+                await $engine.updateSchema(schema).then(() => {
+                  resolve('插入事件成功');
+                }).catch(err => {
+                  reject(err as string);
+                });
+              }
+            } else {
+              reject('未找到对应的 material');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('插入事件失败', e);
+      reject('插入事件失败');
+    }
+  });
+}
+
+
+/**
+ * @description 绑定事件到 material
+ * @param material
+ * @param event
+ */
+function eventBindingHandler<T extends RenrenInterface.IEvent, K extends MaterialInterface.IMaterial>(material: K, event: T): Promise<K> {
+  return new Promise<K>((resolve, reject) => {
+    try {
+      if (material && event) {
+        if (material?.events) {
+          if (material?.events.length > 0) {
+            material.events = material.events?.filter(item => item.name !== event.name);
+            resolve(material as K);
+          } else {
+            material.events.push(event);
+            resolve(material as K);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('事件绑定处理失败', e);
+      reject('事件绑定处理失败');
     }
   });
 }

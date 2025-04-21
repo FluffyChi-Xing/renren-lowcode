@@ -40,35 +40,35 @@ export const mouseEvent: RenrenInterface.IEvent[] = [
     description: '当鼠标移出组件边界的时候触发',
     id: '1',
     name: "鼠标移除事件",
-    type: 'onMouseleave'
+    type: 'onMouseLeave'
   },
   {
     callback: undefined,
     description: '当鼠标移入组件边界的时候触发',
     id: '2',
     name: "鼠标移入事件",
-    type: 'onMouseenter'
+    type: 'onMouseEnter'
   },
   {
     callback: undefined,
     description: '当鼠标按下的时候触发',
     id: '3',
     name: "鼠标按下事件",
-    type: 'onMousedown'
+    type: 'onMouseDown'
   },
   {
     callback: undefined,
     description: '当鼠标抬起的时候触发',
     id: '4',
     name: "鼠标抬起事件",
-    type: 'onMouseup'
+    type: 'onMouseUp'
   },
   {
     callback: undefined,
     description: '当鼠标移动的时候触发',
     id: '5',
     name: "鼠标移动事件",
-    type: 'onMousemove'
+    type: 'onMouseMove'
   },
   {
     callback: undefined,

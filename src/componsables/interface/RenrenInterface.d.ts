@@ -73,7 +73,7 @@ export namespace RenrenInterface {
     name: string; // 事件名称
     type: string; // 事件类型
     description: string; // 事件描述
-    id?: string; // 事件id
+    id: string; // 事件id
     callback: Function | undefined; // 回调函数
   }
 }
