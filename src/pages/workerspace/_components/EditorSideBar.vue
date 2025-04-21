@@ -49,6 +49,14 @@ function refreshPage() {
 }
 
 
+/**
+ * @description 截取页面图片
+ */
+function takeScreenPhoto() {
+  $event.emit('takePhoto');
+}
+
+
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
     key: 'JSON',
@@ -56,8 +64,8 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
     index: 'Document'
   },
   {
-    key: '插入图片',
-    value: () => {},
+    key: '截取图片',
+    value: takeScreenPhoto,
     index: 'PictureRounded'
   },
   {

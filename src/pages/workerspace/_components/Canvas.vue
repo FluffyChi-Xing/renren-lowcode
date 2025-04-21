@@ -17,6 +17,7 @@ import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceCon
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 
 
 const props = withDefaults(defineProps<{
@@ -590,6 +591,27 @@ function checkGridBackgroundColor(): Promise<string> {
  */
 $event.on('clearCanvas', () => {
   materialContainer.value = [];
+});
+
+
+/**
+ * @description 处理画布截图事件
+ */
+$event.on('takePhoto', async () => {
+  const url: string | void = await takeScreenPhoto(editor.value).catch(err => {
+    console.error('截图失败', err);
+    $message({
+      type: 'warning',
+      message: '截图失败'
+    });
+  });
+  if (url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'canvas.png';
+    link.click();
+    // document.body.removeChild(link);
+  }
 });
 
 /**
