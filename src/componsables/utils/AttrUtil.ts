@@ -103,6 +103,7 @@ export const propAttributesMap = new Map<string, string>([
   ['position', '定位'],
   ['plain', '线框'],
   ['text', '填充文本'],
+  ['z-index', '优先级'],
 ]);
 
 
@@ -132,7 +133,8 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
   ['type', 'select'],
   ['text', 'input'],
   ['position', 'select'],
-  ['plain','switch']
+  ['plain','switch'],
+  ['z-index', 'input'],
 ]);
 
 
@@ -152,7 +154,8 @@ export const propAttributesSuffixOptions: Map<string, string> = new Map<string, 
   ['line-height', 'px'],
   ['letter-spacing', 'px'],
   ['opacity', '%'],
-  ['position', '']
+  ['position', ''],
+  ['z-index', ''],
 ]);
 
 

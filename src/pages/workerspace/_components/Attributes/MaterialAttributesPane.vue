@@ -189,6 +189,8 @@ watch(() => schemaStore.currentElement, () => {
           v-if="propAttributesTypeMap.get(item.type) === 'input'"
           v-model="materialAttribute[index].value"
           clearable
+          :min="item.type === 'z-index' ? 1 : 0"
+          :max="item.type === 'z-index' ? 99 : ''"
           @change="inputChangeHandler"
           @keydown.enter="inputChangeHandler"
         />

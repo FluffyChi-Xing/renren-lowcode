@@ -59,6 +59,16 @@ export const linkSchema: MaterialInterface.IMaterial = {
         maps: undefined,
         code: '',
         key: 'style',
+        value: '1',
+        type: 'z-index',
+        owner: '3',
+        parent: propsId
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
         value: '32',
         type: 'height',
         owner: '3',

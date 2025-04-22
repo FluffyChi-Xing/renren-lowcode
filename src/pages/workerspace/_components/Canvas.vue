@@ -423,6 +423,11 @@ function lockMaterialNode() {
         });
       }
     }
+  } else {
+    $message({
+      type: 'warning',
+      message: '请先选择要锁定的组件'
+    });
   }
 }
 
@@ -449,6 +454,32 @@ function unLockMaterialNode() {
         });
       }
     }
+  } else {
+    $message({
+      type: 'warning',
+      message: '请先选择要解锁的组件'
+    });
+  }
+}
+
+
+/**
+ * @description TODO: 修改层级
+ */
+function changeZIndex(flag: string = 'up') {
+  if (flag === 'up') {
+    // 将当前物料的 z-index ++
+    // 同步到 store
+    // 同步到 schema
+  } else if (flag === 'down') {
+    // 将当前物料的 z-index --
+    // 同步到 store
+    // 同步到 schema
+  } else {
+    $message({
+      type: 'warning',
+      message: '非法参数'
+    });
   }
 }
 
@@ -760,6 +791,17 @@ $event.on('updateMaterial', () => {
       message: err as string
     });
   });
+});
+
+
+
+
+$event.on('lockMaterial', () => {
+  lockMaterialNode();
+});
+
+$event.on('unLockMaterial', () => {
+  unLockMaterialNode();
 });
 </script>
 

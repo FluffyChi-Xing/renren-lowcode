@@ -57,6 +57,22 @@ function takeScreenPhoto() {
 }
 
 
+/**
+ * @description 锁定物料
+ */
+function lockMaterial() {
+  $event.emit('lockMaterial');
+}
+
+
+/**
+ * @description 解锁物料
+ */
+function unLockMaterial() {
+  $event.emit('unLockMaterial');
+}
+
+
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
     key: 'JSON',
@@ -75,12 +91,12 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
   },
   {
     key: '锁定',
-    value: () => {},
+    value: lockMaterial,
     index: 'Lock'
   },
   {
     key: '解锁',
-    value: () => {},
+    value: unLockMaterial,
     index: 'Unlock'
   },
   {

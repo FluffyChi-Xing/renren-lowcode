@@ -92,9 +92,7 @@ async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): 
         const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
         if (!isEmpty) {
           // 同步 document 节点
-          if (!materialNodeTreeList.value.some(node => node.name === schema.fileName)) {
-            await createDocumentNode(schema).catch(err => reject(err));
-          }
+          await createDocumentNode(schema).catch(err => reject(err));
 
           if (schema?.nodes) {
             // 将 schema.nodes 转换为 Map，便于查找
@@ -250,6 +248,7 @@ $event.on('clearCanvas', () => {
        :name="item.name"
        :icon="item.icon"
        :index="item.index"
+       :type="item.type"
        :item="item"
        @edit-document="settingDocumentHandler"
      />

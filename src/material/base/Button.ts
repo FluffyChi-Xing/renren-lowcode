@@ -79,6 +79,16 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         items: null,
         maps: undefined,
         code: '',
+        key:'style',
+        value: '1',
+        type: 'z-index',
+        owner: '1',
+        parent: propsId
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
         key:'size',
         value: 'default',
         type: 'size',

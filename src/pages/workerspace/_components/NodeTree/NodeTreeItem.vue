@@ -8,11 +8,13 @@ const props = withDefaults(defineProps<{
   name?: string;
   index?: string | number;
   item?: MaterialInterface.MaterialTreeType | undefined;
+  type?: string;
 }>(), {
   icon: 'Menu',
   name: '未命名',
   index: '1',
-  item: undefined
+  item: undefined,
+  type: 'document'
 });
 
 
@@ -37,12 +39,12 @@ function settingItemHandler(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (props.item !== void 0) {
-        console.log(props.item);
         if (props.item?.type === 'material') {
           emits('editMaterial');
         } else if (props.item?.type === 'document') {
           emits('editDocument');
         }
+        resolve('设置物料成功');
       }
     } catch (e) {
       console.error('设置物料失败', e);
@@ -58,7 +60,10 @@ function settingItemHandler(): Promise<string> {
     @mouseleave="() => isShow = false"
     class="w-full h-8 grid text-black cursor-pointer grid-cols-2 gap-2 items-center px-4 mb-1 hover:bg-blue-200 hover:text-blue-500"
   >
-    <div class="w-full h-full flex items-center">
+    <div
+      :class="props.type === 'material' ? 'pl-4' : ''"
+      class="w-full h-full flex items-center"
+    >
       <!-- icon -->
       <el-icon class="mr-2">
         <component :is="icon"/>

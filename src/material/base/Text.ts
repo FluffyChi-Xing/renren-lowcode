@@ -72,6 +72,16 @@ export const textSchema: MaterialInterface.IMaterial = {
         items: null,
         maps: undefined,
         code: '',
+        key: 'style',
+        value: '1',
+        type: 'z-index',
+        owner: '2',
+        parent: propsId
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
         key:'style',
         value: '32',
         type: 'height',
