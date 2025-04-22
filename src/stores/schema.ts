@@ -12,6 +12,7 @@ export const useSchemaStore = defineStore('schema', () => {
   const currentElement = ref<RenrenMaterialModel | MaterialDocumentModel | undefined>();
   const isAdd = ref<boolean>(false); // 新增物料标识
   const newElement = ref<RenrenMaterialModel | undefined>();
+  const elementInProcess = ref<RenrenMaterialModel | undefined>(); // 正在处理的元素
 
   const initCurrent = (item: RenrenMaterialModel | MaterialDocumentModel | undefined) => {
     currentElement.value = item;
@@ -22,5 +23,6 @@ export const useSchemaStore = defineStore('schema', () => {
     initCurrent,
     isAdd,
     newElement,
+    elementInProcess,
   };
 });

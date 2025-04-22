@@ -5,8 +5,7 @@ import {Stack} from "@/componsables/models/RenrenModel";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
 import {watch} from "vue";
-
-
+import { debounce } from "lodash-es";
 
 
 const emits = defineEmits(['reset', 'revert', 'preview', 'save', 'export']);
@@ -43,10 +42,13 @@ function updateTargetMaterial(): Promise<string> {
 function insertMaterialHandler(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.newElement !== void 0 && schemaStore.newElement?.type === 'material') {
-        resetStack.push(schemaStore.newElement as RenrenMaterialModel);
-        resolve('插入物料事件处理成功');
-      }
+      const debounceInsert = debounce(() => {
+        if (schemaStore.newElement !== void 0 && schemaStore.newElement?.type === 'material') {
+          resetStack.push(schemaStore.newElement as RenrenMaterialModel);
+          resolve('插入物料事件处理成功');
+        }
+      }, 100);
+      debounceInsert();
     } catch (e) {
       console.error('插入物料事件处理失败', e);
       reject('插入物料事件处理失败');
@@ -56,56 +58,84 @@ function insertMaterialHandler(): Promise<string> {
 
 
 /**
+ * @description 撤销操作
+ */
+function resetEvent<T extends RenrenMaterialModel>(): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    try {
+      let head: RenrenMaterialModel | undefined = resetStack.pop();
+      if (head !== void 0 && head?.type === 'material') {
+        // revert stack push stack-head
+        revertStack.push(head);
+        // sync to store
+        schemaStore.elementInProcess = undefined; // 初始化 store
+        schemaStore.elementInProcess = head as RenrenMaterialModel;
+        resolve(head as T);
+      }
+    } catch (e) {
+      console.error('撤销失败', e);
+      reject('撤销失败');
+    }
+  });
+}
+
+/**
  * @description 操作撤销事件
  */
 function resetMaterialHandler() {
-  console.log('撤销', resetStack);
-  // reset stack pop stack-head
-  const head: RenrenMaterialModel | undefined = resetStack.pop();
-  if (head !== void 0 && head?.type === 'material') {
-    // revert stack push stack-head
-    revertStack.push(head);
-    // alert message
-    $message({
-      type: 'info',
-      message: '撤销成功'
-    });
-    // log
-    console.log('撤销', head);
+  resetEvent().then(head => {
     // emit reset event
     $event.emit(`reset:${head?.id}`);
-  }
+  }).catch(err => {
+    console.log(err as string);
+  });
 }
+
+
+/**
+ * @description 反做事件
+ */
+function revertEvent<T extends RenrenMaterialModel>(): Promise<T> {
+  return new Promise<T>((resolve, reject) =>{
+    try {
+      // revert stack pop stack-head
+      let head: RenrenMaterialModel | undefined = revertStack.pop();
+      if (head !== void 0 && head?.type === 'material') {
+        // reset stack push stack-head
+        resetStack.push(head);
+        // sync to store
+        schemaStore.elementInProcess = undefined;
+        schemaStore.elementInProcess = head as RenrenMaterialModel;
+        resolve(head as T);
+      }
+    } catch (e) {
+      console.error('反做失败', e);
+      reject('反做失败');
+    }
+  });
+}
+
 
 
 /**
  * @description 操作反做事件
  */
 function revertMaterialHandler() {
-  console.log('反做', revertStack);
-  // revert stack pop stack-head
-  const head: RenrenMaterialModel | undefined = revertStack.pop();
-  if (head !== void 0 && head?.type === 'material') {
-    // reset stack push stack-head
-    resetStack.push(head);
-    // alert message
-    $message({
-      type: 'info',
-      message: '反做成功'
-    });
-    // log
-    console.log('反做', head);
+  revertEvent().then(head => {
     // emit revert event
     $event.emit(`revert:${head?.id}`);
-  }
+  }).catch(err => {
+    console.error(err as string);
+  });
 }
 
 
 /**
  * @description 处理物料插入事件
  */
-watch(() => schemaStore.newElement, () =>{
-  $event.on('insert', () => {
+watch(() => schemaStore.newElement, () => {
+  const material = schemaStore.newElement as RenrenMaterialModel;
+  $event.on(`pushMaterial:${material?.id}`, () => {
     // console.log('新增物料', schemaStore.newElement);
     insertMaterialHandler().catch(err => {
       $message({
@@ -124,7 +154,9 @@ $event.on('clearCanvas', () => {
   Promise.all([
     resetStack.clear(),
     revertStack.clear(),
-  ]).catch(err => {
+  ]).then(() => {
+    schemaStore.elementInProcess = undefined;
+  }).catch(err => {
     console.log('清空失败', err);
   });
 });

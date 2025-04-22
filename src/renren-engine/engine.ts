@@ -2,9 +2,9 @@
  * @description renren-engine aggregation modules
  * @author FluffyChi-Xing
  */
-import * as arrangement from './arrangement/arrangement';
-import * as renderer from './renderer/renderer';
-import * as engineImport from './import/engine-import';
+import * as arrangement from '@/renren-engine/modules/arrangement/arrangement';
+import * as renderer from '@/renren-engine/modules/renderer/renderer';
+import * as engineImport from '@/renren-engine/modules/import/engine-import';
 
 
 /**

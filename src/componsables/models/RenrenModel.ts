@@ -67,7 +67,7 @@ export class Stack<T> extends RenrenModel implements RenrenInterface.IStack<T>{
       try {
         if (item !== void 0) {
           this.data?.push(item);
-          this.size += 1;
+          this.size ++;
           resolve('入栈成功');
         } else {
           reject('参数错误');
@@ -83,6 +83,9 @@ export class Stack<T> extends RenrenModel implements RenrenInterface.IStack<T>{
    * @description 弹出栈顶元素
    */
   pop(): T | undefined {
+    if (this.isEmpty()) {
+      return undefined;
+    }
     this.size --;
     return this.data?.pop();
   }

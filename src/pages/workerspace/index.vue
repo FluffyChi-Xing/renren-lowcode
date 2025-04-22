@@ -8,7 +8,7 @@ import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
 import BaseMaterial from "@/components/material/BaseMaterial.vue";
 import {ElEmpty} from "element-plus";
-import {initSchema} from "@/renren-engine/arrangement/arrangement";
+import {initSchema} from "@/renren-engine/modules/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
 import {$engine} from "@/renren-engine/engine";

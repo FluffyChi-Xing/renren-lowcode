@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {useCanvasStore} from "@/stores/canvas";
-import {throttle} from "lodash-es";
+import {debounce, throttle} from "lodash-es";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import SelectArea from "@/components/SelectArea.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
-import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/renderer/renderer";
+import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/modules/renderer/renderer";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
@@ -254,6 +254,7 @@ const throttleDragEventHandler = throttle(
             await $engine.insertNode2Document(material).then(() => {
               // 使用 eventBus 触发插入事件
               $event.emit('insert');
+              $event.emit(`pushMaterial:${material.id}`);
             }).catch(err => {
               $message({
                 type: 'warning',
@@ -589,6 +590,52 @@ function checkGridBackgroundColor(): Promise<string> {
   });
 }
 
+
+/**
+ * @description 撤销事件
+ */
+function resetEventHandler(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const material = schemaStore.elementInProcess as RenrenMaterialModel;
+      // 如果触发撤销操作，就从当前容器内删除对应的元素
+      if (material !== void 0) {
+        materialContainer.value = materialContainer.value.filter(item => item.id !== material?.id);
+        nextTick(() => {
+          resolve('撤销成功');
+        });
+      }
+    } catch (e) {
+      console.error('撤销失败', e);
+      reject('撤销失败');
+    }
+  });
+}
+
+
+/**
+ * @description 处理反做事件
+ */
+function revertEventHandler(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      const debounceRevert = debounce(() => {
+        const material = schemaStore.elementInProcess as RenrenMaterialModel;
+        if (material !== void 0) {
+          materialContainer.value.push(material);
+          nextTick(() => {
+            resolve('反做成功');
+          });
+        }
+      }, 100);
+      debounceRevert();
+    } catch (e) {
+      console.error('反做失败', e);
+      reject('反做失败');
+    }
+  });
+}
+
 /**
  * @description 清空画布
  */
@@ -604,10 +651,10 @@ $event.on('clearCanvas', () => {
 $event.on('takePhoto', async () => {
   const url: string | void = await takeScreenPhoto(editor.value).catch(err => {
     console.error('截图失败', err);
-    $message({
-      type: 'warning',
-      message: '截图失败'
-    });
+    // $message({
+    //   type: 'warning',
+    //   message: '截图失败'
+    // });
   });
   if (url) {
     const link = document.createElement('a');
@@ -616,6 +663,58 @@ $event.on('takePhoto', async () => {
     link.click();
     // document.body.removeChild(link);
   }
+});
+
+
+
+/**
+ * @description 处理撤销操作
+ */
+watch(() => schemaStore.elementInProcess, (newVal, oldVal) => {
+
+    // 移除旧的监听器
+    if (oldVal && oldVal.id) {
+      $event.off(`revert:${oldVal.id}`);
+    }
+
+    /**
+     * @description 撤销操作
+     */
+  $event.on(`reset:${newVal?.id}`, () => {
+    resetEventHandler().then(() => {
+      $message({
+        type: 'info',
+        message: '撤销操作'
+      });
+    }).catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+  });
+
+
+
+    /**
+     * @description 反做事件
+     */
+    $event.on(`revert:${newVal?.id}`, () => {
+      revertEventHandler().then(res => {
+        $message({
+          type: 'info',
+          message: res as string
+        });
+      }).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+    });
+},
+  {
+    deep: true
 });
 
 /**
