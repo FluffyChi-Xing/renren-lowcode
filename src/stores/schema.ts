@@ -11,6 +11,7 @@ export const useSchemaStore = defineStore('schema', () => {
   const schema = ref<MaterialDocumentModel>(new MaterialDocumentModel(PAGE_SCHEMA));
   const currentElement = ref<RenrenMaterialModel | MaterialDocumentModel | undefined>();
   const isAdd = ref<boolean>(false); // 新增物料标识
+  const newElement = ref<RenrenMaterialModel | undefined>();
 
   const initCurrent = (item: RenrenMaterialModel | MaterialDocumentModel | undefined) => {
     currentElement.value = item;
@@ -20,5 +21,6 @@ export const useSchemaStore = defineStore('schema', () => {
     currentElement,
     initCurrent,
     isAdd,
+    newElement,
   };
 });

@@ -21,15 +21,15 @@ const editor = shallowRef();
 const schemaStore = useSchemaStore();
 function mountHandler(val: any[]) {
   editor.value = val;
-};
+}
 const defaultCode: string = 'callback = () => {\n' +
   '  // some-code\n' +
   '}';
 
 
-function formatCode() {
-  editor.value?.getAction('editor.action.formatDocument').run();
-}
+// function formatCode() {
+//   editor.value?.getAction('editor.action.formatDocument').run();
+// }
 
 
 /**

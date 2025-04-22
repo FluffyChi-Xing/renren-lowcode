@@ -4,6 +4,7 @@
  */
 
 import { RenrenEntity } from "@/componsables/entities/RenrenEntity";
+import {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 export namespace RenrenInterface {
@@ -75,5 +76,14 @@ export namespace RenrenInterface {
     description: string; // 事件描述
     id: string; // 事件id
     callback: Function | undefined; // 回调函数
+  }
+
+
+  /**
+   * @description 基础栈类型
+   */
+  export interface IStack<T> {
+    size: number;
+    data: T[] | undefined;
   }
 }

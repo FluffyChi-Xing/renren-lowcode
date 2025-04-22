@@ -245,13 +245,16 @@ const throttleDragEventHandler = throttle(
           // 生成 唯一标识
           material.id = generateUUID();
           materialContainer.value.push(material);
-          // 使用 eventBus 触发插入事件
-          $event.emit('insert');
+          // 将新增物料暂存到 store
+          schemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
           const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
           // 保存 schema
           if (!isEmpty) {
-            await $engine.insertNode2Document(material).catch(err => {
+            await $engine.insertNode2Document(material).then(() => {
+              // 使用 eventBus 触发插入事件
+              $event.emit('insert');
+            }).catch(err => {
               $message({
                 type: 'warning',
                 message: err
@@ -591,6 +594,7 @@ function checkGridBackgroundColor(): Promise<string> {
  */
 $event.on('clearCanvas', () => {
   materialContainer.value = [];
+  schemaStore.newElement = undefined;
 });
 
 
