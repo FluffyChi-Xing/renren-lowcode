@@ -3,7 +3,6 @@ import {onMounted, ref} from 'vue';
 import {MaterialDocumentModel, MaterialTreeModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$engine} from "@/renren-engine/engine";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
 import {Refresh} from "@element-plus/icons-vue";
@@ -50,7 +49,6 @@ function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
 
 
 
-// TODO: 插入组件同步存在延迟
 
 /**
  * @description 插入物料到节点树中
@@ -61,21 +59,17 @@ function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<s
     try {
       if (nodes !== void 0 && nodes?.length > 0) {
         nodes?.forEach((node: RenrenMaterialModel) => {
-          const existingNode = materialNodeTreeList.value?.find(n => n.name === node.title && n.index === node.id);
-          if (!existingNode) {
+          const existingNode: MaterialInterface.MaterialTreeType | undefined = materialNodeTreeList.value?.find(item => item.index.toString() === node.id);
+          if (existingNode === void 0) {
             let params: MaterialInterface.MaterialTreeType = {
               children: [],
               icon: node.icon ? node.icon : 'Menu',
-              index: node.id ? node.id : generateUUID(),
+              index: node.id ? node.id : '',
               name: node.title ? node.title : '未命名',
               parentId: node.parent ? node.parent : undefined,
               type: 'material'
             };
             materialNodeTreeList.value?.push(new MaterialTreeModel(params));
-          } else {
-            // 更新现有节点（可选）
-            existingNode.icon = node.icon || 'Menu';
-            existingNode.parentId = node.parent || 0;
           }
         });
         resolve('插入物料节点成功');
@@ -86,7 +80,7 @@ function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<s
     }
   });
 }
-
+// TODO: 适配撤销&反做事件
 
 /**
  * @description 初始化物料节点树

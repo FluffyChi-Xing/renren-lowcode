@@ -3,10 +3,9 @@
  * @author FluffyChi-Xing
  */
 import type {EngineTypes} from "@/renren-engine/componsables/types/EngineTypes";
-import {SandboxTypeEnum} from "@/renren-engine/enums/EngineEnums";
+import {SandboxTypeEnum} from "@/renren-engine/componsables/enums/EngineEnums";
 import {IN_TEST, MOCK_SAFARI_TOP, MOCK_TOP} from "@/renren-engine/componsables/constants/EngineConstants";
 import * as process from "process";
-
 
 
 let activeSandboxCount: number = 0;
@@ -84,7 +83,7 @@ export default class ProxySandbox implements EngineTypes.ISandbox {
   latestSetProp: PropertyKey | null = null;
   name: string = '';
   proxy: EngineTypes.WindowProxy = window;
-  type: SandboxTypeEnum;
+  type: SandboxTypeEnum = SandboxTypeEnum.PROXY;
   private updateValueSet: Set<PropertyKey> = new Set<PropertyKey>();
   private document: Document = document;
   patchDocument(doc: Document): void {

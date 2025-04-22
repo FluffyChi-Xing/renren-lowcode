@@ -212,7 +212,8 @@ const throttleDragEventHandler = throttle(
       e?.preventDefault();
       // 获取位置信息
       let material: T = getDataTransformMaterial(e) as T;
-      if (material) {
+      const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+      if (!isEmpty) {
         // 设置 props
         let position = {
           x: 0,
@@ -220,10 +221,8 @@ const throttleDragEventHandler = throttle(
         };
         if (editor.value) {
           position = await getCursorPosition(e, editor.value, 300);
-          // console.log('position', position);
         }
         // 更新新增物料标识
-        // canvasStore.isAdd = generateUUID();
         requestAnimationFrame(async () => {
           const left: RenrenInterface.KeyValueIndexType<string, string> = {
             key: 'style',
