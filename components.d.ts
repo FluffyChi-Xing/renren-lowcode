@@ -19,12 +19,10 @@ declare module 'vue' {
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
     ElCollapse: typeof import('element-plus/es')['ElCollapse']
     ElCollapseItem: typeof import('element-plus/es')['ElCollapseItem']
-    ElCollapseTransition: typeof import('element-plus/es')['ElCollapseTransition']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
-    ElDrawerTransition: typeof import('element-plus/es')['ElDrawerTransition']
     ElEmpty: typeof import('element-plus/es')['ElEmpty']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
@@ -53,7 +51,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
     Shape: typeof import('./src/components/Shape.vue')['default']
-    TestItem: typeof import('./src/components/TestItem.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
 }
