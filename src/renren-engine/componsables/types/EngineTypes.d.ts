@@ -2,7 +2,6 @@
  * @description 引擎类型模块
  * @author FluffyChi-Xing
  */
-import type {SandboxTypeEnum} from "@/renren-engine/enums/EngineEnums";
 
 
 export namespace EngineTypes {
@@ -15,7 +14,7 @@ export namespace EngineTypes {
    */
   export interface ISandbox {
     name: string; // 沙箱名称
-    type: SandboxTypeEnum; // 晒想类型
+    type: string; // 晒想类型
     proxy: WindowProxy; // 沙箱导出的代理实体
     isRunning: boolean; // 运行标识
     latestSetProp?: PropertyKey | null; // 最新设置的属性

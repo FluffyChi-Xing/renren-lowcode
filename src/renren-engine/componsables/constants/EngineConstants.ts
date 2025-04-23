@@ -2,10 +2,10 @@
  * @description 引擎常量 模块
  * @author FluffyChi-Xing
  */
-import * as process from "process";
+// import * as process from "process";
 
 
-export const IN_TEST: boolean = process.env.NODE_ENV === 'test';
+// export const IN_TEST: boolean = process.env.NODE_ENV === 'test';
 
 export const MOCK_SAFARI_TOP: string = 'mockSafariTop';
 
