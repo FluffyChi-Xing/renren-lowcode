@@ -18,7 +18,6 @@ const emits = defineEmits(['clear', 'schema']);
 async function clearCanvas() {
   await $engine.clearMaterialNodes().then(() => {
     emits('clear')
-    // canvasStore.isAdd = '000';
     $event.emit('clearCanvas');
     schemaStore.currentElement = undefined;
     $message({

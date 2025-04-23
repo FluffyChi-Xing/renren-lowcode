@@ -8,13 +8,11 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
-import {useCanvasStore} from "@/stores/canvas";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import $event from "@/componsables/utils/EventBusUtil";
+import {$util} from "@/componsables/utils";
 
 
 const schemaStore = useSchemaStore();
-const canvasStore = useCanvasStore();
 
 
 /** ===== 物料节点属性绑定-start =====**/
@@ -27,7 +25,7 @@ const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 function initMaterialAttributeData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+      if ($util.store.isCurrentElementAMaterial()) {
         const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
         // 清空现有响应式对象
         materialAttribute.value = [];

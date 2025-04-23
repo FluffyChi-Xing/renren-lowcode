@@ -11,13 +11,13 @@ import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/
 import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/modules/renderer/renderer";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
-import {MAX_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {useSchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
+import {$util} from "@/componsables/utils";
 
 
 const props = withDefaults(defineProps<{
@@ -182,10 +182,6 @@ function handleContextClick(event: MouseEvent) {
  */
 function pasteComp() {
   isShow.value = false;
-  // $message({
-  //   type: 'warning',
-  //   message: '请先复制需要粘贴的组件'
-  // });
 }
 /** ===== 画布拖拽业务-start ===== **/
 
@@ -206,14 +202,12 @@ function handleDragover(e: DragEvent) {
  */
 const throttleDragEventHandler = throttle(
   async function handleDragEvent<T extends RenrenMaterialModel>(e: DragEvent) {
-    // console.log('组件拖入');
     // 接受物料
     if (e) {
       e?.preventDefault();
       // 获取位置信息
       let material: T = getDataTransformMaterial(e) as T;
-      const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
-      if (!isEmpty) {
+      if (!$util.renren.isElementEmpty(material)) {
         // 设置 props
         let position = {
           x: 0,
@@ -247,9 +241,8 @@ const throttleDragEventHandler = throttle(
           // 将新增物料暂存到 store
           schemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
-          const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
           // 保存 schema
-          if (!isEmpty) {
+          if (!$util.renren.isElementEmpty(material)) {
             await $engine.insertNode2Document(material).then(() => {
               // 使用 eventBus 触发插入事件
               $event.emit('insert');
@@ -385,18 +378,16 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
  */
 function pasteMaterial() {
   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
-  if (schemaStore.currentElement !== void 0) {
-    if (schemaStore.currentElement?.type === 'material') {
-      $message({
-        type: 'info',
-        message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
-      });
-    } else {
-      $message({
-        type: 'warning',
-        message: '请先选择要粘贴的组件'
-      });
-    }
+  if ($util.store.isCurrentElementAMaterial()) {
+    $message({
+      type: 'info',
+      message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
+    });
+  } else {
+    $message({
+      type: 'warning',
+      message: '请先选择要粘贴的组件'
+    });
   }
 }
 
@@ -405,23 +396,21 @@ function pasteMaterial() {
  * @description 锁定物料节点
  */
 function lockMaterialNode() {
-  if (schemaStore.currentElement !== void 0) {
-    if (schemaStore.currentElement?.type === 'material') {
-      const material = schemaStore.currentElement as RenrenMaterialModel;
-      if (!material?.isLocked) {
-        material.isLocked = true;
-        schemaStore.currentElement = material;
-        isShow.value = false;
-        $message({
-          type: 'info',
-          message: '节点已锁定',
-        });
-      } else {
-        $message({
-          type: 'warning',
-          message: '节点已锁定',
-        });
-      }
+  if ($util.store.isCurrentElementAMaterial()) {
+    const material = schemaStore.currentElement as RenrenMaterialModel;
+    if (!material?.isLocked) {
+      material.isLocked = true;
+      schemaStore.currentElement = material;
+      isShow.value = false;
+      $message({
+        type: 'info',
+        message: '节点已锁定',
+      });
+    } else {
+      $message({
+        type: 'warning',
+        message: '节点已锁定',
+      });
     }
   } else {
     $message({
@@ -436,23 +425,21 @@ function lockMaterialNode() {
  * @description 解锁物料节点
  */
 function unLockMaterialNode() {
-  if (schemaStore.currentElement !== void 0) {
-    if (schemaStore.currentElement?.type === 'material') {
-      const material = schemaStore.currentElement as RenrenMaterialModel;
-      if (material?.isLocked) {
-        material.isLocked = false;
-        schemaStore.currentElement = material;
-        isShow.value = false;
-        $message({
-          type: 'info',
-          message: '节点已解锁',
-        });
-      } else {
-        $message({
-          type: 'warning',
-          message: '节点未锁定',
-        });
-      }
+  if ($util.store.isCurrentElementAMaterial()) {
+    const material = schemaStore.currentElement as RenrenMaterialModel;
+    if (material?.isLocked) {
+      material.isLocked = false;
+      schemaStore.currentElement = material;
+      isShow.value = false;
+      $message({
+        type: 'info',
+        message: '节点已解锁',
+      });
+    } else {
+      $message({
+        type: 'warning',
+        message: '节点未锁定',
+      });
     }
   } else {
     $message({
@@ -473,10 +460,9 @@ function unLockMaterialNode() {
 function stepZIndexUp(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+      if ($util.store.isCurrentElementAMaterial()) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.store.isCurrentMaterialEmpty()) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
               let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
@@ -524,10 +510,9 @@ function stepZIndexUp(): Promise<string> {
 function stepZIndexDown(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+      if ($util.store.isCurrentElementAMaterial()) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.store.isCurrentMaterialEmpty()) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
               let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
@@ -605,6 +590,20 @@ function changeZIndex(flag: string = 'up') {
 
 
 /**
+ * @description TODO: 删除当前选中的物料
+ */
+function deleteCurrentMaterial(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+
+    } catch (e) {
+      console.error('删除物料失败', e);
+      reject('删除物料失败');
+    }
+  });
+}
+
+/**
  * @description 初始化右键菜单列表
  * 1. 如果当前选中的元素不存在，则使用默认菜单列表初始化
  * 2. 如果当前选中的元素存在，则使用物料专用的菜单列表初始化
@@ -614,57 +613,55 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if (schemaStore.currentElement !== void 0) {
-        if (schemaStore.currentElement?.type === 'material') {
-          contextMenuList.value = [
-            {
-              key: '复制',
-              value: () => {
-                $message({
-                  type: 'info',
-                  message: '复制成功'
-                });
-                isShow.value = false;
-              },
-              index: 'copy'
+      if ($util.store.isCurrentElementAMaterial()) {
+        contextMenuList.value = [
+          {
+            key: '复制',
+            value: () => {
+              $message({
+                type: 'info',
+                message: '复制成功'
+              });
+              isShow.value = false;
             },
-            {
-              key: '粘贴',
-              value: pasteMaterial,
-              index: 'paste'
-            },
-            {
-              key: '剪切',
-              value: () => {},
-              index: 'cut'
-            },
-            {
-              key: '删除',
-              value: () => {},
-              index: 'delete'
-            },
-            {
-              key: '锁定',
-              value: lockMaterialNode,
-              index: 'lock'
-            },
-            {
-              key: '解锁',
-              value: unLockMaterialNode,
-              index: 'unLock'
-            },
-            {
-              key: '上移',
-              value: () => changeZIndex('up'),
-              index: 'up'
-            },
-            {
-              key: '下移',
-              value: () => changeZIndex('down'),
-              index: 'down'
-            }
-          ];
-        }
+            index: 'copy'
+          },
+          {
+            key: '粘贴',
+            value: pasteMaterial,
+            index: 'paste'
+          },
+          {
+            key: '剪切',
+            value: () => {},
+            index: 'cut'
+          },
+          {
+            key: '删除',
+            value: () => {},
+            index: 'delete'
+          },
+          {
+            key: '锁定',
+            value: lockMaterialNode,
+            index: 'lock'
+          },
+          {
+            key: '解锁',
+            value: unLockMaterialNode,
+            index: 'unLock'
+          },
+          {
+            key: '上移',
+            value: () => changeZIndex('up'),
+            index: 'up'
+          },
+          {
+            key: '下移',
+            value: () => changeZIndex('down'),
+            index: 'down'
+          }
+        ];
       } else {
         contextMenuList.value = DEFAULT_CONTEXT_MENU_LIST;
       }

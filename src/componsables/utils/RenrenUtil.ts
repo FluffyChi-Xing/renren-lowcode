@@ -3,6 +3,8 @@
  * @author FluffyChi-Xing
  */
 import html2canvas from 'html2canvas';
+import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 
 
 /**
@@ -98,4 +100,17 @@ export function takeScreenPhoto(containerElement: HTMLElement): Promise<string> 
       reject('截图失败');
     }
   });
+}
+
+
+/**
+ * @description 判断元素是否为空
+ * @param item
+ */
+export function isElementEmpty(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+  if (item !== void 0) {
+    return Object.keys(item).length === 0 && item.constructor === Object;
+  } else {
+    return true;
+  }
 }

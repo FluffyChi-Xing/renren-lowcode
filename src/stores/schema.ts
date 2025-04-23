@@ -26,3 +26,6 @@ export const useSchemaStore = defineStore('schema', () => {
     elementInProcess,
   };
 });
+
+
+export const mySchemaStore = useSchemaStore();

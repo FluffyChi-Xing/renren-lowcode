@@ -8,6 +8,7 @@ import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.
 import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
 import BaseDialog from "@/components/BaseDialog.vue";
+import {$util} from "@/componsables/utils";
 
 
 
@@ -89,8 +90,7 @@ async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): 
   return new Promise<string>(async (resolve, reject) => {
     try {
       if (schema) {
-        const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isElementEmpty(schema)) {
           // 同步 document 节点
           await createDocumentNode(schema).catch(err => reject(err));
 
@@ -185,8 +185,7 @@ async function settingDocumentHandler() {
   showDocEditor.value = true;
   const documentNode: MaterialDocumentModel | undefined = await $engine.getSchema();
   if (documentNode !== void 0) {
-    const isEmpty: boolean = Object.keys(documentNode).length === 0 && documentNode.constructor === Object;
-    if (!isEmpty) {
+    if (!$util.renren.isElementEmpty(documentNode)) {
       documentNodeName.value = documentNode.fileName ?? '未知页面';
     }
   }
