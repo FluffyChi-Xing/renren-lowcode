@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "author": "FluffyChi-Xing",
+  "description": "This is a low-code platform for my computer science club in my school.",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",

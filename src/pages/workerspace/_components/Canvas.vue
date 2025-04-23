@@ -462,19 +462,135 @@ function unLockMaterialNode() {
   }
 }
 
+/**
+ *  物料层级控制 -start
+ */
+
 
 /**
- * @description TODO: 修改层级
+ * @description 递增增加选中物料的层级
+ */
+function stepZIndexUp(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+        const material = schemaStore.currentElement as RenrenMaterialModel;
+        const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+        if (!isEmpty) {
+          if (material.props && material.props.items) {
+            if (material.props.items?.length > 0) {
+              let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
+              // 先判断 z-index 是否达到 99,如果是则显示到达最顶层
+              if (zIndex === void 0) {
+                reject('无法调整物料层级');
+              }
+              if (zIndex !== void 0) {
+                if (++ zIndex >= 99) {
+                  reject('到顶了');
+                } else {
+                  // 将当前物料的 z-index ++
+                  zIndex ++;
+                  material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
+                  // 同步到 store
+                  schemaStore.currentElement = material;
+                  // 组装 css
+                  const zIndexCSS: RenrenInterface.KeyValueIndexType<string, string> = {
+                    index: 'z-index',
+                    key: 'style',
+                    value: `${zIndex}`
+                  };
+                  // 同步到 schema
+                  $engine.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
+                    console.error(err);
+                    reject(err);
+                  });
+                  resolve('变更成功');
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('提升物料层级失败', e);
+    }
+  });
+}
+
+
+/**
+ * @description 步进递减选中组件的层级
+ */
+function stepZIndexDown(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+        const material = schemaStore.currentElement as RenrenMaterialModel;
+        const isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+        if (!isEmpty) {
+          if (material.props && material.props.items) {
+            if (material.props.items?.length > 0) {
+              let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
+              // 先判断 z-index 是否达到 1,如果是则显示到达最底层
+              if (zIndex === void 0) {
+                reject('无法调整物料层级');
+              }
+              if (zIndex !== void 0) {
+                if (-- zIndex === 0) {
+                  reject('到底了');
+                } else {
+                  // 否则将当前物料的 z-index --
+                  zIndex --;
+                  material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
+                  // 同步到 store
+                  schemaStore.currentElement = material;
+                  // 组装 css
+                  const zIndexCSS: RenrenInterface.KeyValueIndexType<string, string> = {
+                    index: 'z-index',
+                    key: 'style',
+                    value: `${zIndex}`
+                  };
+                  // 同步到 schema
+                  $engine.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
+                    console.error(err);
+                    reject(err);
+                  });
+                  resolve('变更成功');
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('提升物料层级失败', e);
+    }
+  });
+}
+
+
+/**
+ * @description 修改层级
  */
 function changeZIndex(flag: string = 'up') {
   if (flag === 'up') {
-    // 将当前物料的 z-index ++
-    // 同步到 store
-    // 同步到 schema
+    stepZIndexUp().catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+    isShow.value = false;
+    $event.emit(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`);
   } else if (flag === 'down') {
-    // 将当前物料的 z-index --
-    // 同步到 store
-    // 同步到 schema
+    stepZIndexDown().catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
+    isShow.value = false;
+    $event.emit(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`);
   } else {
     $message({
       type: 'warning',
@@ -482,6 +598,10 @@ function changeZIndex(flag: string = 'up') {
     });
   }
 }
+
+/**
+ *  物料层级控制 -end
+ */
 
 
 /**
@@ -535,12 +655,12 @@ function initContextMenuItem(): Promise<string> {
             },
             {
               key: '上移',
-              value: () => {},
+              value: () => changeZIndex('up'),
               index: 'up'
             },
             {
               key: '下移',
-              value: () => {},
+              value: () => changeZIndex('down'),
               index: 'down'
             }
           ];
