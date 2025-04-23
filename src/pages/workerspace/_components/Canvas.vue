@@ -78,6 +78,17 @@ function getCurrentCursorPosition<T extends MouseEvent>(event: T): Promise<strin
 }
 /** ===== 鼠标选择框-start ===== **/
 
+
+// 验证 在 Renren-engine 的 import 模块提供的第三方代码运行 API 中运行代码
+/**
+ * const externalCode: string = 'console.log(\'run third party code\');';
+ * $engine.runExternalThirdPartyFunction(externalCode).then(res => {
+ *   console.log(res);
+ * }).catch(err => {
+ *   console.log(err);
+ * });
+ */
+
 /**
  * @description 初始化鼠标按下事件
  * @param event

@@ -3,6 +3,7 @@
  * @author FluffyChi-Xing
  */
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import ProxySandbox from "@/renren-engine/sandbox/proxySandbox";
 
 
 /**
@@ -20,9 +21,6 @@ export function materialRegister(path: RenrenInterface.keyValueType<string>[]): 
   });
 }
 
-
-
-// TODO: 创建 JS 沙箱环境
 
 
 
@@ -44,6 +42,42 @@ export function isSchemaValid(item: any): Promise<string> {
     } catch (e) {
       console.error('检查 schema 是否合法失败', e);
       reject('检查 schema 是否合法失败');
+    }
+  });
+}
+
+
+/**
+ * @description 运行第三方函数代码
+ * @param code
+ */
+export function runExternalThirdPartyFunction(code: string): Promise<any> {
+  return new Promise<any>((resolve, reject) => {
+    if (code) {
+      const externalFunction = new Function(code);
+      if (typeof externalFunction === 'function') {
+        // 创建沙箱环境
+        const sandbox = new ProxySandbox('sandbox');
+        sandbox.active().catch(err => {
+          reject(err as string);
+        });
+        const { proxy } = sandbox;
+        // 在沙箱中运行外来代码
+        let result: any;
+        try {
+          result = externalFunction.call(proxy);
+        } catch (e) {
+          console.error('运行外来代码失败', e);
+          reject('运行外来代码失败');
+        }
+        // 卸载沙箱环境
+        sandbox.inactive().catch(err => {
+          reject(err as string);
+        });
+        resolve(result);
+      }
+    } else {
+      reject('外来代码不存在');
     }
   });
 }
