@@ -11,6 +11,7 @@ import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";
+import {$util} from "@/componsables/utils";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';
@@ -88,7 +89,23 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
             textContent = css.value; // 插槽内容
           } else if (css.key === 'style') {
             styleProp = styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
-            // console.log(styleProp);
+            // switch (css.type) {
+            //   case 'z-index':
+            //     break;
+            //   case 'width':
+            //     break;
+            //   case 'height':
+            //     break;
+            //   case 'top':
+            //     break;
+            //   case 'left':
+            //     break;
+            //   case 'position':
+            //     break;
+            //   default:
+            //     styleProp = styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
+            //     break;
+            // }
           } else {
             props[css.key] = css.value;
           }
@@ -369,6 +386,44 @@ function eventBindingHandler<T extends RenrenInterface.IEvent, K extends Materia
     } catch (e) {
       console.error('事件绑定处理失败', e);
       reject('事件绑定处理失败');
+    }
+  });
+}
+
+
+/**
+ * @description 以字符串形式获取物料的 css 属性
+ * @warn 使用该函数拿到的物料的 z-index 值会大于该物料的 z-index
+ * @warn 使用该函数获取到的长宽也会略大于该物料的长宽
+ * @warn 该函数仅用于获取物料外层编辑框的样式
+ * @param material
+ */
+export function getMaterialCSSAttributesAsStyle(material: RenrenMaterialModel | undefined): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (material !== void 0) {
+        if (!$util.renren.isElementEmpty(material)) {
+          let styleCSS: string = '';
+          const propList: MaterialInterface.IProp[] | undefined | null = material?.props?.items;
+          if (propList !== void 0 && propList?.length) {
+            propList.forEach(item => {
+              if (item && item.key === 'style') {
+                if (item.type === 'z-index') {
+                  styleCSS = styleCSS.concat(item.type + ':' + '199' + propAttributesSuffixOptions.get(item.type) + ';');
+                } else {
+                  styleCSS = styleCSS.concat(item.type + ':' + item.value + propAttributesSuffixOptions.get(item.type) + ';');
+                }
+              }
+            });
+          }
+          resolve(styleCSS);
+        } else {
+          reject('参数错误');
+        }
+      }
+    } catch (e) {
+      console.error('获取 CSS 属性失败', e);
+      reject('获取 CSS 属性失败');
     }
   });
 }

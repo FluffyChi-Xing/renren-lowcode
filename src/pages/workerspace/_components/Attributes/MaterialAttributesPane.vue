@@ -18,7 +18,6 @@ const schemaStore = useSchemaStore();
 /** ===== 物料节点属性绑定-start =====**/
 const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 
-// TODO: 将数据同步到 schema 中
 /**
  * @description 根据当前文档节点的属性初始化响应式对象
  */

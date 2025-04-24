@@ -289,7 +289,6 @@ const throttledMaterialMousemoveHandler = throttle(
       if (editor.value) {
         position = await getCursorPosition(event, editor.value, 500);
       }
-
       // 使用 requestAnimationFrame 更新样式
       requestAnimationFrame(async () => {
         const left: RenrenInterface.KeyValueIndexType<string, string> = {
@@ -325,9 +324,14 @@ const throttledMaterialMousemoveHandler = throttle(
         }
       });
     }
+    // 通知 物料编辑框 进行更新
+    $event.emit('updateShape');
   },
   16 // 节流时间设为16ms，与浏览器帧率（60fps）同步
-);/** ===== 画布拖拽业务-end ===== **/
+);
+
+
+/** ===== 画布拖拽业务-end ===== **/
 /**
  * @description 保持物料容器数据持久化
  */
@@ -978,7 +982,7 @@ $event.on('unLockMaterial', () => {
           @click="selectCurrentElement(item, $event);"
           :key="index"
           :item="item"
-          @dragover="displayItemDragendHandler"
+          @dragend="displayItemDragendHandler"
           @move="throttledMaterialMousemoveHandler(item, $event)"
         />
       </div>

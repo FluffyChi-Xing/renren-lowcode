@@ -50,7 +50,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
-    Shape: typeof import('./src/components/Shape.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
 }

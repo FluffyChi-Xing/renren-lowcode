@@ -170,6 +170,7 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
 </script>
 
 <template>
+  <!-- 物料编辑框 -->
   <component
     :is="comp"
     draggable="true"
