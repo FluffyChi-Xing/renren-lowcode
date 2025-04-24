@@ -79,15 +79,6 @@ function getCurrentCursorPosition<T extends MouseEvent>(event: T): Promise<strin
 /** ===== 鼠标选择框-start ===== **/
 
 
-// 验证 在 Renren-engine 的 import 模块提供的第三方代码运行 API 中运行代码
-/**
- * const externalCode: string = 'console.log(\'run third party code\');';
- * $engine.runExternalThirdPartyFunction(externalCode).then(res => {
- *   console.log(res);
- * }).catch(err => {
- *   console.log(err);
- * });
- */
 
 /**
  * @description 初始化鼠标按下事件
@@ -100,7 +91,6 @@ function initMousedownEvent<T extends MouseEvent>(event: T): RenrenInterface.XAn
   let editorY = reactInfo?.y;
   const startX = event.clientX;
   const startY = event.clientY;
-  // console.log('鼠标按下', startX, startY, editorX, editorY);
   // 选中框的偏移量
   selectAreaStart.value.x = startX - editorX;
   selectAreaStart.value.y = startY - editorY;
@@ -426,6 +416,7 @@ function lockMaterialNode() {
         type: 'warning',
         message: '节点已锁定',
       });
+      isShow.value = false;
     }
   } else {
     $message({
@@ -455,6 +446,7 @@ function unLockMaterialNode() {
         type: 'warning',
         message: '节点未锁定',
       });
+      isShow.value = false;
     }
   } else {
     $message({
@@ -605,16 +597,49 @@ function changeZIndex(flag: string = 'up') {
 
 
 /**
- * @description TODO: 删除当前选中的物料
+ * @description 删除当前选中的物料
  */
 function deleteCurrentMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-
+      if ($util.store.isCurrentElementAMaterial()) {
+        // 暂存 currentElement
+        const material = schemaStore.currentElement as RenrenMaterialModel;
+        // 清空 schemaStore 中的 currentElement
+        schemaStore.currentElement = undefined;
+        // 删除 schema 中对应的 material node
+        $engine.deleteNode(material.id).catch(err => {
+          console.error('删除物料失败',err);
+          reject('删除物料失败');
+        });
+        // 更新 materialContainer
+        materialContainer.value = materialContainer.value.filter(item => item.id !== material.id);
+        resolve('删除物料成功');
+      }
     } catch (e) {
       console.error('删除物料失败', e);
       reject('删除物料失败');
     }
+  });
+}
+
+
+/**
+ * @description 删除物料节点
+ */
+function deleteNode() {
+  deleteCurrentMaterial().then(() => {
+    $message({
+      type: 'info',
+      message: '删除成功'
+    });
+    isShow.value = false;
+  }).catch(err => {
+    $message({
+      type: 'warning',
+      message: err
+    });
+    isShow.value = false;
   });
 }
 
@@ -647,13 +672,8 @@ function initContextMenuItem(): Promise<string> {
             index: 'paste'
           },
           {
-            key: '剪切',
-            value: () => {},
-            index: 'cut'
-          },
-          {
             key: '删除',
-            value: () => {},
+            value: deleteNode,
             index: 'delete'
           },
           {
@@ -813,10 +833,6 @@ $event.on('clearCanvas', () => {
 $event.on('takePhoto', async () => {
   const url: string | void = await takeScreenPhoto(editor.value).catch(err => {
     console.error('截图失败', err);
-    // $message({
-    //   type: 'warning',
-    //   message: '截图失败'
-    // });
   });
   if (url) {
     const link = document.createElement('a');

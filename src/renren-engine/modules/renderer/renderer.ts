@@ -6,7 +6,7 @@ import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import type {Component} from "vue";
 import { h, defineComponent, shallowReactive } from 'vue';
-import {ElButton, ElLink, ElText} from "element-plus";
+import {ElButton, ElImage, ElLink, ElText} from "element-plus";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
@@ -20,6 +20,7 @@ const componentMap = {
   'el-button': ElButton,
   'el-text': ElText,
   'el-link': ElLink,
+  'el-image': ElImage,
 } as const;
 
 /**

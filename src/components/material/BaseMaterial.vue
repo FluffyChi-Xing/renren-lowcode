@@ -6,11 +6,13 @@ import {buttonSchema} from "@/material/base/Button";
 import MaterialItem from "@/components/MaterialItem.vue";
 import {textSchema} from "@/material/base/Text";
 import {linkSchema} from "@/material/base/Link";
+import {imageSchema} from "@/material/base/Image";
 
 const baseMaterialList = ref<RenrenMaterialModel[]>([
   new RenrenMaterialModel(buttonSchema),
   new RenrenMaterialModel(textSchema),
-  new RenrenMaterialModel(linkSchema)
+  new RenrenMaterialModel(linkSchema),
+  new RenrenMaterialModel(imageSchema)
 ]);
 
 

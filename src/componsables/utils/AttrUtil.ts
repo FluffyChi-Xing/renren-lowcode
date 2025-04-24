@@ -104,6 +104,9 @@ export const propAttributesMap = new Map<string, string>([
   ['plain', '线框'],
   ['text', '填充文本'],
   ['z-index', '优先级'],
+  ['src', '链接'],
+  ['loading', '加载方式'],
+  ['fit', '填充方式'],
 ]);
 
 
@@ -135,6 +138,9 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
   ['position', 'select'],
   ['plain','switch'],
   ['z-index', 'input'],
+  ['loading', 'select'],
+  ['src', 'input'],
+  ['fit', 'select'],
 ]);
 
 
@@ -156,6 +162,8 @@ export const propAttributesSuffixOptions: Map<string, string> = new Map<string, 
   ['opacity', '%'],
   ['position', ''],
   ['z-index', ''],
+  ['loading', ''],
+  ['fit', ''],
 ]);
 
 
@@ -277,6 +285,46 @@ export const plainOptions: RenrenInterface.keyValueType<boolean>[] = [
 ];
 
 
+export const loadingOptions: RenrenInterface.keyValueType<string>[] = [
+  {
+    key: '懒加载',
+    value: 'lazy'
+  },
+  {
+    value: 'eager',
+    key: '立即加载'
+  }
+];
+
+
+export const fitOptions: RenrenInterface.keyValueType<string>[] = [
+  {
+    key: '默认',
+    value: ''
+  },
+  {
+    key: 'fill',
+    value: 'fill'
+  },
+  {
+    key: 'contain',
+    value: 'contain'
+  },
+  {
+    key: 'cover',
+    value: 'cover'
+  },
+  {
+    key: 'none',
+    value: 'none'
+  },
+  {
+    key: 'scale-down',
+    value: 'scale-down'
+  }
+];
+
+
 /**
  * @description 属性值对应的选项映射表
  */
@@ -288,4 +336,6 @@ export const propAttributesOptionsMap: Map<string, RenrenInterface.keyValueType<
   ['type', elementTypeOptions],
   ['plain', plainOptions],
   ['position', positionOptions],
+  ['loading', loadingOptions],
+  ['fit', fitOptions],
 ]);
