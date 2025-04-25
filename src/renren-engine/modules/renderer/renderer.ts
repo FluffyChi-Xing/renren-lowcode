@@ -5,13 +5,14 @@
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import type {Component} from "vue";
-import { h, defineComponent, shallowReactive } from 'vue';
+import { h, defineComponent, shallowReactive, render } from 'vue';
 import {ElButton, ElImage, ElLink, ElText} from "element-plus";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";
 import {$util} from "@/componsables/utils";
+import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';
@@ -22,6 +23,16 @@ const componentMap = {
   'el-link': ElLink,
   'el-image': ElImage,
 } as const;
+
+
+/**
+ * @description 将 IProp 转换为行内样式字符串
+ * @param styleProp
+ * @param css
+ */
+function getCSSAttributesInString(styleProp: string, css: MaterialInterface.IProp): string {
+  return styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
+}
 
 /**
  * @description 创建 Vue 组件实体
@@ -62,10 +73,33 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
             }
           }
         }
+      } else {
+        reject('创建物料元素失败');
       }
     } catch (e) {
       console.error('创建物料元素失败', e);
       reject('创建物料元素失败');
+    }
+  });
+}
+
+
+/**
+ * @description 获取 material 元素的 dom 节点
+ * @param item
+ */
+export function createMaterialDomElement<T extends HTMLElement>(item: Component): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    try {
+      if (item !== void 0) {
+        // 将 vue component 渲染为 dom 节点
+        const container = document.createElement('div');
+        render(item, container);
+        resolve(container.firstElementChild as T);
+      }
+    } catch (e) {
+      console.error('创建物料元素dom节点失败', e);
+      reject('创建物料元素dom节点失败');
     }
   });
 }
@@ -89,24 +123,7 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
           if (css.key === 'text') {
             textContent = css.value; // 插槽内容
           } else if (css.key === 'style') {
-            styleProp = styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
-            // switch (css.type) {
-            //   case 'z-index':
-            //     break;
-            //   case 'width':
-            //     break;
-            //   case 'height':
-            //     break;
-            //   case 'top':
-            //     break;
-            //   case 'left':
-            //     break;
-            //   case 'position':
-            //     break;
-            //   default:
-            //     styleProp = styleProp.concat(css.type + ':' + css.value + propAttributesSuffixOptions.get(css.type) + ';');
-            //     break;
-            // }
+            styleProp = getCSSAttributesInString(styleProp, css);
           } else {
             props[css.key] = css.value;
           }
@@ -337,7 +354,6 @@ export function insertEvent2Material<T extends RenrenInterface.IEvent>(key: stri
         if (schema !== void 0 && schema.nodes) {
           if (schema.nodes?.length > 0) {
             material = schema.nodes.find(node => node.id === key) || undefined;
-            // 判断是否是事件数组，如果是则进行批量插入
             if (material !== void 0) {
               material = await eventBindingHandler(material, event).catch(err => {
                 reject(err);
@@ -409,10 +425,13 @@ export function getMaterialCSSAttributesAsStyle(material: RenrenMaterialModel | 
           if (propList !== void 0 && propList?.length) {
             propList.forEach(item => {
               if (item && item.key === 'style') {
-                if (item.type === 'z-index') {
-                  styleCSS = styleCSS.concat(item.type + ':' + '199' + propAttributesSuffixOptions.get(item.type) + ';');
-                } else {
-                  styleCSS = styleCSS.concat(item.type + ':' + item.value + propAttributesSuffixOptions.get(item.type) + ';');
+                switch (item.type) {
+                  case 'z-index':
+                    styleCSS = styleCSS.concat(item.type + ':' + '199' + propAttributesSuffixOptions.get(item.type) + ';');
+                    break;
+                  default:
+                    styleCSS = styleCSS.concat(item.type + ':' + item.value + propAttributesSuffixOptions.get(item.type) + ';');
+                    break;
                 }
               }
             });
@@ -425,6 +444,88 @@ export function getMaterialCSSAttributesAsStyle(material: RenrenMaterialModel | 
     } catch (e) {
       console.error('获取 CSS 属性失败', e);
       reject('获取 CSS 属性失败');
+    }
+  });
+}
+
+
+
+/**
+ * @description 创建页面根元素
+ * @param item
+ */
+export function createPageElement<T extends HTMLElement>(item: MaterialDocumentModel): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    try {
+      if (item !== void 0 && item?.type === 'document') {
+        const page: HTMLElement = document.createElement('div');
+        // 绑定页面样式
+        const prop: MaterialInterface.IProp[] | undefined | null = item.prop?.items;
+        let styleProp: string = '';
+        if (prop !== void 0 && prop?.length) {
+          if (prop.length > 0) {
+            prop.forEach(itm => {
+              styleProp = getCSSAttributesInString(styleProp, itm);
+            });
+            page.style.cssText = styleProp;
+            resolve(page as T);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('预览页面渲染失败', e);
+      reject('预览页面渲染失败');
+    }
+  });
+}
+
+
+
+// TODO: 预览页面渲染函数目前存在bug，无法实现设计目标
+
+/**
+ * @description 预览页面渲染函数
+ */
+export function previewRenderingPage(): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // 获取 schema
+      const schema: MaterialDocumentModel = await $engine.getSchema();
+      const nodes: MaterialInterface.IMaterial[] | undefined = schema.nodes;
+      // 创建页面元素
+      const pageElement: HTMLElement = await createPageElement(schema) as HTMLElement;
+      if (nodes !== void 0 && nodes?.length) {
+        if (nodes.length > 0) {
+          // 循环遍历 schema.nodes 创建对应的物料组件
+          nodes.forEach((node: MaterialInterface.IMaterial) => {
+            let domElement: HTMLElement | null = null;
+            createMaterialElement(node as RenrenMaterialModel).then(async (material) => {
+              // 绑定动画
+              if (node.animation) {
+                if (node.animation.length > 0) {
+                  domElement = await createMaterialDomElement(material);
+                  domElement?.classList.add(
+                    animationNameValueMap.get(node.animation[0].key) as string,
+                    'animated',
+                    'no-infinite'
+                  );
+                }
+              }
+              // TODO: 绑定事件
+              try {
+                pageElement.appendChild(domElement as HTMLElement);
+              } catch (err) {
+                console.error('页面渲染失败', err);
+                reject('页面渲染失败');
+              }
+            });
+          });
+          resolve(pageElement.toString());
+        }
+      }
+    } catch (e) {
+      console.error('预览页面失败', e);
+      reject('预览页面失败');
     }
   });
 }

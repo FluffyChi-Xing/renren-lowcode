@@ -75,7 +75,7 @@ export namespace RenrenInterface {
     type: string; // 事件类型
     description: string; // 事件描述
     id: string; // 事件id
-    callback: Function | undefined; // 回调函数
+    callback: string | undefined; // 回调函数
   }
 
 

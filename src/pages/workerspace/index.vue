@@ -20,20 +20,26 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
+import BaseDialog from "@/components/BaseDialog.vue";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 
 
 const isMaterialCollapse = ref<boolean>(false)
 const isEditConfigCollapse = ref<boolean>(false)
-const defaultIndex = ref<string>('1');
+// const defaultIndex = ref<string>('1');
 const defaultMaterial = ref(BaseMaterial);
-const clearCanvasFlag = ref<boolean>(false); // 清空画布标识
+// const clearCanvasFlag = ref<boolean>(false); // 清空画布标识
 const showDrawer = ref<boolean>(false);
 const animateDrawer = ref<boolean>(false); // 动画抽屉标识
 const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
 const schema2String = ref<string>();
 const schemaStore = useSchemaStore();
+const canvasStore = useCanvasStore();
+const previewFlag = ref<boolean>(false);
+const pageElement = ref<string>();
+const isLoading = ref<boolean>(false);
 
 
 /**
@@ -52,14 +58,6 @@ function materialCollapseHandler(index: boolean) {
 function editorConfigCollapseHandler(index: boolean) {
   isEditConfigCollapse.value = index;
 }
-
-
-/**
- * @description 处理画布清空事件
- */
-// function clearCanvasHandler() {
-//   clearCanvasFlag.value = !clearCanvasFlag.value;
-// }
 
 
 /**
@@ -89,7 +87,6 @@ async function showSchemaHandler() {
   const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
   if (!isEmpty) {
     schema2String.value = JSON.stringify(schema, null, 2);
-    // console.log(schema2String.value);
   }
 }
 
@@ -169,6 +166,24 @@ $event.on('bindEvent', () => {
   eventDrawer.value = false;
 });
 
+
+
+$event.on('previewPage', () => {
+  previewFlag.value = true;
+  isLoading.value = true;
+  $engine.previewRenderingPage().then((res: HTMLElement) => {
+    console.log(res);
+    pageElement.value = res.toString();
+    isLoading.value = false;
+  }).catch(() => {
+    isLoading.value = false;
+    $message({
+      type: 'warning',
+      message: '预览失败,请稍后'
+    });
+  });
+  isLoading.value = false;
+});
 </script>
 
 <template>
@@ -295,6 +310,34 @@ $event.on('bindEvent', () => {
         </el-aside>
       </el-container>
     </el-container>
+    <!-- preview-whole-page -->
+    <BaseDialog
+      v-model:show="previewFlag"
+      title="预览页面"
+      :width="canvasStore.width"
+      :footer="true"
+      :close-on-click-modal="false"
+      :show-close="false"
+    >
+      <template #default>
+<!--        <el-empty-->
+<!--          v-if="!pageElement"-->
+<!--          description="暂无数据"-->
+<!--        />-->
+        <div
+          v-loading="isLoading"
+          v-html="pageElement"
+          class="w-full h-auto flex"
+          :style="{ height: canvasStore.height + 'px' }"
+        />
+      </template>
+      <template #footer>
+        <div class="w-full h-auto flex items-center justify-end">
+          <el-button type="primary">确认</el-button>
+          <el-button @click="() => previewFlag = false" type="info">取消</el-button>
+        </div>
+      </template>
+    </BaseDialog>
   </div>
 </template>
 

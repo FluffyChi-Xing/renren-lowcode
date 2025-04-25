@@ -79,10 +79,6 @@ function runAnimationOnMaterial(): Promise<string> {
           if (material.animation !== void 0) {
             // 获取 DOM 元素（处理组件实例的情况）
             const domElement = materialNode.value?.$el;
-            // if (!(domElement instanceof HTMLElement)) {
-            //   console.error('materialNode 不是有效的 DOM 元素');
-            //   reject('运行动画失败');
-            // }
             domElement.classList.add(
               animationNameValueMap.get(material.animation[0].key) as string,
               'animated',

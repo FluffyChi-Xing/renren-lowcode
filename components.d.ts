@@ -52,4 +52,7 @@ declare module 'vue' {
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

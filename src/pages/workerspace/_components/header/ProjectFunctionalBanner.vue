@@ -4,8 +4,8 @@ import {useSchemaStore} from "@/stores/schema";
 import {Stack} from "@/componsables/models/RenrenModel";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
-import {watch} from "vue";
 import { debounce } from "lodash-es";
+import { watch } from "vue";
 
 
 const emits = defineEmits(['reset', 'revert', 'preview', 'save', 'export']);
@@ -131,6 +131,14 @@ function revertMaterialHandler() {
 
 
 /**
+ * @description 处理页面预览事件
+ */
+function previewPageHandler() {
+  $event.emit('previewPage');
+}
+
+
+/**
  * @description 处理物料插入事件
  */
 watch(() => schemaStore.newElement, () => {
@@ -215,7 +223,7 @@ $event.on(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?
     <!-- 保存到本地 -->
     <el-button>保存到本地</el-button>
     <!-- 预览 -->
-    <el-button type="primary">预览</el-button>
+    <el-button @click="previewPageHandler" type="primary">预览</el-button>
   </div>
 </template>
 

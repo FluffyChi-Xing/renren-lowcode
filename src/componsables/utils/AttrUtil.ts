@@ -159,11 +159,12 @@ export const propAttributesSuffixOptions: Map<string, string> = new Map<string, 
   ['font-weight', 'px'],
   ['line-height', 'px'],
   ['letter-spacing', 'px'],
-  ['opacity', '%'],
+  ['opacity', ''],
   ['position', ''],
   ['z-index', ''],
   ['loading', ''],
   ['fit', ''],
+  ['background-color', ''],
 ]);
 
 

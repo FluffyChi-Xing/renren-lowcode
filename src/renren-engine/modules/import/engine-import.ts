@@ -4,6 +4,7 @@
  */
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import ProxySandbox from "@/renren-engine/sandbox/proxySandbox";
+import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 /**
@@ -56,8 +57,10 @@ export function runExternalThirdPartyFunction(code: string): Promise<any> {
     if (code) {
       const externalFunction = new Function(code);
       if (typeof externalFunction === 'function') {
+        // 创建沙箱 uuid 座位 name
+        const name: string = generateUUID();
         // 创建沙箱环境
-        const sandbox = new ProxySandbox('sandbox');
+        const sandbox = new ProxySandbox(name);
         sandbox.active().catch(err => {
           reject(err as string);
         });
