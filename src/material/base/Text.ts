@@ -54,7 +54,7 @@ export const textSchema: MaterialInterface.IMaterial = {
         code: '',
         key: 'text',
         value: '文本',
-        type: 'text',
+        type: 'area',
         owner: '2',
         parent: propsId
       },

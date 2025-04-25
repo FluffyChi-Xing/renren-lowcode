@@ -107,6 +107,9 @@ export const propAttributesMap = new Map<string, string>([
   ['src', '链接'],
   ['loading', '加载方式'],
   ['fit', '填充方式'],
+  ['area', '长文本'],
+  ['circle', '圆形'],
+  ['round', '圆角'],
 ]);
 
 
@@ -141,6 +144,9 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
   ['loading', 'select'],
   ['src', 'input'],
   ['fit', 'select'],
+  ['area', 'area'],
+  ['circle', 'switch'],
+  ['round', 'switch'],
 ]);
 
 

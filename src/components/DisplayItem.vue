@@ -92,7 +92,7 @@ function runAnimationOnMaterial(): Promise<string> {
                   'animated',
                   'no-infinite'
                 );
-                console.log(domElement.classList);
+                // console.log(domElement.classList);
                 resolve('运行动画成功');
               }
             };
@@ -126,8 +126,6 @@ async function previewAnimationHandler() {
 
 onMounted(async () => {
   if (item.value) {
-    // 重新生成组件的主键，防止组件复用时出现主键重复的问题
-    //item.value.id = generateUUID();
     comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
   }
 })
@@ -136,7 +134,6 @@ onMounted(async () => {
 watch(() => props.item, async (newValue) => {
   if (newValue) {
     item.value = newValue;
-    // item.value.id = generateUUID(); // 重新生成组件的主键，防止组件复用时出现主键重复的问题
     comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
   } else {
     comp.value = undefined;

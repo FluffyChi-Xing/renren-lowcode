@@ -59,6 +59,16 @@ export const buttonSchema: MaterialInterface.IMaterial = {
         items: null,
         maps: undefined,
         code: '',
+        key: 'round',
+        value: 'false',
+        type: 'round',
+        owner: '1',
+        parent: propsId
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
         key: 'style',
         value: '100',
         type: 'width',

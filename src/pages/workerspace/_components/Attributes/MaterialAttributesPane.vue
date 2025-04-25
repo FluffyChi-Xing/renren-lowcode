@@ -212,6 +212,14 @@ watch(() => schemaStore.currentElement, () => {
           v-model="materialAttribute[index].value"
           @change="switchChangeHandler"
         />
+        <!-- 如果是 text-area -->
+        <textarea
+          v-if="propAttributesTypeMap.get(item.type) === 'area'"
+          v-model="materialAttribute[index].value"
+          @change="switchChangeHandler"
+          :rows="4"
+          style="resize: none;background-color: #e4e7ec;padding: 4px;"
+        />
       </el-form-item>
     </el-form>
   </div>

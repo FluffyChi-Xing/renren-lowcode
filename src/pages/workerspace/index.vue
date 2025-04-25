@@ -4,6 +4,7 @@ import MaterialAside from "@/pages/workerspace/_components/MaterialAside.vue";
 import EditorConfiguration from "@/pages/workerspace/_components/EditorConfiguration.vue";
 import Canvas from "@/pages/workerspace/_components/Canvas.vue";
 import {onMounted, ref, watch} from "vue";
+import type { Component } from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
 import BaseMaterial from "@/components/material/BaseMaterial.vue";
@@ -22,15 +23,14 @@ import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {useCanvasStore} from "@/stores/canvas";
+import '@/assets/animation.css';
 
 
 
 
-const isMaterialCollapse = ref<boolean>(false)
-const isEditConfigCollapse = ref<boolean>(false)
-// const defaultIndex = ref<string>('1');
+const isMaterialCollapse = ref<boolean>(false);
+const isEditConfigCollapse = ref<boolean>(false);
 const defaultMaterial = ref(BaseMaterial);
-// const clearCanvasFlag = ref<boolean>(false); // 清空画布标识
 const showDrawer = ref<boolean>(false);
 const animateDrawer = ref<boolean>(false); // 动画抽屉标识
 const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
@@ -38,8 +38,9 @@ const schema2String = ref<string>();
 const schemaStore = useSchemaStore();
 const canvasStore = useCanvasStore();
 const previewFlag = ref<boolean>(false);
-const pageElement = ref<string>();
+const pageElement = ref<Component[]>([]);
 const isLoading = ref<boolean>(false);
+const previewEl = ref();
 
 
 /**
@@ -171,9 +172,10 @@ $event.on('bindEvent', () => {
 $event.on('previewPage', () => {
   previewFlag.value = true;
   isLoading.value = true;
-  $engine.previewRenderingPage().then((res: HTMLElement) => {
-    console.log(res);
-    pageElement.value = res.toString();
+  $engine.previewRenderingPage().then((res: Component[]) => {
+    pageElement.value = res;
+    // TODO: 绑定动画
+    // TODO: 绑定事件
     isLoading.value = false;
   }).catch(() => {
     isLoading.value = false;
@@ -320,16 +322,17 @@ $event.on('previewPage', () => {
       :show-close="false"
     >
       <template #default>
-<!--        <el-empty-->
-<!--          v-if="!pageElement"-->
-<!--          description="暂无数据"-->
-<!--        />-->
         <div
           v-loading="isLoading"
-          v-html="pageElement"
           class="w-full h-auto flex"
-          :style="{ height: canvasStore.height + 'px' }"
-        />
+          :style="{ height: canvasStore.height + 'px', backgroundColor: canvasStore.canvasColor }"
+        >
+          <component
+            v-for="(item, index) in pageElement"
+            :key="index"
+            :is="item"
+          />
+        </div>
       </template>
       <template #footer>
         <div class="w-full h-auto flex items-center justify-end">

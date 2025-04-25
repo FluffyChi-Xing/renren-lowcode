@@ -85,27 +85,6 @@ export function createMaterialElement<T extends Component>(element: RenrenMateri
 
 
 /**
- * @description 获取 material 元素的 dom 节点
- * @param item
- */
-export function createMaterialDomElement<T extends HTMLElement>(item: Component): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    try {
-      if (item !== void 0) {
-        // 将 vue component 渲染为 dom 节点
-        const container = document.createElement('div');
-        render(item, container);
-        resolve(container.firstElementChild as T);
-      }
-    } catch (e) {
-      console.error('创建物料元素dom节点失败', e);
-      reject('创建物料元素dom节点失败');
-    }
-  });
-}
-
-
-/**
  * @description 插入 CSS 属性
  * @param attr
  * @param type
@@ -481,46 +460,43 @@ export function createPageElement<T extends HTMLElement>(item: MaterialDocumentM
 
 
 
-// TODO: 预览页面渲染函数目前存在bug，无法实现设计目标
 
 /**
  * @description 预览页面渲染函数
  */
-export function previewRenderingPage(): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
+export function previewRenderingPage<T extends Component>(): Promise<T[]> {
+  return new Promise<T[]>(async (resolve, reject) => {
     try {
       // 获取 schema
       const schema: MaterialDocumentModel = await $engine.getSchema();
       const nodes: MaterialInterface.IMaterial[] | undefined = schema.nodes;
-      // 创建页面元素
-      const pageElement: HTMLElement = await createPageElement(schema) as HTMLElement;
       if (nodes !== void 0 && nodes?.length) {
         if (nodes.length > 0) {
           // 循环遍历 schema.nodes 创建对应的物料组件
+          let materialList: Component[] = [];
           nodes.forEach((node: MaterialInterface.IMaterial) => {
-            let domElement: HTMLElement | null = null;
             createMaterialElement(node as RenrenMaterialModel).then(async (material) => {
-              // 绑定动画
-              if (node.animation) {
-                if (node.animation.length > 0) {
-                  domElement = await createMaterialDomElement(material);
-                  domElement?.classList.add(
-                    animationNameValueMap.get(node.animation[0].key) as string,
-                    'animated',
-                    'no-infinite'
-                  );
-                }
-              }
-              // TODO: 绑定事件
-              try {
-                pageElement.appendChild(domElement as HTMLElement);
-              } catch (err) {
-                console.error('页面渲染失败', err);
-                reject('页面渲染失败');
+              // 绑定 css 属性
+              if (node.props?.items) {
+                const newMaterial: Component = throttleCreateVueComponent(
+                  (node.props?.type as SupportedComponentType), // material type
+                  // material props
+                  {
+                    // 合并原有的 props
+                    ...node.props?.items.reduce((acc, item) => {
+                      if (item.key !== 'style') {
+                        acc[item.key] = item.value;
+                      }
+                      return acc;
+                    }, {} as Record<string, any>),
+                  },
+                  node.props?.items.find(item => item.key === 'text')?.value
+                );
+                materialList.push(newMaterial);
               }
             });
           });
-          resolve(pageElement.toString());
+          resolve(materialList as T[]);
         }
       }
     } catch (e) {
