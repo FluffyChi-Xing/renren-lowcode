@@ -66,7 +66,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
           if (props.length > 0 && item.props) {
             item.props.items = props;
             // 更新 schema & schemaStore
-            await $engine.updateMaterialNodeById(item as MaterialInterface.IMaterial).catch(err => {
+            await $engine.arrangement.updateMaterialNodeById(item as MaterialInterface.IMaterial).catch(err => {
               $message({
                 type: 'warning',
                 message: err as string

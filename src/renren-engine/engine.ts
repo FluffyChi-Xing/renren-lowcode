@@ -11,7 +11,7 @@ import * as engineImport from '@/renren-engine/modules/import/engine-import';
  * @description 编排引擎聚合模块
  */
 export const $engine = {
-  ...arrangement,
-  ...renderer,
-  ...engineImport,
+  arrangement,
+  renderer,
+  engineImport,
 }

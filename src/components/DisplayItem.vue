@@ -51,7 +51,7 @@ function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       comp.value = undefined;
-      comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
+      comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -126,7 +126,7 @@ async function previewAnimationHandler() {
 
 onMounted(async () => {
   if (item.value) {
-    comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
+    comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel);
   }
 })
 
@@ -134,7 +134,7 @@ onMounted(async () => {
 watch(() => props.item, async (newValue) => {
   if (newValue) {
     item.value = newValue;
-    comp.value = await $engine.createMaterialElement(props.item as RenrenMaterialModel);
+    comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel);
   } else {
     comp.value = undefined;
   }

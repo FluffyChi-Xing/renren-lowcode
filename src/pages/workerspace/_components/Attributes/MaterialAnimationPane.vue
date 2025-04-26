@@ -7,6 +7,7 @@ import {onMounted, ref} from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
+import {$util} from "@/componsables/utils";
 
 
 
@@ -32,7 +33,7 @@ function addAnimation2MaterialHandler() {
  * @description 处理物料动画预览事件
  */
 function previewMaterialAnimationHandler() {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.store.isCurrentElementAMaterial()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     $event.emit(`previewAnimation:${material.id}`);
   }
@@ -43,7 +44,7 @@ function previewMaterialAnimationHandler() {
  * @description 添加动画效果信息到列表中
  */
 function addAnimationInfo2List() {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.store.isCurrentElementAMaterial()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material !== void 0) {
       if (material.animation && material.animation.length > 0) {
@@ -64,7 +65,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 清空 schema 对应组件的 animation 属性
-      const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.getSchema();
+      const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
       if (schema !== void 0 && schema.type === 'document') {
         if (schema.nodes && schema.nodes.length > 0) {
           const material = schema.nodes.find(item => item.id === (schemaStore.currentElement as RenrenMaterialModel)?.id);
@@ -72,13 +73,13 @@ function removeAnimationBinding(key?: string): Promise<string> {
             if (material.animation.length > 0) {
               material.animation = [];
               // 更新 schema
-              await $engine.updateSchema(schema as MaterialDocumentModel);
+              await $engine.arrangement.updateSchema(schema as MaterialDocumentModel);
             }
           }
         }
       }
       // 清空 schemaStore.currentElement.animation
-      if (schemaStore.currentElement && schemaStore.currentElement?.type === 'material') {
+      if ($util.store.isCurrentElementAMaterial()) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           material.animation = [];

@@ -79,7 +79,7 @@ function syncValueWithType(index?: string | undefined): Promise<string> {
 async function sizeChangeHandler(index?: any) {
   try {
     const value: string = index?.target._value as string;
-    const schema = await $engine.getSchema();
+    const schema = await $engine.arrangement.getSchema();
     // 将宽度数据回写到 schema 中
     await syncValueWithType(value).then(() => {
       canvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
@@ -96,7 +96,7 @@ async function sizeChangeHandler(index?: any) {
         value: `width: ${defaultWidth.value}px;`,
         index: 'input'
       }
-      await $engine.updateDocumentCSSAttribute(schema.prop?.id as string, widthProps).catch(err => {
+      await $engine.renderer.updateDocumentCSSAttribute(schema.prop?.id as string, widthProps).catch(err => {
         $message({
           type: 'warning',
           message: err as string

@@ -244,7 +244,7 @@ const throttleDragEventHandler = throttle(
           // 防止误触导致插入空值
           // 保存 schema
           if (!$util.renren.isElementEmpty(material)) {
-            await $engine.insertNode2Document(material).then(() => {
+            await $engine.arrangement.insertNode2Document(material).then(() => {
               // 使用 eventBus 触发插入事件
               $event.emit('insert');
               $event.emit(`pushMaterial:${material.id}`);
@@ -326,7 +326,7 @@ const throttledMaterialMousemoveHandler = throttle(
  * @description 保持物料容器数据持久化
  */
 async function keepMaterialAlive() {
-  const nodes: RenrenMaterialModel[] | void = await $engine.getPersistNodeList().catch((err: string) => {
+  const nodes: RenrenMaterialModel[] | void = await $engine.arrangement.getPersistNodeList().catch((err: string) => {
     $message({
       type: 'warning',
       message: err
@@ -346,7 +346,7 @@ async function keepMaterialAlive() {
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
   // console.log('click grid');
-  schemaStore.currentElement = await $engine.getSchema() as MaterialDocumentModel;
+  schemaStore.currentElement = await $engine.arrangement.getSchema() as MaterialDocumentModel;
 }
 
 
@@ -493,7 +493,7 @@ function stepZIndexUp(): Promise<string> {
                     value: `${zIndex}`
                   };
                   // 同步到 schema
-                  $engine.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
+                  $engine.renderer.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
                     console.error(err);
                     reject(err);
                   });
@@ -543,7 +543,7 @@ function stepZIndexDown(): Promise<string> {
                     value: `${zIndex}`
                   };
                   // 同步到 schema
-                  $engine.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
+                  $engine.renderer.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
                     console.error(err);
                     reject(err);
                   });
@@ -608,7 +608,7 @@ function deleteCurrentMaterial(): Promise<string> {
         // 清空 schemaStore 中的 currentElement
         schemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
-        $engine.deleteNode(material.id).catch(err => {
+        $engine.arrangement.deleteNode(material.id).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -643,6 +643,18 @@ function deleteNode() {
   });
 }
 
+
+/**
+ * @description 处理复制组件事件
+ */
+function copyMaterialHandler() {
+  $message({
+    type: 'info',
+    message: '复制成功'
+  });
+  isShow.value = false;
+}
+
 /**
  * @description 初始化右键菜单列表
  * 1. 如果当前选中的元素不存在，则使用默认菜单列表初始化
@@ -657,13 +669,7 @@ function initContextMenuItem(): Promise<string> {
         contextMenuList.value = [
           {
             key: '复制',
-            value: () => {
-              $message({
-                type: 'info',
-                message: '复制成功'
-              });
-              isShow.value = false;
-            },
+            value: copyMaterialHandler,
             index: 'copy'
           },
           {
@@ -753,7 +759,7 @@ function updateMaterialData(): Promise<string> {
 function checkGridBackgroundColor(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = await $engine.getSchema();
+      const document: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
       if (document !== void 0) {
         const isEmpty: boolean = Object.keys(document).length === 0 && document.constructor === Object;
         if (!isEmpty) {
@@ -954,7 +960,10 @@ $event.on('unLockMaterial', () => {
 </script>
 
 <template>
-  <div @click="outerGridClickHandler" class="w-full h-full flex flex-col p-4">
+  <div
+    @click="outerGridClickHandler"
+    class="w-full h-full flex flex-col p-4"
+  >
     <el-scrollbar height="628">
       <div
         ref="editor"

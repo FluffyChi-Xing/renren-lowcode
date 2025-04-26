@@ -114,3 +114,16 @@ export function isElementEmpty(item: RenrenMaterialModel | MaterialDocumentModel
     return true;
   }
 }
+
+
+/**
+ * @description 判断元素是否为物料类型
+ * @param element
+ */
+export function isElementAMaterialModelType(element: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+  if (element !== void 0) {
+    return element?.type === 'material';
+  } else {
+    return false;
+  }
+}

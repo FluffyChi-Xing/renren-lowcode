@@ -6,6 +6,7 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
 import { debounce } from "lodash-es";
 import { watch } from "vue";
+import {$util} from "@/componsables/utils";
 
 
 const emits = defineEmits(['reset', 'revert', 'preview', 'save', 'export']);
@@ -24,7 +25,7 @@ const revertStack: Stack<RenrenMaterialModel> = new Stack<RenrenMaterialModel>()
 function updateTargetMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+      if ($util.store.isCurrentElementAMaterial()) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
         resetStack.push(material);
         resolve('更新成功');
@@ -43,7 +44,7 @@ function insertMaterialHandler(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       const debounceInsert = debounce(() => {
-        if (schemaStore.newElement !== void 0 && schemaStore.newElement?.type === 'material') {
+        if ($util.renren.isElementAMaterialModelType(schemaStore.newElement)) {
           resetStack.push(schemaStore.newElement as RenrenMaterialModel);
           resolve('插入物料事件处理成功');
         }
@@ -64,7 +65,7 @@ function resetEvent<T extends RenrenMaterialModel>(): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     try {
       let head: RenrenMaterialModel | undefined = resetStack.pop();
-      if (head !== void 0 && head?.type === 'material') {
+      if ($util.renren.isElementAMaterialModelType(head)) {
         // revert stack push stack-head
         revertStack.push(head);
         // sync to store
@@ -100,7 +101,7 @@ function revertEvent<T extends RenrenMaterialModel>(): Promise<T> {
     try {
       // revert stack pop stack-head
       let head: RenrenMaterialModel | undefined = revertStack.pop();
-      if (head !== void 0 && head?.type === 'material') {
+      if ($util.renren.isElementAMaterialModelType(head)) {
         // reset stack push stack-head
         resetStack.push(head);
         // sync to store
@@ -144,7 +145,6 @@ function previewPageHandler() {
 watch(() => schemaStore.newElement, () => {
   const material = schemaStore.newElement as RenrenMaterialModel;
   $event.on(`pushMaterial:${material?.id}`, () => {
-    // console.log('新增物料', schemaStore.newElement);
     insertMaterialHandler().catch(err => {
       $message({
         type: 'warning',

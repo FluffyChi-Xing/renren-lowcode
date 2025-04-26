@@ -174,7 +174,7 @@ export function createCSSAttributes<T extends RenrenMaterialModel>(item: T, prop
 export function updateMaterialCSSAttribute<T extends RenrenMaterialModel, P extends RenrenInterface.KeyValueIndexType<string, string>>(index: string, attr: P | P[]): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     try {
-      const schema = await $engine.getSchema();
+      const schema = await $engine.arrangement.getSchema();
       const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
       if (!isEmpty && schema.nodes) {
         if (schema.nodes.length > 0) {
@@ -204,7 +204,7 @@ export function updateMaterialCSSAttribute<T extends RenrenMaterialModel, P exte
                 }
               }
               // 更新 schema
-              await $engine.updateSchema(schema).catch(err => {
+              await $engine.arrangement.updateSchema(schema).catch(err => {
                 console.error('更新 schema 失败', err);
                 reject('更新 schema 失败');
               });
@@ -232,7 +232,7 @@ export function updateMaterialCSSAttribute<T extends RenrenMaterialModel, P exte
 export function updateDocumentCSSAttribute(index: string, prop: RenrenInterface.KeyValueIndexType<string, string>): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      let schema = await $engine.getSchema();
+      let schema = await $engine.arrangement.getSchema();
       const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
       if (!isEmpty) {
         if (schema.prop && schema.prop.items) {
@@ -261,7 +261,7 @@ export function updateDocumentCSSAttribute(index: string, prop: RenrenInterface.
                 schema.prop.items.push(pro);
               }
               // 保存更新后的schema
-              await $engine.updateSchema(schema).then(() => {
+              await $engine.arrangement.updateSchema(schema).then(() => {
                 resolve('更新 schema 成功');
               }).catch(err => {
                 console.error('更新 schema 失败', err);
@@ -328,7 +328,7 @@ export function insertEvent2Material<T extends RenrenInterface.IEvent>(key: stri
     try {
       if (key && event) {
         // 获取 schema 中对应的 material
-        const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.getSchema();
+        const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
         let material: MaterialInterface.IMaterial | void;
         if (schema !== void 0 && schema.nodes) {
           if (schema.nodes?.length > 0) {
@@ -340,7 +340,7 @@ export function insertEvent2Material<T extends RenrenInterface.IEvent>(key: stri
               if (material !== void 0) {
                 schema.nodes.find(node => node.id === material?.id)!.events = material.events || undefined;
                 // 更新 schema
-                await $engine.updateSchema(schema).then(() => {
+                await $engine.arrangement.updateSchema(schema).then(() => {
                   resolve('插入事件成功');
                 }).catch(err => {
                   reject(err as string);
@@ -468,7 +468,7 @@ export function previewRenderingPage<T extends Component>(): Promise<T[]> {
   return new Promise<T[]>(async (resolve, reject) => {
     try {
       // 获取 schema
-      const schema: MaterialDocumentModel = await $engine.getSchema();
+      const schema: MaterialDocumentModel = await $engine.arrangement.getSchema();
       const nodes: MaterialInterface.IMaterial[] | undefined = schema.nodes;
       if (nodes !== void 0 && nodes?.length) {
         if (nodes.length > 0) {

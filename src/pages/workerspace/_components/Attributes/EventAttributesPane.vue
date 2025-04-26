@@ -5,6 +5,7 @@ import {eventNameValueMap} from "@/componsables/utils/EventAttrUtil";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {$util} from "@/componsables/utils";
 
 
 
@@ -19,7 +20,7 @@ const eventData = ref<RenrenInterface.IEvent[]>([]);
  * @description 事件绑定
  */
 function addEventHandler() {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.store.isCurrentElementAMaterial()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material) {
       $event.emit(`addEvent:${material.id}`);
@@ -32,7 +33,7 @@ function addEventHandler() {
  * @description 清空事件绑定
  */
 function clearEventsHandler() {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.store.isCurrentElementAMaterial()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material) {
       $event.emit(`clearEvent:${material.id}`);
@@ -46,7 +47,7 @@ function clearEventsHandler() {
 
 
 function initEventData() {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.store.isCurrentElementAMaterial()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material && material.events) {
       eventData.value = material.events as RenrenInterface.IEvent[];

@@ -49,7 +49,7 @@ export function getSchema(key?: string): Promise<MaterialDocumentModel> {
       if (!key) {
         resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as MaterialDocumentModel);
       } else {
-        resolve(JSON.parse(localStorage.getItem(key) || '{}') as MaterialDocumentModel);
+        resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}') as MaterialDocumentModel);
       }
     } catch (e) {
       console.log('获取 schema 失败', e);
@@ -62,11 +62,16 @@ export function getSchema(key?: string): Promise<MaterialDocumentModel> {
 /**
  * @description 更新 schema
  * @param schema
+ * @param key // 文档节点 key optional
  */
-export function updateSchema(schema: MaterialDocumentModel): Promise<string> {
+export function updateSchema(schema: MaterialDocumentModel, key?: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
+      if (key) {
+        localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(schema));
+      } else {
+        localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
+      }
       resolve('更新 schema 成功');
     } catch (e) {
       console.log('更新 schema 失败', e);
@@ -636,6 +641,50 @@ export function insertAnimation2Material(key: string, animation: RenrenInterface
     } catch (e) {
       console.error('插入动画失败', e);
       reject('插入动画失败');
+    }
+  });
+}
+
+
+/**
+ * @description 更新文档节点标题
+ * @warn 由于当前测试环境中只存在一个无特殊命名的 document node，为了页面能正常开发，将 originalTitle 设定为可选属性
+ * @param newTitle
+ * @param originalTitle
+ */
+export function editDocumentTitle(newTitle: string, originalTitle?: string): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // 获取schema
+      let schema: MaterialDocumentModel | undefined;
+      if (originalTitle) {
+        schema = await getSchema(originalTitle);
+      } else {
+        schema = await getSchema();
+      }
+      if (schema !== void 0) {
+        if (schema.fileName) {
+          // 更新文档节点名称
+          schema.fileName = newTitle;
+        }
+        // 保存文档节点
+        if (originalTitle) {
+          updateSchema(schema, originalTitle).catch(err => {
+            console.error('更新 schema 失败', err);
+            reject(err as string);
+          });
+        } else {
+          updateSchema(schema).catch(err => {
+            console.error('更新 schema 失败', err);
+            reject(err as string);
+          });
+        }
+        // 如果存在 originalTitle
+        resolve('更新文档标题成功');
+      }
+    } catch (e) {
+      console.error('编辑文档标题失败', e);
+      reject('编辑文档标题失败');
     }
   });
 }

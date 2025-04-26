@@ -84,7 +84,7 @@ function tabChangeHandler(index: string) {
  */
 async function showSchemaHandler() {
   showDrawer.value = !showDrawer.value;
-  const schema = await $engine.getSchema();
+  const schema = await $engine.arrangement.getSchema();
   const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
   if (!isEmpty) {
     schema2String.value = JSON.stringify(schema, null, 2);
@@ -113,7 +113,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promis
           schemaStore.currentElement = material;
         }
         // 将动画保存在 schema 中
-        await $engine.insertAnimation2Material(material.id, item).catch(err => {
+        await $engine.arrangement.insertAnimation2Material(material.id, item).catch(err => {
           reject(err as string);
         });
         resolve('保存动画成功');
@@ -172,7 +172,7 @@ $event.on('bindEvent', () => {
 $event.on('previewPage', () => {
   previewFlag.value = true;
   isLoading.value = true;
-  $engine.previewRenderingPage().then((res: Component[]) => {
+  $engine.renderer.previewRenderingPage().then((res: Component[]) => {
     pageElement.value = res;
     // TODO: 绑定动画
     // TODO: 绑定事件

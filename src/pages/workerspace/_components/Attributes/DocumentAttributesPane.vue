@@ -51,7 +51,7 @@ function initDocumentAttributeData(): Promise<string> {
 function documentColorChangeHandler(color: string) {
   if (color) {
     canvasStore.canvasColor = color;
-    $engine.updateDocumentPropNode(documentAttribute.value).catch(err => {
+    $engine.arrangement.updateDocumentPropNode(documentAttribute.value).catch(err => {
       $message({
         type: 'warning',
         message: err as string
@@ -73,7 +73,7 @@ const inputChangeDebounceHandler = debounce(() => {
       }
     });
     // 由于输入框事件可能频繁触发，这里使用 debounce 节流处理
-    $engine.updateDocumentPropNode(documentAttribute.value).catch(err => {
+    $engine.arrangement.updateDocumentPropNode(documentAttribute.value).catch(err => {
       $message({
         type: 'warning',
         message: err as string

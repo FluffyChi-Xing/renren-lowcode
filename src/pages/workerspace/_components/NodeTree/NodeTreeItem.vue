@@ -62,14 +62,20 @@ function settingItemHandler(): Promise<string> {
   >
     <div
       :class="props.type === 'material' ? 'pl-4' : ''"
-      class="w-full h-full flex items-center"
+      class="w-full h-full flex items-center overflow-hidden"
     >
       <!-- icon -->
       <el-icon class="mr-2">
         <component :is="icon"/>
       </el-icon>
       <!-- name -->
-      <span>{{ name }}</span>
+      <el-tooltip
+        placement="bottom"
+        effect="dark"
+        :content="name"
+      >
+        <div class="w-full h-auto flex items-center whitespace-nowrap">{{ name }}</div>
+      </el-tooltip>
     </div>
     <!-- functional banner -->
     <div

@@ -16,7 +16,7 @@ const emits = defineEmits(['clear', 'schema']);
  * @description 清空画布
  */
 async function clearCanvas() {
-  await $engine.clearMaterialNodes().then(() => {
+  await $engine.arrangement.clearMaterialNodes().then(() => {
     emits('clear')
     $event.emit('clearCanvas');
     schemaStore.currentElement = undefined;

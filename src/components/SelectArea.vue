@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
 
 <style scoped>
 .area {
-  border: 1px dashed #70c0ff;
+  border: 1px dashed #0066ff;
   position: absolute;
 }
 </style>

@@ -122,7 +122,7 @@ async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): 
 
 onMounted(async () => {
   // 获取 schema
-  const schema: MaterialDocumentModel | void = await $engine.getSchema();
+  const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
   // 初始化物料节点
   await initMaterialNodeTree(schema).catch(err => {
     $message({
@@ -139,8 +139,7 @@ onMounted(async () => {
 function refreshTree(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const schema: MaterialDocumentModel | void = await $engine.getSchema();
-      // console.log(schema);
+      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
       if (schema) {
         await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).then(() => {
           resolve('刷新物料节点树成功');
@@ -166,7 +165,7 @@ function clearTreeNode(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 获取 schema
-      const schema: MaterialDocumentModel | void = await $engine.getSchema();
+      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
       // 去除除了 document 节点外的其他所有节点
       materialNodeTreeList.value = materialNodeTreeList.value.filter(node => node.name === schema?.fileName);
       resolve('清空节点成功');
@@ -183,11 +182,38 @@ function clearTreeNode(): Promise<string> {
  */
 async function settingDocumentHandler() {
   showDocEditor.value = true;
-  const documentNode: MaterialDocumentModel | undefined = await $engine.getSchema();
+  const documentNode: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
   if (documentNode !== void 0) {
     if (!$util.renren.isElementEmpty(documentNode)) {
       documentNodeName.value = documentNode.fileName ?? '未知页面';
     }
+  }
+}
+
+
+/**
+ * @description 处理修改 document node 名称事件
+ */
+function editDocumentNameHandler() {
+  if (documentNodeName.value) {
+    showDocEditor.value = false;
+    $engine.arrangement.editDocumentTitle(documentNodeName.value).then(async () => {
+      // 更新 tree list 中 document node 的名称
+      let documentNode: MaterialTreeModel | undefined = materialNodeTreeList.value[0];
+      if (documentNode !== void 0 && documentNode?.name) {
+        documentNode.name = documentNodeName.value ? documentNodeName.value : '未知节点';
+        materialNodeTreeList.value[0] = documentNode;
+      }
+      $message({
+        type: 'info',
+        message: '修改页面名称'
+      });
+    }).catch(err => {
+      $message({
+        type: 'warning',
+        message: err as string
+      });
+    });
   }
 }
 
@@ -272,7 +298,7 @@ $event.on('clearCanvas', () => {
     </template>
     <template #footer>
       <div class="w-full h-auto flex items-center justify-end">
-        <el-button type="primary">确认</el-button>
+        <el-button @click="editDocumentNameHandler" type="primary">确认</el-button>
         <el-button @click="() => showDocEditor = false" type="info">取消</el-button>
       </div>
     </template>
