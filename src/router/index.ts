@@ -19,6 +19,45 @@ const router = createRouter({
           component: () => import('@/pages/home/index.vue'),
         },
         {
+          path: '/manage',
+          name: 'manage',
+          component: () => import('@/pages/manage/index.vue'),
+          children: [
+            {
+              path: '',
+              name: 'manageDashboard',
+              meta: {
+                title: '人人低码 | 仪表盘'
+              },
+              component: () => import('@/pages/manage/_pages/dashboard/ManagementDashboard.vue')
+            },
+            {
+              path: '/manage/material',
+              name: 'manageMaterial',
+              meta: {
+                title: '人人低码 | 物料管理'
+              },
+              component: () => import('@/pages/manage/_pages/material/ManagementMaterial.vue')
+            },
+            {
+              path: '/manage/project',
+              name: 'manageProject',
+              meta: {
+                title: '人人低码 | 项目管理'
+              },
+              component: () => import('@/pages/manage/_pages/project/ManagementProject.vue')
+            },
+            {
+              path: '/manage/userInfo',
+              name: 'manageUserInfo',
+              meta: {
+                title: '人人低码 | 用户中心'
+              },
+              component: () => import('@/pages/manage/_pages/userInfo/ManagementUserInfo.vue')
+            }
+          ]
+        },
+        {
           path: '/workerSpace',
           name: 'workerSpace',
           meta: {
