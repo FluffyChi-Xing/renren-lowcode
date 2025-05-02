@@ -1,11 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import {$const} from "@/componsables/const";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 
 /** ========== 表格初始化-start ==========**/
+interface dataType {
+  projectId: string;
+  projectName: string;
+  projectPath: string;
+  simulatorHost: string;
+  documents: MaterialInterface.IDocument[] | undefined;
+}
+
+
+const data = ref<dataType[]>([]);
 const tableColumnList = ref<RenrenInterface.keyValueType<string>[]>([
   {
     key: 'id',
@@ -24,7 +36,49 @@ const tableColumnList = ref<RenrenInterface.keyValueType<string>[]>([
     value: 'simulatorHost'
   },
 ]);
+
+
+/**
+ * @description 获取本地存储的全部项目key
+ * @warn 本函数只用于在 stand-alone 状态下初始化列表
+ */
+function getProjectKeys(): Promise<string[]> {
+  return new Promise<string[]>((resolve) => {
+    let result: string[];
+    result = Object.keys(localStorage).filter(item => item.startsWith($const.ren.SCHEMA_PROJECT_STORAGE_ID));
+    resolve(result);
+  });
+}
+
+
+/**
+ * @description 在离线情况下初始化表格数据
+ */
+async function initTableAtStandAlone() {
+  const projectKeys: string[] = await getProjectKeys();
+  if (projectKeys && projectKeys.length > 0) {
+    projectKeys.forEach(item => {
+      let project: MaterialInterface.IProject = JSON.parse(localStorage.getItem(item) || '{}');
+      let isEmpty: boolean = Object.keys(project).length === 0 && project.constructor !== Object;
+      if (!isEmpty) {
+        data.value.push({
+          documents: project.documents,
+          projectId: project.projectId,
+          projectName: project.projectName,
+          projectPath: project.projectPath,
+          simulatorHost: project.simulatorHost
+        });
+      }
+    });
+  }
+}
 /** =========== 表格初始化-end ==========**/
+
+
+
+onMounted(() => {
+  initTableAtStandAlone();
+});
 </script>
 
 <template>
@@ -34,6 +88,7 @@ const tableColumnList = ref<RenrenInterface.keyValueType<string>[]>([
     </template>
     <template #default>
       <el-table
+        :data="data"
         stripe
         border
         fit
@@ -46,7 +101,67 @@ const tableColumnList = ref<RenrenInterface.keyValueType<string>[]>([
           width="200"
         >
           <template #default="{ row }">
-            <div class="w-full h-20 flex bg-red-500"></div>
+            <div class="w-full h-auto flex flex-col p-4">
+              <el-table
+                :data="row.documents"
+                stripe
+                border
+                fit
+                :header-cell-style="{ backgroundColor: '#959595', alignItems: 'center', color: '#000' }"
+              >
+                <el-table-column
+                  label="节点名称"
+                  prop="fileName"
+                />
+                <el-table-column
+                  label="节点是否为空"
+                >
+                  <template #default="{ row }">
+                    <el-switch
+                      v-model="row.blank"
+                      disabled
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="节点是否启用"
+                >
+                  <template #default="{ row }">
+                    <el-switch
+                      v-model="row.activated"
+                      disabled
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="页面是否打开(默认页面)"
+                >
+                  <template #default="{ row }">
+                    <el-switch
+                      v-model="row.opened"
+                      disabled
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="节点是否为根节点"
+                >
+                  <template #default="{ row }">
+                    <el-switch
+                      v-model="row.rootNode"
+                      disabled
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <template #empty>
+                  <el-empty description="暂无页面节点详情" />
+                </template>
+              </el-table>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
