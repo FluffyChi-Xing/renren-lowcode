@@ -94,8 +94,7 @@ watch(() => route.path, () => {
       <el-aside width="240px">
         <div class="w-full h-full flex flex-col">
           <el-menu
-            active-text-color="#ffd04b"
-            background-color="#545c64"
+            background-color="#031f2f"
             :default-active="defaultActive"
             text-color="#fff"
             router
@@ -131,5 +130,16 @@ watch(() => route.path, () => {
 
 :deep(.el-scrollbar__view) {
   height: 100%;
+}
+
+:deep(.el-menu-item) {
+  &.is-active {
+    background-color: #0256FF;
+    color: white;
+  }
+  &:hover {
+    background-color: #0256FF;
+    color: white;
+  }
 }
 </style>
