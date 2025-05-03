@@ -11,6 +11,7 @@ export namespace UserInfoRespDto {
     key: string;
     token: string;
     username: string;
+    userId: string;
   }
 
 
@@ -20,5 +21,16 @@ export namespace UserInfoRespDto {
   export interface CaptchaRespDto {
     secretKey: string;
     captcha: string; // base64编码的验证码图片
+  }
+
+
+  /**
+   * @description 用户脱敏返回信息
+   */
+  export interface UserDesensitizationInfoRespDto {
+    userId: string;
+    username: string;
+    password: string;
+    email: string;
   }
 }

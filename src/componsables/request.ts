@@ -10,9 +10,8 @@ import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
  * @description 通用请求模块
  * @param url
  * @param options
- * @param headers
  */
-export async function $request(url: string, options?: FetchOptions | RequestInit, headers?: HeadersInit): Promise<any> {
+export async function $request(url: string, options?: FetchOptions | RequestInit): Promise<any> {
   return await ofetch(url, {
     async onRequest() {
       if (url === null || url === void 0) {
@@ -26,8 +25,7 @@ export async function $request(url: string, options?: FetchOptions | RequestInit
             'username': getUsername(),
             'token': getToken(),
             'userId': '',
-            'secretKey': getSecretKey(),
-            ...headers
+            'secretKey': getSecretKey()
           }
         };
       } else {
@@ -36,7 +34,6 @@ export async function $request(url: string, options?: FetchOptions | RequestInit
           'token': getToken(),
           'userId': '',
           'secretKey': getSecretKey(),
-          ...headers
         };
       }
     },

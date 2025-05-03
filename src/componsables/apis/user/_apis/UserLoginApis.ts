@@ -57,3 +57,53 @@ export function getCaptcha<T extends UserInfoRespDto.CaptchaRespDto>(): Promise<
       });
   });
 }
+
+
+/**
+ * @description 查询用户登录状态接口
+ */
+export function hasLogin(): Promise<boolean> {
+  return new Promise<boolean>(async (resolve, reject) => {
+    await userApiAggregation('/hasLogin')
+      .then(res => {
+        if (res.code === HttpCodeEnum.SUCCESS) {
+          resolve(res.data as boolean);
+        }
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+
+/**
+ * @description 用户注册接口
+ * @param params
+ */
+export function userRegister(params: UserInfoReqDto.UserRegisterReqDto): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    let data = new FormData();
+    data.append('username', params.username);
+    data.append('password', params.password);
+    data.append('email', params.email);
+    data.append('secretKey', params.secretKey);
+    data.append('code', params.code);
+    let options: FetchOptions = {
+      body: data,
+      method: HttpRequestMethodEnum.POST,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    };
+    await userApiAggregation('/register', options)
+      .then(res => {
+        if (res.code === HttpCodeEnum.SUCCESS) {
+          resolve(res.data as string);
+        }
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
