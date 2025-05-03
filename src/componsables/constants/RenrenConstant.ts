@@ -129,3 +129,7 @@ export const FEATURE_INFO_LIST: RenrenInterface.FeatureCardType[] = [
  * @description 项目的 github 地址
  */
 export const GITHUB_REPOSITORY: string = 'https://github.com/FluffyChi-Xing/renren-lowcode';
+
+
+
+export const USER_LOGIN_INFO_FLAG: string = 'renren-lowcode-login';

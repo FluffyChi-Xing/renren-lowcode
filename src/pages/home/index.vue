@@ -10,6 +10,7 @@ import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
 import {useRouter} from "vue-router";
+import {$api} from "@/componsables/api";
 
 
 
@@ -24,6 +25,14 @@ const router = useRouter();
 function createNewProject() {
   router.push('/manage');
 }
+
+
+/**
+ * @description 测试请求模块的正确性
+ */
+$api.login.getCaptcha().then(res => {
+  console.log(res);
+});
 /** ======= 新建项目-end ===== **/
 </script>
 

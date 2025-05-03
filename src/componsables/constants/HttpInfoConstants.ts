@@ -1,0 +1,18 @@
+/**
+ * @description http 相关信息常量模块
+ * @author FluffyChi-Xing
+ */
+
+
+/**
+ * @description http 基础请求地址
+ */
+export const HTTP_BASE_REQUEST_HOST: string = 'http://localhost:9090/api/renren';
+
+
+
+
+/**
+ * @description 用户 api 请求前缀
+ */
+export const USER_API_REQUEST_PREFIX: string = `${HTTP_BASE_REQUEST_HOST}/user`;

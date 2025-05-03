@@ -112,4 +112,4 @@ export const buttonSchema: MaterialInterface.IMaterial = {
     size: 20,
   },
   icon: 'Pointer'
-}
+};

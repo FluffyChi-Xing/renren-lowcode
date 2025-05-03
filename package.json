@@ -36,6 +36,7 @@
     "mitt": "^3.0.1",
     "nanoid": "^5.1.5",
     "nprogress": "^0.2.0",
+    "ofetch": "^1.4.1",
     "pinia": "^2.2.4",
     "pinia-plugin-persistedstate": "^4.2.0",
     "uuid": "^11.1.0",

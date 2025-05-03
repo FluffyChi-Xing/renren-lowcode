@@ -93,4 +93,4 @@ export const imageSchema: MaterialInterface.IMaterial = {
     size: 20,
   },
   zLevel: 0
-}
+};
