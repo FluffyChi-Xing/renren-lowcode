@@ -38,7 +38,7 @@ export function queryMaterialInfo<T extends MaterialRespDto.QueryMaterialListRes
  */
 export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(): Promise<T[]> {
   return new Promise<T[]>(async (resolve, reject) => {
-    await materialApiAggregation({ url: '/querAll' })
+    await materialApiAggregation({ url: '/queryAll' })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T[]);

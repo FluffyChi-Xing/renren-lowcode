@@ -54,6 +54,14 @@ const router = createRouter({
                 title: '人人低码 | 用户中心'
               },
               component: () => import('@/pages/manage/_pages/userInfo/ManagementUserInfo.vue')
+            },
+            {
+              path: '/manage/recycle',
+              name: 'recycleBin',
+              meta: {
+                title: '人人低码 | 回收站'
+              },
+              component: () => import('@/pages/manage/_pages/recyclebin/ManagementRecycle.vue')
             }
           ]
         },

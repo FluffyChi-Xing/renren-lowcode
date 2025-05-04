@@ -30,6 +30,11 @@ const menuList = ref<RenrenInterface.KeyValueIndexType<string, string>[]>([
     key: '用户中心',
     value: '/manage/userInfo',
     index: 'User'
+  },
+  {
+    key: '回收站',
+    value: '/manage/recycle',
+    index: 'Delete'
   }
 ]);
 
@@ -56,6 +61,14 @@ function checkCurrentActiveItemHandler(): Promise<string> {
         case '/manage/userInfo':
           defaultActive.value = '用户中心';
           resolve('用户中心');
+          break;
+        case '/manage/recycle':
+          defaultActive.value = '回收站';
+          resolve('回收站');
+          break;
+        default:
+          defaultActive.value = '仪表盘';
+          resolve('仪表盘');
           break;
       }
     } catch (e) {

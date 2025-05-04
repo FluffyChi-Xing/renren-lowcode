@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {ref, watch} from 'vue';
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import Draggable from "@/components/Draggable.vue";
 import {buttonSchema} from "@/material/base/Button";
@@ -8,12 +8,22 @@ import {textSchema} from "@/material/base/Text";
 import {linkSchema} from "@/material/base/Link";
 import {imageSchema} from "@/material/base/Image";
 
-const baseMaterialList = ref<RenrenMaterialModel[]>([
-  new RenrenMaterialModel(buttonSchema),
-  new RenrenMaterialModel(textSchema),
-  new RenrenMaterialModel(linkSchema),
-  new RenrenMaterialModel(imageSchema)
-]);
+
+
+const props = withDefaults(defineProps<{
+  index?: string;
+  materialData?: RenrenMaterialModel[] | undefined;
+}>(), {
+  materialData: () => [],
+  index: '1', // 基础物料组件标识
+});
+
+
+
+
+
+
+const baseMaterialList = ref<RenrenMaterialModel[]>(props.materialData);
 
 
 /**
@@ -35,25 +45,39 @@ function startHandler(index: any): Promise<any> {
 function startDrag(event: DragEvent, item: RenrenMaterialModel) {
   event.dataTransfer?.setData('material', JSON.stringify(item));
 }
+
+
+
+watch(() => props.index, () => {
+  baseMaterialList.value = props.materialData;
+});
 </script>
 
 <template>
-  <Draggable
-    v-model:model-value="baseMaterialList"
-    :group="{ name: 'simulator', pull: 'clone', put: false }"
-    :animation="150"
-    class="w-full h-full"
-    @start="startHandler"
+  <div
+    v-if="props.materialData.length > 0  && props.index === '1'"
   >
-    <div class="w-full h-full grid grid-cols-2 gap-1">
-      <MaterialItem
-        v-for="item in baseMaterialList"
-        :key="item.id"
-        :item="item"
-        @start="startDrag($event, item)"
-      />
-    </div>
-  </Draggable>
+    <Draggable
+      v-model:model-value="baseMaterialList"
+      :group="{ name: 'simulator', pull: 'clone', put: false }"
+      :animation="150"
+      class="w-full h-full"
+      @start="startHandler"
+    >
+      <div class="w-full h-full grid grid-cols-2 gap-1">
+        <MaterialItem
+          v-for="item in baseMaterialList"
+          :key="item.id"
+          :item="item"
+          @start="startDrag($event, item)"
+        />
+      </div>
+    </Draggable>
+  </div>
+  <el-empty
+    v-else
+    description="暂无物料元素"
+  />
 </template>
 
 <style scoped>

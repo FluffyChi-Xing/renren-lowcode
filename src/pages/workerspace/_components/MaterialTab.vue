@@ -3,6 +3,12 @@ import { ref } from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import {$message} from "@/componsables/element-plus";
+import BaseMaterial from "@/components/material/BaseMaterial.vue";
+import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {buttonSchema} from "@/material/base/Button";
+import {textSchema} from "@/material/base/Text";
+import {linkSchema} from "@/material/base/Link";
+import {imageSchema} from "@/material/base/Image";
 const props = withDefaults(defineProps<{
   paneComp?: HTMLElement | any
   index?: string;
@@ -63,6 +69,23 @@ function searchCompHandler() {
     });
   }
 }
+
+
+/**
+ * @description 物料类型和对应的物料列表映射表
+ */
+const materialList = ref<Record<string, RenrenMaterialModel[]>>({
+  '1': [
+    new RenrenMaterialModel(buttonSchema),
+    new RenrenMaterialModel(textSchema),
+    new RenrenMaterialModel(linkSchema),
+    new RenrenMaterialModel(imageSchema)
+  ],
+  '2': [],
+  '3': [],
+  '4': [],
+  '5': []
+});
 </script>
 
 <template>
@@ -92,9 +115,13 @@ function searchCompHandler() {
           :key="index"
           :label="item.value"
           :name="item.key"
-        />
-        <!-- component -->
-        <component :is="paneComp" />
+        >
+          <!-- component -->
+          <BaseMaterial
+            :index="item.key"
+            :material-data="materialList[item.key]"
+          />
+        </el-tab-pane>
       </el-tabs>
     </div>
   </el-scrollbar>

@@ -7,8 +7,6 @@ import {onMounted, ref, watch} from "vue";
 import type { Component } from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
-import BaseMaterial from "@/components/material/BaseMaterial.vue";
-import {ElEmpty} from "element-plus";
 import {initSchema} from "@/renren-engine/modules/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
@@ -30,7 +28,6 @@ import '@/assets/animation.css';
 
 const isMaterialCollapse = ref<boolean>(false);
 const isEditConfigCollapse = ref<boolean>(false);
-const defaultMaterial = ref(BaseMaterial);
 const showDrawer = ref<boolean>(false);
 const animateDrawer = ref<boolean>(false); // 动画抽屉标识
 const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
@@ -40,7 +37,6 @@ const canvasStore = useCanvasStore();
 const previewFlag = ref<boolean>(false);
 const pageElement = ref<Component[]>([]);
 const isLoading = ref<boolean>(false);
-const previewEl = ref();
 
 
 /**
@@ -64,19 +60,20 @@ function editorConfigCollapseHandler(index: boolean) {
 /**
  * @description 处理tab栏切换事件
  * @param index
+ * @warn 已废弃
  */
-function tabChangeHandler(index: string) {
-  if (index) {
-    switch (index) {
-      case '1':
-        defaultMaterial.value = BaseMaterial;
-        break;
-      default:
-        defaultMaterial.value = ElEmpty as any;
-        break;
-    }
-  }
-}
+// function tabChangeHandler(index: string) {
+//   if (index) {
+//     switch (index) {
+//       case '1':
+//         defaultMaterial.value = BaseMaterial;
+//         break;
+//       default:
+//         defaultMaterial.value = ElEmpty as any;
+//         break;
+//     }
+//   }
+// }
 
 
 /**
@@ -202,8 +199,6 @@ $event.on('previewPage', () => {
             <template #component>
               <MaterialTab
                 v-if="!isMaterialCollapse"
-                @change="tabChangeHandler"
-                :pane-comp="defaultMaterial"
               />
             </template>
             <template #pageTree>
