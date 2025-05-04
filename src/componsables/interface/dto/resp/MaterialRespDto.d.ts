@@ -15,27 +15,27 @@ export namespace MaterialRespDto {
     /**
      * 基础物料
      */
-    baseMaterialList: MaterialInterface.IMaterial[];
+    baseMaterialList: MaterialInfoRespDto[];
 
     /**
      * 图表物料
      */
-    chartMaterialList: MaterialInterface.IMaterial[];
+    chartMaterialList: MaterialInfoRespDto[];
 
     /**
      * 表单物料
      */
-    formMaterialList: MaterialInterface.IMaterial[];
+    formMaterialList: MaterialInfoRespDto[];
 
     /**
      * 布局物料
      */
-    layoutMaterialList: MaterialInterface.IMaterial[];
+    layoutMaterialList: MaterialInfoRespDto[];
 
     /**
      * 导航物料
      */
-    navigatorMaterialList: MaterialInterface.IMaterial[];
+    navigatorMaterialList: MaterialInfoRespDto[];
   }
 
 
@@ -46,7 +46,7 @@ export namespace MaterialRespDto {
 
     defaultMaterialList: defaultMaterialList;
 
-    selfMaterialList: MaterialInterface.IMaterial[];
+    selfMaterialList: MaterialInfoRespDto[];
   }
 
 

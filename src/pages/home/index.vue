@@ -3,14 +3,8 @@ import HomeHeader from "@/pages/home/_components/HomeHeader.vue";
 import HomeDescription from "@/pages/home/_components/HomeDescription.vue";
 import HomeLogo from "@/pages/home/_components/HomeLogo.vue";
 import FeatureCard from "@/components/FeatureCard.vue";
-import {reactive, ref} from 'vue';
 import {FEATURE_INFO_LIST} from "@/componsables/constants/RenrenConstant";
-import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {$message} from "@/componsables/element-plus";
-import {$engine} from "@/renren-engine/engine";
 import {useRouter} from "vue-router";
-import {$api} from "@/componsables/api";
 import {setUserLoginInfoToSession} from "@/componsables/request";
 
 
@@ -36,12 +30,6 @@ setUserLoginInfoToSession({
   token: "ejh.xxxx.xxxx",
   userId: "1",
   username: "adminTest"
-});
-
-
-
-$api.material.queryMaterialInfo().then(res => {
-  console.log(res);
 });
 /** ======= 新建项目-end ===== **/
 </script>

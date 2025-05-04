@@ -127,3 +127,16 @@ export function isElementAMaterialModelType(element: RenrenMaterialModel | Mater
     return false;
   }
 }
+
+
+/**
+ * @description 判断一个对象是否为空
+ * @param item
+ */
+export function isEmpty<T extends Object>(item: T | undefined): boolean {
+  if (item !== void 0) {
+    return Object.keys(item).length === 0 && item?.constructor === Object;
+  } else {
+    return true;
+  }
+}

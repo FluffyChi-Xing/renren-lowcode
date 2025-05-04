@@ -3,11 +3,15 @@ import {onMounted, ref, watch} from 'vue';
 import ManageHeader from "@/pages/manage/_component/ManageHeader.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {useRoute} from "vue-router";
+import {useCounterStore} from "@/stores/counter";
+import {$api} from "@/componsables/api";
+import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
 
 
 
 
 const route = useRoute();
+const counterStore = useCounterStore();
 /** ========== 菜单初始化-start ==========**/
 const defaultActive = ref<string>('仪表盘');
 const menuList = ref<RenrenInterface.KeyValueIndexType<string, string>[]>([
@@ -77,13 +81,38 @@ function checkCurrentActiveItemHandler(): Promise<string> {
     }
   });
 }
+/** ========== 菜单初始化-end ==========**/
 
 
 
-onMounted(() => {
-  checkCurrentActiveItemHandler().catch(err => {
+/** ========== 获取物料信息列表-start ==========**/
+
+
+/**
+ * @description 获取物料信息列表
+ */
+async function getMaterialSchema() {
+  await $api.material.queryMaterialInfo().then(res => {
+    counterStore.defaultMaterialList = res.defaultMaterialList as MaterialRespDto.defaultMaterialList;
+    counterStore.selfMaterialList = res.selfMaterialList as MaterialRespDto.MaterialInfoRespDto[];
+  }).catch(err => {
+    console.error(err);
+  })
+}
+
+
+// TODO: 获取全部物料信息列表
+
+/** ========== 获取物料信息列表-end ==========**/
+
+
+
+
+onMounted(async () => {
+  await checkCurrentActiveItemHandler().catch(err => {
     console.error(err);
   });
+  await getMaterialSchema();
 });
 
 
@@ -93,7 +122,6 @@ watch(() => route.path, () => {
     console.error(err);
   });
 });
-/** ========== 菜单初始化-end ==========**/
 </script>
 
 <template>

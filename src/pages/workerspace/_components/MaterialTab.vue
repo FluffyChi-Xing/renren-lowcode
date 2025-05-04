@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import {$message} from "@/componsables/element-plus";
@@ -9,6 +9,15 @@ import {buttonSchema} from "@/material/base/Button";
 import {textSchema} from "@/material/base/Text";
 import {linkSchema} from "@/material/base/Link";
 import {imageSchema} from "@/material/base/Image";
+import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
+import {useCounterStore} from "@/stores/counter";
+import {$util} from "@/componsables/utils";
+
+
+
+
+
+
 const props = withDefaults(defineProps<{
   paneComp?: HTMLElement | any
   index?: string;
@@ -44,7 +53,7 @@ const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
     value: '布局组件'
   }
 ]);
-
+const counterStore = useCounterStore();
 const emits = defineEmits(['change', 'search']);
 
 
@@ -75,16 +84,71 @@ function searchCompHandler() {
  * @description 物料类型和对应的物料列表映射表
  */
 const materialList = ref<Record<string, RenrenMaterialModel[]>>({
-  '1': [
-    new RenrenMaterialModel(buttonSchema),
-    new RenrenMaterialModel(textSchema),
-    new RenrenMaterialModel(linkSchema),
-    new RenrenMaterialModel(imageSchema)
-  ],
+  '1': [],
   '2': [],
   '3': [],
   '4': [],
   '5': []
+});
+
+
+/**
+ * @description 物料实体类模型工厂
+ * @param list
+ */
+function materialModelFactory(list: MaterialRespDto.MaterialInfoRespDto[] | undefined): RenrenMaterialModel[] {
+  if (list !== void 0) {
+    return list?.map(item => new RenrenMaterialModel(item.data));
+  } else {
+    return [];
+  }
+}
+
+
+/**
+ * @description 在离线情况下初始化基础物料，使得物料面板不至于为空，优化用户体验
+ */
+function initBaseMaterialListAtStandAlone() {
+  materialList.value['1'] = [
+    new RenrenMaterialModel(buttonSchema),
+    new RenrenMaterialModel(textSchema),
+    new RenrenMaterialModel(linkSchema),
+    new RenrenMaterialModel(imageSchema)
+  ];
+}
+
+
+/**
+ * @description 初始化物料列表 从 store 中取出请求获取的物料信息
+ */
+function initMaterialList<T extends MaterialRespDto.defaultMaterialList>(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    // 从 store 中获取默认物料列表
+    const defaultMaterialList: T | undefined = counterStore.defaultMaterialList as T;
+    if (defaultMaterialList !== void 0) {
+      if (!$util.renren.isEmpty(defaultMaterialList)) {
+        materialList.value = {
+          '1': materialModelFactory((defaultMaterialList as T).baseMaterialList),
+          '2': materialModelFactory((defaultMaterialList as T).formMaterialList),
+          '3': materialModelFactory((defaultMaterialList as T).chartMaterialList),
+          '4': materialModelFactory((defaultMaterialList as T).navigatorMaterialList),
+          '5': materialModelFactory((defaultMaterialList as T).layoutMaterialList),
+        };
+        resolve('初始化成功');
+      }
+    } else {
+      initBaseMaterialListAtStandAlone();
+      reject('初始化失败');
+    }
+  });
+}
+
+
+
+onMounted(() => {
+  initMaterialList().catch(err => {
+    console.log(err as string);
+  });
 });
 </script>
 
@@ -118,8 +182,8 @@ const materialList = ref<Record<string, RenrenMaterialModel[]>>({
         >
           <!-- component -->
           <BaseMaterial
+            v-model:material-data="materialList[item.key]"
             :index="item.key"
-            :material-data="materialList[item.key]"
           />
         </el-tab-pane>
       </el-tabs>
