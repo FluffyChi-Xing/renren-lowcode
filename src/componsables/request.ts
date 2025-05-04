@@ -1,41 +1,33 @@
 import {ofetch} from "ofetch";
 import type { FetchOptions } from "ofetch";
-import {$enum} from "@/componsables/enum";
 import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {USER_LOGIN_INFO_FLAG} from "@/componsables/constants/RenrenConstant";
-import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
+import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";
+
 
 
 /**
  * @description 通用请求模块
  * @param url
- * @param options
+ * @param option
+ * @param headers
  */
-export async function $request(url: string, options?: FetchOptions | RequestInit): Promise<any> {
+export async function $request(url: string, option?: FetchOptions, headers?: Record<string, string>): Promise<any> {
   return await ofetch(url, {
-    async onRequest() {
-      if (url === null || url === void 0) {
-        return Promise.reject('url不能为空');
-      }
-      // 默认请求参数
-      if (options === void 0) {
-        options = {
-          method: $enum.HttpRequestMethodEnum.GET,
-          headers: {
-            'username': getUsername(),
-            'token': getToken(),
-            'userId': '',
-            'secretKey': getSecretKey()
-          }
-        };
-      } else {
-        options.headers = {
-          'username': getUsername(),
-          'token': getToken(),
-          'userId': '',
-          'secretKey': getSecretKey(),
-        };
-      }
+    async onRequest({ options }) {
+      const customHeaders = {
+        username: getUsername(),
+        token: getToken(),
+        userId: getUserId(),
+        secretKey: getSecretKey()
+      };
+
+
+      options.headers = {
+        ...customHeaders,
+        ...(options.headers || {}),
+        ...(headers || {})
+      };
     },
     async onRequestError() {
 
@@ -46,7 +38,11 @@ export async function $request(url: string, options?: FetchOptions | RequestInit
     async onResponseError() {
 
     },
-    ...options,
+    body: option?.body,
+    method: option?.method ? option?.method : HttpRequestMethodEnum.GET,
+    baseURL: option?.baseURL,
+    query: option?.query,
+    params: option?.params,
   })
     .then((response) => {
       return Promise.resolve(response);
@@ -67,6 +63,18 @@ function getUserLoginInfoFromSession(): UserInfoRespDto.UserLoginRespDto | null 
 
 
 /**
+ * @description 保存用户登录信息到 session 中
+ * @param userInfo
+ */
+export function setUserLoginInfoToSession(userInfo: UserInfoRespDto.UserLoginRespDto): Promise<string> {
+  return new Promise<string>((resolve) => {
+    sessionStorage.setItem(USER_LOGIN_INFO_FLAG, JSON.stringify(userInfo));
+    resolve('保存成功');
+  });
+}
+
+
+/**
  * @description 从 session 中获取登录 token
  */
 export function getToken(): string {
@@ -74,7 +82,7 @@ export function getToken(): string {
   if (userLoginRespDto) {
     let isEmpty: boolean = Object.keys(userLoginRespDto).length === 0;
     if (!isEmpty) {
-      return userLoginRespDto.token;
+      return userLoginRespDto.token || '';
     } else {
       return '';
     }
@@ -92,7 +100,7 @@ export function getUsername(): string {
   if (userLoginRespDto) {
     let isEmpty: boolean = Object.keys(userLoginRespDto).length === 0;
     if (!isEmpty) {
-      return userLoginRespDto.username;
+      return userLoginRespDto.username || '';
     } else {
       return '';
     }
@@ -110,7 +118,25 @@ export function getSecretKey(): string {
   if (userLoginRespDto) {
     let isEmpty: boolean = Object.keys(userLoginRespDto).length === 0;
     if (!isEmpty) {
-      return userLoginRespDto.key;
+      return userLoginRespDto.key || '';
+    } else {
+      return '';
+    }
+  } else {
+    return '';
+  }
+}
+
+
+/**
+ * @description 获取用户id
+ */
+export function getUserId(): string {
+  let userLoginRespDto: UserInfoRespDto.UserLoginRespDto | null = getUserLoginInfoFromSession();
+  if (userLoginRespDto) {
+    let isEmpty: boolean = Object.keys(userLoginRespDto).length === 0;
+    if (!isEmpty) {
+      return userLoginRespDto.userId || '';
     } else {
       return '';
     }

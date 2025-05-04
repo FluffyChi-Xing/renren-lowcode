@@ -7,7 +7,7 @@ import type {
 } from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {materialApiAggregation} from "@/componsables/apis/material/materialApiAggregation";
 import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
-import type {FetchOptions} from "ofetch";
+
 
 
 /**
@@ -16,14 +16,11 @@ import type {FetchOptions} from "ofetch";
 export function queryMaterialInfo<T extends MaterialRespDto.QueryMaterialListRespDto>(): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     // 因为物料组件信息可能不怎么改变，所以设置 cache-control
-    let options: FetchOptions = {
-      headers: {
-        'Cache-control': 'max-age=86400, immutable',
-        Expires: new Date(Date.now() + 86400).toString(),
-        Pragma: 'cache'
-      }
-    };
-    await materialApiAggregation('/query', options)
+    let headers: Record<string, string> = {};
+    let expire: string = new Date(Date.now() + 86400).toUTCString();
+    headers['cache-control'] = `max-age=${86400}`;
+    headers['expires'] = expire;
+    await materialApiAggregation({ url: '/query', headers: headers })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T);
@@ -41,7 +38,7 @@ export function queryMaterialInfo<T extends MaterialRespDto.QueryMaterialListRes
  */
 export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(): Promise<T[]> {
   return new Promise<T[]>(async (resolve, reject) => {
-    await materialApiAggregation('/querAll')
+    await materialApiAggregation({ url: '/querAll' })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T[]);

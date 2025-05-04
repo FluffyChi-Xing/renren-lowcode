@@ -13,7 +13,7 @@ import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
  */
 export function queryUserById<T extends UserInfoRespDto.UserDesensitizationInfoRespDto>(id: string): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
-    await userApiAggregation(`/queryBiId/${id}`)
+    await userApiAggregation({ url: `/queryBiId/${id}` })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T);

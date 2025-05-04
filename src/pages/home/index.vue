@@ -11,6 +11,7 @@ import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
 import {useRouter} from "vue-router";
 import {$api} from "@/componsables/api";
+import {setUserLoginInfoToSession} from "@/componsables/request";
 
 
 
@@ -30,7 +31,16 @@ function createNewProject() {
 /**
  * @description 测试请求模块的正确性
  */
-$api.login.getCaptcha().then(res => {
+setUserLoginInfoToSession({
+  key: "vqwn-beonij-obevuwivbq",
+  token: "ejh.xxxx.xxxx",
+  userId: "1",
+  username: "adminTest"
+});
+
+
+
+$api.material.queryMaterialInfo().then(res => {
   console.log(res);
 });
 /** ======= 新建项目-end ===== **/

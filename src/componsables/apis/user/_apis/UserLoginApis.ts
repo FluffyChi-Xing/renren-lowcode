@@ -20,11 +20,11 @@ export function userLogin<T extends UserInfoRespDto.UserLoginRespDto>(params: Us
     let options: FetchOptions = {
       method: HttpRequestMethodEnum.POST,
       body: data,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
     };
-    await userApiAggregation('/login', options)
+    let headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    await userApiAggregation({ url: '/login', options: options, headers: headers })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T);
@@ -44,7 +44,7 @@ export function userLogin<T extends UserInfoRespDto.UserLoginRespDto>(params: Us
  */
 export function getCaptcha<T extends UserInfoRespDto.CaptchaRespDto>(): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
-    await userApiAggregation('/captcha')
+    await userApiAggregation({ url: '/captcha' })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as T);
@@ -64,7 +64,7 @@ export function getCaptcha<T extends UserInfoRespDto.CaptchaRespDto>(): Promise<
  */
 export function hasLogin(): Promise<boolean> {
   return new Promise<boolean>(async (resolve, reject) => {
-    await userApiAggregation('/hasLogin')
+    await userApiAggregation({ url: '/hasLogin' })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as boolean);
@@ -96,7 +96,7 @@ export function userRegister(params: UserInfoReqDto.UserRegisterReqDto): Promise
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     };
-    await userApiAggregation('/register', options)
+    await userApiAggregation({ url: '/register', options: options })
       .then(res => {
         if (res.code === HttpCodeEnum.SUCCESS) {
           resolve(res.data as string);

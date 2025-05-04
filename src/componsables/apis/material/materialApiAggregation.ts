@@ -2,20 +2,23 @@
  * @description 物料接口聚合模块
  * @author FluffyChi-Xing
  */
-import type {FetchOptions} from "ofetch";
 import {$request} from "@/componsables/request";
 import {MATERIAL_API_REQUEST_HOST} from "@/componsables/constants/HttpInfoConstants";
+import type {requestOptions} from "@/componsables/type/RenrenType";
 
 
 /**
  * @description 物料接口聚合模块
- * @param url
- * @param options
+ * @param params
  */
-export function materialApiAggregation(url: string, options?: FetchOptions | RequestInit): Promise<any> {
+
+
+
+export function materialApiAggregation(params: requestOptions): Promise<any> {
   return new Promise<any>(async (resolve, reject) => {
     try {
-      await $request(MATERIAL_API_REQUEST_HOST + url, options)
+      const { url, options, headers } = params;
+      await $request(MATERIAL_API_REQUEST_HOST + url, options, headers)
         .then(res => {
           resolve(res);
         })
