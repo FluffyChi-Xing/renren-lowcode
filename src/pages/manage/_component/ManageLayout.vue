@@ -27,7 +27,9 @@ const props = withDefaults(defineProps<{
       <!-- body -->
       <div
         :style="footer ? 'height: calc(100% - 104px);' : 'height: calc(100% - 64px);'"
-        class="w-full flex flex-col">
+        class="flex flex-col"
+        style="width: 100%;"
+      >
         <slot name="default" />
       </div>
       <!-- footer -->

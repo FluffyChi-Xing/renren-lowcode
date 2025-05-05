@@ -16,6 +16,8 @@ import type {requestOptions} from "@/componsables/type/RenrenType";
 
 export function materialApiAggregation(params: requestOptions): Promise<any> {
   return new Promise<any>(async (resolve, reject) => {
+    // 创建日志分组
+    console.group('material');
     try {
       const { url, options, headers } = params;
       await $request(MATERIAL_API_REQUEST_HOST + url, options, headers)
@@ -30,5 +32,6 @@ export function materialApiAggregation(params: requestOptions): Promise<any> {
       console.error('请求发送失败', e);
       reject(e);
     }
+    console.groupEnd();
   });
 }

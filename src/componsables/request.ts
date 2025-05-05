@@ -3,6 +3,7 @@ import type { FetchOptions } from "ofetch";
 import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {USER_LOGIN_INFO_FLAG} from "@/componsables/constants/RenrenConstant";
 import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";
+import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
 
 
 
@@ -32,10 +33,13 @@ export async function $request(url: string, option?: FetchOptions, headers?: Rec
     async onRequestError() {
 
     },
-    async onResponse() {
-
+    async onResponse({ response }) {
+      // 异常请求处理
+      if (response.status !== HttpCodeEnum.SUCCESS) {
+        return Promise.reject(response);
+      }
     },
-    async onResponseError() {
+    async onResponseError({ response }) {
 
     },
     body: option?.body,
@@ -48,7 +52,6 @@ export async function $request(url: string, option?: FetchOptions, headers?: Rec
       return Promise.resolve(response);
     })
     .catch((err: any) => {
-      console.error('请求失败', err);
       return Promise.reject(err);
     });
 }

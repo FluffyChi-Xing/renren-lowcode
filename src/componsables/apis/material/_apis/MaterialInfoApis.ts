@@ -6,7 +6,6 @@ import type {
   MaterialRespDto
 } from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {materialApiAggregation} from "@/componsables/apis/material/materialApiAggregation";
-import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
 
 
 
@@ -22,9 +21,7 @@ export function queryMaterialInfo<T extends MaterialRespDto.QueryMaterialListRes
     headers['expires'] = expire;
     await materialApiAggregation({ url: '/query', headers: headers })
       .then(res => {
-        if (res.code === HttpCodeEnum.SUCCESS) {
-          resolve(res.data as T);
-        }
+        resolve(res.data as T);
       })
       .catch(err => {
         reject(err);
@@ -40,9 +37,7 @@ export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(
   return new Promise<T[]>(async (resolve, reject) => {
     await materialApiAggregation({ url: '/queryAll' })
       .then(res => {
-        if (res.code === HttpCodeEnum.SUCCESS) {
-          resolve(res.data as T[]);
-        }
+        resolve(res.data as T[]);
       })
       .catch(err => {
         reject(err);

@@ -22,3 +22,7 @@ export const USER_API_REQUEST_PREFIX: string = `${HTTP_BASE_REQUEST_HOST}/user`;
  * @description 物料 api 请求前缀
  */
 export const MATERIAL_API_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/material`;
+
+
+
+export const PROJECT_API_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/project`;
