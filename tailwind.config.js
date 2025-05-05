@@ -9,7 +9,8 @@ export default {
       colors: {
         'header-dark': '#252B30',
         'main-background': '#F5F5F5',
-        'statistic-color': '#00000073'
+        'statistic-color': '#00000073',
+        'manage-bg': '#F0F0F0',
       }
     },
   },

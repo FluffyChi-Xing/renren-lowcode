@@ -10,6 +10,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import hljsVuePlugin from "@highlightjs/vue-plugin";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
+import '@/componsables/ErrorHandler/errorHandler';
 
 const app = createApp(App)
 

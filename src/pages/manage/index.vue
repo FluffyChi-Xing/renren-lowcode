@@ -130,7 +130,7 @@ watch(() => route.path, () => {
     <el-header>
       <ManageHeader />
     </el-header>
-    <el-container class="bg-main-background">
+    <el-container class="bg-manage-bg">
       <!-- aside -->
       <el-aside width="240px">
         <div class="w-full h-full flex flex-col">

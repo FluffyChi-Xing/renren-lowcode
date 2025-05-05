@@ -133,3 +133,42 @@ export const GITHUB_REPOSITORY: string = 'https://github.com/FluffyChi-Xing/renr
 
 
 export const USER_LOGIN_INFO_FLAG: string = 'renren-lowcode-login';
+
+
+/**
+ * @description 基础物料源码模板
+ */
+export const MATERIAL_CODE_TEMPLATE: MaterialInterface.IMaterial = {
+  isNode: true,
+  title: 'material-title',
+  isLocked: false,
+  condition: '',
+  conditionGroup: '',
+  hidden: false,
+  id: '1',
+  children: null,
+  parent: null,
+  zLevel: 0,
+  animation: [],
+  events: [],
+  props: {
+    id: 'propsId',
+    items: [
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'key',
+        value: 'value',
+        type: 'type',
+        owner: 'ownerKey',
+        parent: 'parentId'
+      },
+    ],
+    owner: 'ownerKey',
+    maps: undefined,
+    type: 'el-type',
+    size: 20,
+  },
+  icon: 'el-icon-name'
+};

@@ -58,14 +58,16 @@ watch(() => props.code, async (newVal: string) => {
 </script>
 
 <template>
-  <el-scrollbar height="600">
+  <div class="w-full">
+    <el-scrollbar height="600">
     <pre class="w-full h-full">
       <code
-        class="hljs"
+        class="hljs h-full"
         v-html="highLightCode"
       />
     </pre>
-  </el-scrollbar>
+    </el-scrollbar>
+  </div>
 </template>
 
 <style scoped>

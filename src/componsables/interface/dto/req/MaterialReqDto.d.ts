@@ -20,4 +20,21 @@ export namespace MaterialReqDto {
 
     data: string; // MaterialInterface.IMaterial -> JSON.stringify()
   }
+
+
+  /**
+   * @description 更新物料请求参数
+   */
+  export interface UpdateMaterialReqDto {
+
+    id: number;
+
+    name: string;
+
+    type: number;
+
+    data: string; // json string
+
+    status: number;
+  }
 }

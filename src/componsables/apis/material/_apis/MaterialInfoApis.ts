@@ -40,6 +40,7 @@ export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(
         resolve(res.data as T[]);
       })
       .catch(err => {
+        console.error(err);
         reject(err);
       });
   });

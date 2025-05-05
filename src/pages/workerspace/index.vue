@@ -58,25 +58,6 @@ function editorConfigCollapseHandler(index: boolean) {
 
 
 /**
- * @description 处理tab栏切换事件
- * @param index
- * @warn 已废弃
- */
-// function tabChangeHandler(index: string) {
-//   if (index) {
-//     switch (index) {
-//       case '1':
-//         defaultMaterial.value = BaseMaterial;
-//         break;
-//       default:
-//         defaultMaterial.value = ElEmpty as any;
-//         break;
-//     }
-//   }
-// }
-
-
-/**
  * @description 处理高亮 schema 事件
  */
 async function showSchemaHandler() {
