@@ -2,6 +2,7 @@ import * as HttpCodeEnum from '@/componsables/enums/HttpCodeEnum';
 import * as DeviceEnum from '@/componsables/enums/DeviceTypeEnum';
 import * as HttpRequestMethod from '@/componsables/enums/HttpRequestMethodEnum';
 import * as MaterialType from '@/componsables/enums/MaterialTypeEnum';
+import * as Operation from '@/componsables/enums/OperationMethodEnum';
 
 
 /**
@@ -12,4 +13,5 @@ export const $enum = {
   ...DeviceEnum,
   ...HttpRequestMethod,
   ...MaterialType,
+  ...Operation,
 };

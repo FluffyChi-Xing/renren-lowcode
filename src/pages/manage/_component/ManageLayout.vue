@@ -30,7 +30,9 @@ const props = withDefaults(defineProps<{
         class="flex flex-col"
         style="width: 100%;"
       >
-        <slot name="default" />
+        <el-scrollbar>
+          <slot name="default" />
+        </el-scrollbar>
       </div>
       <!-- footer -->
       <div

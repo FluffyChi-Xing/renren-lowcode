@@ -86,6 +86,17 @@ function checkCurrentActiveItemHandler(): Promise<string> {
           defaultActive.value = '回收站';
           resolve('回收站');
           break;
+        case '/manage/operation':
+          defaultActive.value = '操作日志'
+          break;
+        case '/manage/login':
+          defaultActive.value = '登录日志';
+          resolve('登录日志');
+          break;
+        case '/manage/error':
+          defaultActive.value = '异常日志';
+          resolve('异常日志');
+          break;
         default:
           defaultActive.value = '仪表盘';
           resolve('仪表盘');
@@ -187,7 +198,7 @@ onMounted(() => {
       </el-aside>
       <!-- container -->
       <el-main>
-        <el-scrollbar>
+        <el-scrollbar :max-height="600">
           <RouterView />
         </el-scrollbar>
       </el-main>

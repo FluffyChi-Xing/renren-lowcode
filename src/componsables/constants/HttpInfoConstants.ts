@@ -26,3 +26,7 @@ export const MATERIAL_API_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/mate
 
 
 export const PROJECT_API_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/project`;
+
+
+
+export const OPERATION_LOG_REQUEST_HOST:string = `${HTTP_BASE_REQUEST_HOST}/operation`;
