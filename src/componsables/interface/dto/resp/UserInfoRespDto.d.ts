@@ -32,5 +32,6 @@ export namespace UserInfoRespDto {
     username: string;
     password: string;
     email: string;
+    avatar?: string;
   }
 }

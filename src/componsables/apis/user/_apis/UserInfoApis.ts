@@ -4,20 +4,16 @@
  */
 import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {userApiAggregation} from "@/componsables/apis/user/userApiAggregation";
-import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";
 
 
 /**
  * @description 根据id查询用户脱敏信息
- * @param id
  */
-export function queryUserById<T extends UserInfoRespDto.UserDesensitizationInfoRespDto>(id: string): Promise<T> {
+export function queryUserById<T extends UserInfoRespDto.UserDesensitizationInfoRespDto>(): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
-    await userApiAggregation({ url: `/queryBiId/${id}` })
+    await userApiAggregation({ url: `/queryById` })
       .then(res => {
-        if (res.code === HttpCodeEnum.SUCCESS) {
-          resolve(res.data as T);
-        }
+        resolve(res.data as T);
       })
       .catch(err => {
         reject(err);

@@ -62,6 +62,30 @@ const router = createRouter({
                 title: '人人低码 | 回收站'
               },
               component: () => import('@/pages/manage/_pages/recyclebin/ManagementRecycle.vue')
+            },
+            {
+              path: '/manage/operation',
+              name: 'operationLog',
+              meta: {
+                title: '人人低码 | 操作日志'
+              },
+              component: () => import('@/pages/manage/_pages/operation_log/ManagementOperationLog.vue')
+            },
+            {
+              path: '/manage/error',
+              name: 'errorLog',
+              meta: {
+                title: '人人低码 | 异常日志'
+              },
+              component: () => import('@/pages/manage/_pages/error_log/ManagementErrorLog.vue')
+            },
+            {
+              path: '/manage/login',
+              name: 'loginLog',
+              meta: {
+                title: '人人低码 | 登录日志'
+              },
+              component: () => import('@/pages/manage/_pages/loginlog/ManagementLoginLog.vue')
             }
           ]
         },

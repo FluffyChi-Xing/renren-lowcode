@@ -6,6 +6,7 @@ import {useRoute} from "vue-router";
 import {useCounterStore} from "@/stores/counter";
 import {$api} from "@/componsables/api";
 import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
+import {setUserLoginInfoToSession} from "@/componsables/request";
 
 
 
@@ -39,6 +40,21 @@ const menuList = ref<RenrenInterface.KeyValueIndexType<string, string>[]>([
     key: '回收站',
     value: '/manage/recycle',
     index: 'Delete'
+  },
+  {
+    key: '操作日志',
+    value: '/manage/operation',
+    index: 'Document'
+  },
+  {
+    key: '登录日志',
+    value: '/manage/login',
+    index: 'Compass'
+  },
+  {
+    key: '异常日志',
+    value: '/manage/error',
+    index: 'CloseBold'
   }
 ]);
 
@@ -122,6 +138,21 @@ watch(() => route.path, () => {
     console.error(err);
   });
 });
+
+
+
+/**
+ * @description 测试请求模块的正确性
+ */
+onMounted(() => {
+  setUserLoginInfoToSession({
+    key: "vqwn-beonij-obevuwivbq",
+    token: "ejh.xxxx.xxxx",
+    userId: "1",
+    username: "adminTest"
+  })
+  console.log('init user info data');
+});
 </script>
 
 <template>
@@ -156,7 +187,7 @@ watch(() => route.path, () => {
       </el-aside>
       <!-- container -->
       <el-main>
-        <el-scrollbar height="625">
+        <el-scrollbar>
           <RouterView />
         </el-scrollbar>
       </el-main>

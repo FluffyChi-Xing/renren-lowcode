@@ -91,6 +91,14 @@ function editMaterialHandler(row: MaterialRespDto.MaterialInfoRespDto) {
 }
 
 
+/**
+ * @description 表单数据刷新
+ */
+async function refreshTableData() {
+  tableData.value = [];
+  await queryMaterialList();
+}
+
 /** ========= 编辑物料弹窗-end ==========**/
 
 
@@ -103,7 +111,7 @@ onMounted(async () => {
   <ManageLayout header="物料管理" :footer="false">
     <template #header>
       <el-button @click="() => createFlag = true" type="primary" size="small">新建自定义物料</el-button>
-      <el-button @click="queryMaterialList" icon="Refresh" type="warning" size="small">刷新</el-button>
+      <el-button @click="refreshTableData" icon="Refresh" type="warning" size="small" plain circle />
     </template>
     <template #default>
       <div class="w-full h-full flex flex-col">

@@ -15,6 +15,7 @@ declare module 'vue' {
     Draggable: typeof import('./src/components/Draggable.vue')['default']
     DrawerTransition: typeof import('./src/components/DrawerTransition.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
+    ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
     ElCard: typeof import('element-plus/es')['ElCard']

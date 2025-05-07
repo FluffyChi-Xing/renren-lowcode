@@ -3,6 +3,7 @@
  * @author FluffyChi-Xing
  */
 import * as login from './apis/user/_apis/UserLoginApis';
+import * as info from './apis/user/_apis/UserInfoApis';
 import * as material from './apis/material/_apis/MaterialInfoApis';
 
 
@@ -10,5 +11,6 @@ import * as material from './apis/material/_apis/MaterialInfoApis';
 
 export const $api = {
   login,
-  material
+  material,
+  info,
 };

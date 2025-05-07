@@ -5,7 +5,6 @@ import HomeLogo from "@/pages/home/_components/HomeLogo.vue";
 import FeatureCard from "@/components/FeatureCard.vue";
 import {FEATURE_INFO_LIST} from "@/componsables/constants/RenrenConstant";
 import {useRouter} from "vue-router";
-import {setUserLoginInfoToSession} from "@/componsables/request";
 
 
 
@@ -20,17 +19,6 @@ const router = useRouter();
 function createNewProject() {
   router.push('/manage');
 }
-
-
-/**
- * @description 测试请求模块的正确性
- */
-setUserLoginInfoToSession({
-  key: "vqwn-beonij-obevuwivbq",
-  token: "ejh.xxxx.xxxx",
-  userId: "1",
-  username: "adminTest"
-});
 /** ======= 新建项目-end ===== **/
 </script>
 
