@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import {ref, reactive, onMounted} from "vue";
+import {ref, onMounted} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import type {OperationLogRespDto} from "@/componsables/interface/dto/resp/OperationLogRespDto";
 import {$api} from "@/componsables/api";
 import {$message} from "@/componsables/element-plus";
 import dayjs from "dayjs";
-import {$enum} from "../../../../componsables/enum";
+import {$enum} from "@/componsables/enum";
+import {OPERATION_LOG_REQUEST_HOST} from "@/componsables/constants/HttpInfoConstants";
+import {getUserId} from "@/componsables/request";
 
 
 /** ========= 操作日志初始化-start ==========**/
@@ -13,9 +15,11 @@ const showHeader = ref<boolean>(true);
 // 查询条件
 const searchQuery = ref<string>('');
 // 分页参数
-const pageNum = ref<number>(0);
+const pageNum = ref<number>(1);
 const pageSize = ref<number>(10);
+const sizeOptions = ref<number[]>([5, 10, 15, 20]);
 const total = ref<number>(0);
+const pageLayout: string = 'sizes, prev, pager, next';
 const tableData = ref<OperationLogRespDto.OperationLogInfoRespDto[]>([]);
 const isLoading = ref<boolean>(false);
 
@@ -30,13 +34,122 @@ function pageOperationLogList() {
   )
     .then(res => {
       total.value = res.total;
-      tableData.value = res.list;
+      tableData.value = res.records;
     }).catch(_ => {
       $message({
         type: 'warning',
         message: '获取日志失败'
       });
   });
+}
+
+
+/**
+ * @description 重置换页数据
+ * @param page
+ * @param size
+ */
+function resetPageReqData(page: number, size: number) {
+  pageNum.value = page;
+  pageSize.value = size;
+}
+
+
+/**
+ * @description 换页事件
+ * @param page
+ * @param size
+ */
+function changePage(page: number, size: number) {
+  // 清空原始数据
+  tableData.value = [];
+  if (!searchQuery.value) {
+    // 重置换页数据
+    resetPageReqData(page, size);
+    // 重新获取数据
+    isLoading.value = true;
+    pageOperationLogList();
+    isLoading.value = false;
+  } else {
+    blurSearch();
+  }
+}
+
+
+/**
+ * @description 刷新页面
+ */
+function refreshPage() {
+  tableData.value = [];
+  searchQuery.value = '';
+  isLoading.value = true;
+  pageOperationLogList();
+  isLoading.value = false;
+}
+
+
+/**
+ * @description 模糊查询用户日志记录
+ */
+async function blurSearch() {
+  if (searchQuery.value) {
+    isLoading.value = true;
+    await $api.operation.blurQueryOperationLog(
+      searchQuery.value,
+      pageNum.value,
+      pageSize.value
+    )
+      .then(res => {
+        tableData.value = [];
+        res.map(item => {
+          tableData.value.push(searchValueTransfer(item as OperationLogRespDto.OperationLogSearchRespDto));
+        });
+        isLoading.value = false;
+      })
+      .catch(() => {
+        $message({
+          type: 'warning',
+          message: '查询失败'
+        });
+        isLoading.value = false;
+      });
+    isLoading.value = false;
+  } else {
+    $message({
+      type: 'warning',
+      message: '请输入名称/路径/方法'
+    });
+  }
+}
+
+
+/**
+ * @description 将 搜索数据转换为表格数据
+ * @param item
+ */
+function searchValueTransfer<T extends OperationLogRespDto.OperationLogSearchRespDto>(item: T): OperationLogRespDto.OperationLogInfoRespDto {
+  return {
+    createTime: item.createTime,
+    duration: item.duration,
+    id: item.id,
+    operationMethod: item.operationMethod,
+    operationModule: item._formatted.operationModule,
+    operationName: item._formatted.operationName,
+    status: item.status,
+    userId: item.userId
+  };
+}
+
+
+/**
+ * @description 导出操作日志文件
+ */
+function operationLogFileExport() {
+  const href: string = OPERATION_LOG_REQUEST_HOST + '/export' + '/' +  getUserId();
+  // 创建一个 a 标签，模拟点击
+  const a = document.createElement('a');
+  a.href = href;
+  a.click();
 }
 /** ========= 操作日志初始化-end ==========**/
 
@@ -70,18 +183,19 @@ onMounted(() => {
               clearable
               placeholder="请输入查询条件,包括操作名称，路径，方法"
               style="width: 300px;"
+              @keydown.enter="blurSearch"
             />
           </el-form-item>
-          <el-button type="primary">确认</el-button>
+          <el-button @click="blurSearch" type="primary">搜索</el-button>
         </div>
         <!-- functional banner -->
         <div class="w-full h-auto grid grid-cols-2 gap-4 mb-4">
           <div class="w-full h-auto flex items-center">
-            <el-button type="success" plain icon="Download">导出</el-button>
+            <el-button @click="operationLogFileExport" type="success" plain icon="Download">导出</el-button>
           </div>
           <div class="w-full h-auto flex items-center justify-end">
             <el-button size="small" @click="() => showHeader = !showHeader" icon="Search" circle plain type="primary" />
-            <el-button size="small" icon="Refresh" circle plain type="info" />
+            <el-button size="small" @click="refreshPage" icon="Refresh" circle plain type="info" />
             <el-button size="small" icon="Operation" circle plain type="warning" />
           </div>
         </div>
@@ -104,12 +218,27 @@ onMounted(() => {
             <el-table-column
               label="操作名称"
               prop="operationName"
-            />
+            >
+              <template #default="{ row }">
+                <div
+                  v-html="row.operationName"
+                  class="high-light"
+                />
+              </template>
+            </el-table-column>
             <el-table-column
               label="操作路径"
+              width="400"
               prop="operationModule"
               show-overflow-tooltip
-            />
+            >
+              <template #default="{ row }">
+                <div
+                  v-html="row.operationModule"
+                  class="high-light"
+                />
+              </template>
+            </el-table-column>
             <el-table-column
               label="操作方法"
               prop="operationMethod"
@@ -184,11 +313,23 @@ onMounted(() => {
     </template>
     <!-- pagination -->
     <template #footer>
-      <div class="w-full h-full flex items-center justify-center bg-red-500" />
+      <div class="w-full h-full flex items-center justify-center">
+        <el-pagination
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="sizeOptions"
+          :layout="pageLayout"
+          :total="total"
+          @change="changePage"
+        />
+      </div>
     </template>
   </ManageLayout>
 </template>
 
 <style scoped>
-
+:deep(.high-light em) {
+  color: red;
+  font-weight: bold;
+}
 </style>

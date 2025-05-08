@@ -4,7 +4,6 @@
  */
 
 
-
 export namespace OperationLogRespDto {
 
 
@@ -24,10 +23,29 @@ export namespace OperationLogRespDto {
 
 
   /**
-   * @description 分页查询操作日志响应体类型
+   * @description 操作日志搜索响应体类型
    */
-  export interface OperationPageRespDto {
-    total: number;
-    list: OperationLogInfoRespDto[];
+  export interface OperationLogSearchRespDto {
+    duration: number;
+    createTime: string;
+    operationName: string;
+    operationModule: string;
+    id: number;
+    operationMethod: number;
+    userId: number;
+    status: number;
+    _formatted: OperationLogSearchFormattedRespDto;
+  }
+
+
+  export interface OperationLogSearchFormattedRespDto {
+    id: string;
+    userId: string;
+    operationName: string;
+    operationMethod: string;
+    status: string;
+    duration: string;
+    createTime: string;
+    operationModule: string;
   }
 }
