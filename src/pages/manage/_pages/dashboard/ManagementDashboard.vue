@@ -10,18 +10,30 @@ import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_componen
 
 /** ========== 统计卡片初始化-start ==========**/
 const loadingStatistic = ref<boolean>(false);
-const statisticCardList = ref<RenrenInterface.keyValueType<string>[]>([
+const statisticCardList = ref<RenrenInterface.keyValueType<number>[]>([
   {
     key: '基础物料总数',
-    value: '5',
+    value: 5,
   },
   {
     key: '自定义物料总数',
-    value: '3',
+    value: 3,
   },
   {
     key: '个人最大自定义物料数',
-    value: '20',
+    value: 20,
+  },
+  {
+    key: '项目创建数',
+    value: 1
+  },
+  {
+    key: '操作日志数',
+    value: 215
+  },
+  {
+    key: '创建页面数',
+    value: 2
   }
 ]);
 /** ========= 统计卡片初始化-end ==========**/
@@ -44,26 +56,28 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
 </script>
 
 <template>
-  <ManageLayout :footer="false" header="仪表盘">
-    <template #default>
-      <div class="w-full h-full flex flex-col pt-4">
-        <!-- 统计卡片 -->
-        <div class="w-full h-28 grid grid-cols-3 gap-4">
-          <Statistic
-            v-for="(item, index) in statisticCardList"
-            :key="index"
-            :title="item.key"
-            :value="item.value"
-            :loading="loadingStatistic"
-          />
-        </div>
-        <!-- 统计图 -->
-        <div style="height: calc(100% - 112px);" class="w-full pt-4 grid grid-cols-2 gap-4">
-          <!-- 最近项目创建数量 -->
-          <div class="w-full h-full flex flex-col">
+  <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col pt-4">
+      <!-- 统计卡片 -->
+      <div class="w-full h-28 grid grid-cols-6 gap-4">
+        <Statistic
+          v-for="(item, index) in statisticCardList"
+          :key="index"
+          :title="item.key"
+          :value="item.value"
+          :loading="loadingStatistic"
+          :prefix="item.value >= 0 ? 'CaretTop' : 'CaretBottom'"
+          :prefix-color="item.value >= 0 ? 'red' : 'green'"
+        />
+      </div>
+      <!-- 统计图 -->
+      <div style="height: calc(100% - 112px);" class="w-full pt-4 grid grid-cols-2 gap-4">
+        <!-- 最近项目创建数量 -->
+        <div class="w-full h-full flex flex-col">
+          <el-card class="w-full h-full">
             <!-- 时间段选择 -->
             <div class="w-full h-8 flex items-center justify-between">
-              <span class="text-black font-bold">最近项目创建数</span>
+              <span class="chart-title">最近项目创建数</span>
               <el-select
                 v-model="timeSegment"
                 style="width: 200px;"
@@ -80,11 +94,13 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
             <div style="height: calc(100% - 32px);" class="w-full h-auto flex">
               <RecentlyProjectCreationChart />
             </div>
-          </div>
-          <!-- 最近页面创建数量 -->
-          <div class="w-full h-full flex flex-col">
+          </el-card>
+        </div>
+        <!-- 最近页面创建数量 -->
+        <div class="w-full h-full flex flex-col">
+          <el-card class="w-full h-full">
             <div class="w-full h-8 flex items-center justify-between">
-              <span class="text-black font-bold">最近页面创建数</span>
+              <span class="chart-title">最近页面创建数</span>
               <el-select
                 v-model="timeSegment"
                 style="width: 200px;"
@@ -101,13 +117,16 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
             <div style="height: calc(100% - 32px);" class="w-full h-auto flex">
               <RecentlyPageCreationChart />
             </div>
-          </div>
+          </el-card>
         </div>
       </div>
-    </template>
-  </ManageLayout>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-
+:deep(.el-card__body) {
+  width: 100%;
+  height: 100%;
+}
 </style>

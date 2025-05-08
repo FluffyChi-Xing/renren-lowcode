@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+@layer components {
+    /* statistic chart card title */
+    .chart-title {
+        color: black;
+        font-weight: bolder;
+    }
+    .chart-title:before {
+        content: "";
+        border-left: 4px solid #0256FF;
+        margin-right: 4px;
+    }
+    /* statistic card container */
+    .statistic-container {
+        width: 200px;
+        height: 110px;
+        cursor: pointer;
+    }
+
+
+    .statistic-container:hover {
+        box-shadow: #b0caff 0px 6px 24px 0px, #97bbff 0px 0px 0px 1px;
+    }
+
+    .statistic-title {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        text-overflow: ellipsis;
+        color: #00000073;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .statistic-title:before {
+        content: "";
+        height: 100%;
+        border-left: 4px solid #0256FF;
+        margin-right: 4px;
+    }
+
+    .statistic-value {
+        font-weight: 700;
+        font-size: 28px;
+        margin-left: 4px;
+    }
+}

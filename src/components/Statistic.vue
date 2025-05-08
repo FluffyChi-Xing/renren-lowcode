@@ -5,18 +5,20 @@ withDefaults(defineProps<{
   value?: string | number;
   loading?: boolean;
   prefix?: string;
+  prefixColor?: string;
 }>(), {
   style: '',
   title: '统计面板',
   value: '1000.0',
   loading: false,
+  prefixColor: '',
 })
 </script>
 
 <template>
   <el-card
     :style="style"
-    class="w-full h-auto min-h-24 p-4 flex"
+    class="statistic-container"
   >
     <el-skeleton
       animated
@@ -27,7 +29,7 @@ withDefaults(defineProps<{
       <template #default>
         <div class="w-full h-full grid grid-rows-2 gap-4">
           <!-- title -->
-          <div class="w-full h-full flex text-statistic-color font-[16px] items-center overflow-hidden text-ellipsis">
+          <div class="statistic-title">
             {{ title }}
           </div>
           <!-- value -->
@@ -35,10 +37,14 @@ withDefaults(defineProps<{
             style="font-size: 24px;"
             class="w-full h-full flex items-center text-black"
           >
-            <el-icon v-if="(prefix !== void 0 && typeof prefix === 'string')" size="24">
+            <el-icon
+              v-if="(prefix !== void 0 && typeof prefix === 'string')"
+              size="24"
+              :color="prefixColor"
+            >
               <component :is="prefix" />
             </el-icon>
-            {{ value }}
+            <span class="statistic-value">{{ value }}</span>
           </div>
         </div>
       </template>
