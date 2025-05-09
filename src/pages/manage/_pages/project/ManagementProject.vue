@@ -187,113 +187,119 @@ onMounted(() => {
 
 <template>
   <ManageLayout>
-    <template #header>
-      <el-button @click="() => createFlag = true" type="primary" size="small">创建项目</el-button>
-    </template>
     <template #default>
-      <el-table
-        :data="data"
-        stripe
-        border
-        fit
-        :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
-        class="h-full mt-10"
-        style="width: 100%;"
-      >
-        <el-table-column
-          type="expand"
-          label="项目页面节点"
-          width="200"
+      <div class="w-full h-full flex flex-col pt-4">
+        <div class="w-full h-auto flex items-center justify-between">
+          <el-button @click="() => createFlag = true" type="primary" plain>创建项目</el-button>
+          <div class="items-center flex">
+            <el-button size="small" plain circle type="info" icon="Refresh" />
+            <el-button size="small" plain circle type="warning" icon="Operation" />
+          </div>
+        </div>
+        <el-table
+          :data="data"
+          stripe
+          border
+          fit
+          :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+          class="h-full mt-10"
+          style="width: 100%;"
         >
-          <template #default="{ row }">
-            <div class="w-full h-auto flex flex-col p-4">
-              <el-table
-                :data="row.documents"
-                stripe
-                border
-                fit
-                :header-cell-style="{ backgroundColor: '#959595', alignItems: 'center', color: '#000' }"
-              >
-                <el-table-column
-                  label="节点名称"
-                  prop="fileName"
-                />
-                <el-table-column
-                  label="节点是否为空"
+          <el-table-column
+            type="expand"
+            label="项目页面节点"
+            width="200"
+          >
+            <template #default="{ row }">
+              <div class="w-full h-auto flex flex-col p-4">
+                <el-table
+                  :data="row.documents"
+                  stripe
+                  border
+                  fit
+                  :header-cell-style="{ backgroundColor: '#959595', alignItems: 'center', color: '#000' }"
                 >
-                  <template #default="{ row }">
-                    <el-switch
-                      v-model="row.blank"
-                      disabled
-                      size="small"
-                    />
+                  <el-table-column
+                    label="节点名称"
+                    prop="fileName"
+                  />
+                  <el-table-column
+                    label="节点是否为空"
+                  >
+                    <template #default="{ row }">
+                      <el-switch
+                        v-model="row.blank"
+                        disabled
+                        size="small"
+                      />
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="节点是否启用"
+                  >
+                    <template #default="{ row }">
+                      <el-switch
+                        v-model="row.activated"
+                        disabled
+                        size="small"
+                      />
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="页面是否打开(默认页面)"
+                  >
+                    <template #default="{ row }">
+                      <el-switch
+                        v-model="row.opened"
+                        disabled
+                        size="small"
+                      />
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="节点是否为根节点"
+                  >
+                    <template #default="{ row }">
+                      <el-switch
+                        v-model="row.rootNode"
+                        disabled
+                        size="small"
+                      />
+                    </template>
+                  </el-table-column>
+                  <template #empty>
+                    <el-empty description="暂无页面节点详情" />
                   </template>
-                </el-table-column>
-                <el-table-column
-                  label="节点是否启用"
-                >
-                  <template #default="{ row }">
-                    <el-switch
-                      v-model="row.activated"
-                      disabled
-                      size="small"
-                    />
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  label="页面是否打开(默认页面)"
-                >
-                  <template #default="{ row }">
-                    <el-switch
-                      v-model="row.opened"
-                      disabled
-                      size="small"
-                    />
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  label="节点是否为根节点"
-                >
-                  <template #default="{ row }">
-                    <el-switch
-                      v-model="row.rootNode"
-                      disabled
-                      size="small"
-                    />
-                  </template>
-                </el-table-column>
-                <template #empty>
-                  <el-empty description="暂无页面节点详情" />
-                </template>
-              </el-table>
-            </div>
+                </el-table>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-for="(item, index) in tableColumnList"
+            :column-key="index"
+            :label="item.key"
+            :prop="item.value"
+            :show-overflow-tooltip="item.key === 'id'"
+            width="200"
+          />
+          <el-table-column
+            label="操作"
+            :fixed="'right'"
+            width="200"
+          >
+            <template #default="{ row }">
+              <div class="w-full h-auto flex items-center justify-center">
+                <el-button @click="editProjectHandler(row)" type="primary" size="small" plain>编辑</el-button>
+                <el-button @click="deleteProjectHandler(row)" type="danger" size="small" plain>删除</el-button>
+                <el-button type="info" size="small" plain>开始</el-button>
+              </div>
+            </template>
+          </el-table-column>
+          <template #empty>
+            <el-empty description="暂无项目" />
           </template>
-        </el-table-column>
-        <el-table-column
-          v-for="(item, index) in tableColumnList"
-          :column-key="index"
-          :label="item.key"
-          :prop="item.value"
-          :show-overflow-tooltip="item.key === 'id'"
-          width="200"
-        />
-        <el-table-column
-          label="操作"
-          :fixed="'right'"
-          width="200"
-        >
-          <template #default="{ row }">
-            <div class="w-full h-auto flex items-center justify-center">
-              <el-button @click="editProjectHandler(row)" type="primary" size="small" plain>编辑</el-button>
-              <el-button @click="deleteProjectHandler(row)" type="danger" size="small" plain>删除</el-button>
-              <el-button type="info" size="small" plain>开始</el-button>
-            </div>
-          </template>
-        </el-table-column>
-        <template #empty>
-          <el-empty description="暂无项目" />
-        </template>
-      </el-table>
+        </el-table>
+      </div>
     </template>
   </ManageLayout>
   <!-- 编辑项目弹窗 -->

@@ -167,7 +167,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-container>
+  <el-container class="overflow-hidden">
     <!-- header -->
     <el-header>
       <ManageHeader />
@@ -198,7 +198,7 @@ onMounted(() => {
       </el-aside>
       <!-- container -->
       <el-main>
-        <el-scrollbar :max-height="600">
+        <el-scrollbar height="600">
           <RouterView />
         </el-scrollbar>
       </el-main>

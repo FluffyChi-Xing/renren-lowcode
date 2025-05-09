@@ -9,9 +9,11 @@ import 'highlight.js/styles/dark.css';
 const props = withDefaults(defineProps<{
   lang?: string;
   code?: string;
+  height?: number | string;
 }>(), {
   lang: 'json',
-  code: '{}'
+  code: '{}',
+  height: 600,
 });
 
 
@@ -59,7 +61,7 @@ watch(() => props.code, async (newVal: string) => {
 
 <template>
   <div class="w-full">
-    <el-scrollbar height="600">
+    <el-scrollbar :height="height">
     <pre class="w-full h-full">
       <code
         class="hljs h-full"

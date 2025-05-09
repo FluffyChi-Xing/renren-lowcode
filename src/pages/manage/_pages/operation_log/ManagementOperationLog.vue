@@ -174,7 +174,7 @@ onMounted(() => {
           class="w-full h-auto flex items-center justify-between"
         >
           <el-form-item
-            label="查询"
+            label="搜索"
             required
             inline-message
           >

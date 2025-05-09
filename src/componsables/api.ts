@@ -7,6 +7,7 @@ import * as info from './apis/user/_apis/UserInfoApis';
 import * as material from './apis/material/_apis/MaterialInfoApis';
 import * as operation from './apis/operation_log/_apis/OperationLogApis';
 import * as loginLog from './apis/login_log/_apis/LoginLogApis';
+import * as error from './apis/error/_apis/ErrorLogApis';
 
 
 
@@ -17,4 +18,5 @@ export const $api = {
   info,
   operation,
   loginLog,
+  error,
 };

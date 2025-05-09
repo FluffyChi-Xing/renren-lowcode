@@ -69,7 +69,7 @@ onMounted(async () => {
           v-if="isShow"
           class="w-full h-auto flex items-center justify-between"
         >
-          <el-form-item label="查询" required inline-message>
+          <el-form-item label="搜索" required inline-message>
             <el-input
               v-model="searchValue"
               clearable
@@ -77,7 +77,7 @@ onMounted(async () => {
               style="width: 240px;"
             />
           </el-form-item>
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary">搜索</el-button>
         </div>
         <!-- functional-banner -->
         <div class="w-full h-auto flex items-center justify-between">

@@ -33,3 +33,6 @@ export const OPERATION_LOG_REQUEST_HOST:string = `${HTTP_BASE_REQUEST_HOST}/oper
 
 
 export const LOGIN_LOG_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/loginLog`;
+
+
+export const ERROR_LOG_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/error`;
