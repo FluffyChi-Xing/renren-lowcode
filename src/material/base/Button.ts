@@ -6,7 +6,7 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
-const materialId = generateUUID();
+// const materialId = generateUUID();
 const propsId = generateUUID();
 
 export const buttonSchema: MaterialInterface.IMaterial = {

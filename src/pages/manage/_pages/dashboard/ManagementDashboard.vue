@@ -74,7 +74,7 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
       <div class="w-full pt-4 grid grid-cols-2 gap-4">
         <!-- 最近项目创建数量 -->
         <div class="w-full h-full flex flex-col">
-          <el-card class="w-full h-[300px]">
+          <el-card class="w-full h-[400px]">
             <!-- 时间段选择 -->
             <div class="w-full h-8 flex items-center justify-between">
               <span class="chart-title">最近项目创建数</span>
@@ -98,7 +98,7 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
         </div>
         <!-- 最近页面创建数量 -->
         <div class="w-full h-full flex flex-col">
-          <el-card class="w-full h-[300px]">
+          <el-card class="w-full h-[400px]">
             <div class="w-full h-8 flex items-center justify-between">
               <span class="chart-title">最近页面创建数</span>
               <el-select

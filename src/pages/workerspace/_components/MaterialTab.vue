@@ -5,10 +5,6 @@ import {ElEmpty} from "element-plus";
 import {$message} from "@/componsables/element-plus";
 import BaseMaterial from "@/components/material/BaseMaterial.vue";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {buttonSchema} from "@/material/base/Button";
-import {textSchema} from "@/material/base/Text";
-import {linkSchema} from "@/material/base/Link";
-import {imageSchema} from "@/material/base/Image";
 import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {useCounterStore} from "@/stores/counter";
 import {$util} from "@/componsables/utils";
@@ -107,19 +103,6 @@ function materialModelFactory(list: MaterialRespDto.MaterialInfoRespDto[] | unde
 
 
 /**
- * @description 在离线情况下初始化基础物料，使得物料面板不至于为空，优化用户体验
- */
-function initBaseMaterialListAtStandAlone() {
-  materialList.value['1'] = [
-    new RenrenMaterialModel(buttonSchema),
-    new RenrenMaterialModel(textSchema),
-    new RenrenMaterialModel(linkSchema),
-    new RenrenMaterialModel(imageSchema)
-  ];
-}
-
-
-/**
  * @description 初始化物料列表 从 store 中取出请求获取的物料信息
  */
 function initMaterialList<T extends MaterialRespDto.defaultMaterialList>(): Promise<string> {
@@ -137,9 +120,6 @@ function initMaterialList<T extends MaterialRespDto.defaultMaterialList>(): Prom
         };
         resolve('初始化成功');
       }
-    } else {
-      initBaseMaterialListAtStandAlone();
-      reject('初始化失败');
     }
   });
 }
