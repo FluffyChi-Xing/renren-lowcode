@@ -62,7 +62,7 @@ export namespace MaterialRespDto {
 
     userId: number;
 
-    data: MaterialInterface.IMaterial;
+    data: string;
 
     status: number;
 

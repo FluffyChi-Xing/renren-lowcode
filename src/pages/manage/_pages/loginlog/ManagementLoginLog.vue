@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import {ref, reactive, onMounted} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
+import type {LoginLogRespDto} from "@/componsables/interface/dto/resp/LoginLogRespDto";
+import {$api} from "@/componsables/api";
+import {$message} from "@/componsables/element-plus";
+import dayjs from "dayjs";
 
 
 
@@ -8,7 +12,50 @@ import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 const searchValue = ref<string>('');
 const isShow = ref<boolean>(true);
 const isLoading = ref<boolean>(false);
+const tableData = ref<LoginLogRespDto.LoginLogInfoRespDto[]>([]);
+const total = ref<number>(0);
+const pageNum = ref<number>(1);
+const pageSize = ref<number>(10);
+const sizeOptions: number[] = [5, 10, 15, 20];
+
+
+/**
+ * @description 分页获取登录日志
+ */
+async function pageLoginLog() {
+  await $api.loginLog.pageLoginLogInfoList(pageNum.value, pageSize.value)
+    .then(res => {
+      tableData.value = res.records;
+      total.value = res.total;
+    })
+    .catch(_ => {
+      $message({
+        type: 'warning',
+        message: '获取登录日志失败'
+      });
+    });
+}
+
+
+/**
+ * @description 刷新页面
+ */
+async function refreshPage() {
+  tableData.value = [];
+  isLoading.value = true;
+  await pageLoginLog();
+  isLoading.value = false;
+}
 /** ========== 登录日志初始化-end ==========**/
+
+
+
+
+onMounted(async () => {
+  isLoading.value = true;
+  await pageLoginLog();
+  isLoading.value = false;
+});
 </script>
 
 <template>
@@ -50,6 +97,7 @@ const isLoading = ref<boolean>(false);
               circle
               plain
               size="small"
+              @click="refreshPage"
             />
             <el-button
               plain
@@ -63,6 +111,7 @@ const isLoading = ref<boolean>(false);
         <!-- table-data -->
         <div class="w-full h-auto flex mt-4 flex-col">
           <el-table
+            :data="tableData"
             v-loading="isLoading"
             stripe
             border
@@ -80,10 +129,6 @@ const isLoading = ref<boolean>(false);
               prop="userId"
             />
             <el-table-column
-              label="用户名"
-              prop="username"
-            />
-            <el-table-column
               label="ip"
               prop="ip"
             />
@@ -94,7 +139,13 @@ const isLoading = ref<boolean>(false);
             <el-table-column
               label="登录时间"
               prop="createTime"
-            />
+            >
+              <template #default="{ row }">
+                <span>
+                  {{ dayjs(row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                </span>
+              </template>
+            </el-table-column>
             <el-table-column
               label="状态"
               prop="status"

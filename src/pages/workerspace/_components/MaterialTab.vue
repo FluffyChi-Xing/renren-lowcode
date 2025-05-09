@@ -98,7 +98,8 @@ const materialList = ref<Record<string, RenrenMaterialModel[]>>({
  */
 function materialModelFactory(list: MaterialRespDto.MaterialInfoRespDto[] | undefined): RenrenMaterialModel[] {
   if (list !== void 0) {
-    return list?.map(item => new RenrenMaterialModel(item.data));
+    // 处理物料返回值是 json string 的问题
+    return list?.map(item => new RenrenMaterialModel(JSON.parse(item.data)));
   } else {
     return [];
   }

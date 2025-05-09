@@ -184,6 +184,7 @@ onMounted(() => {
               placeholder="请输入查询条件,包括操作名称，路径，方法"
               style="width: 300px;"
               @keydown.enter="blurSearch"
+              @clear="refreshPage"
             />
           </el-form-item>
           <el-button @click="blurSearch" type="primary">搜索</el-button>
@@ -191,7 +192,7 @@ onMounted(() => {
         <!-- functional banner -->
         <div class="w-full h-auto grid grid-cols-2 gap-4 mb-4">
           <div class="w-full h-auto flex items-center">
-            <el-button @click="operationLogFileExport" type="success" plain icon="Download">导出</el-button>
+            <el-button @click="operationLogFileExport" type="success" plain icon="Upload">导出</el-button>
           </div>
           <div class="w-full h-auto flex items-center justify-end">
             <el-button size="small" @click="() => showHeader = !showHeader" icon="Search" circle plain type="primary" />

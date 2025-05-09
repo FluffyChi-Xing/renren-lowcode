@@ -109,12 +109,12 @@ onMounted(async () => {
 
 <template>
   <ManageLayout header="物料管理" :footer="false">
-    <template #header>
-      <el-button @click="() => createFlag = true" type="primary" size="small">新建自定义物料</el-button>
-      <el-button @click="refreshTableData" icon="Refresh" type="warning" size="small" plain circle />
-    </template>
     <template #default>
-      <div class="w-full h-full flex flex-col">
+      <div class="w-full h-full flex flex-col pt-4">
+        <div class="w-full h-auto flex items-center justify-between">
+          <el-button @click="() => createFlag = true" type="primary" plain>新建自定义物料</el-button>
+          <el-button @click="refreshTableData" icon="Refresh" type="warning" size="small" plain circle />
+        </div>
         <el-table
           :data="tableData"
           v-loading="isLoading"
@@ -133,7 +133,7 @@ onMounted(async () => {
             <template #default="{ row }">
               <div class="w-full h-auto flex p-4">
                 <HighLightLang
-                  :code="highLightCodeGenerator(row.data)"
+                  :code="highLightCodeGenerator(JSON.parse(row.data))"
                   lang="json"
                 />
               </div>

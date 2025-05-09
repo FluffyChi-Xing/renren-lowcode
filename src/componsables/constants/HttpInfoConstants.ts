@@ -7,7 +7,7 @@
 /**
  * @description http 基础请求地址
  */
-export const HTTP_BASE_REQUEST_HOST: string = 'http://localhost:9090/api/renren';
+export const HTTP_BASE_REQUEST_HOST: string = 'http://lc.fluffycx.cn:10086/api/renren';
 
 
 
@@ -30,3 +30,6 @@ export const PROJECT_API_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/proje
 
 
 export const OPERATION_LOG_REQUEST_HOST:string = `${HTTP_BASE_REQUEST_HOST}/operation`;
+
+
+export const LOGIN_LOG_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/loginLog`;
