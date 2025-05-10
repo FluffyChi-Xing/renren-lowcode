@@ -12,7 +12,6 @@ import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";
 import {$util} from "@/componsables/utils";
-import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 
 // 定义支持的组件类型
 type SupportedComponentType = 'el-button';

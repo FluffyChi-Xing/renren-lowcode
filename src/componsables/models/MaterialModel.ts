@@ -7,6 +7,7 @@ import {RenrenModel} from "@/componsables/models/RenrenModel";
 import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 import {$engine} from "@/renren-engine/engine";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+import * as arrangement from "@/renren-engine/modules/arrangement/arrangement";
 
 
 /**
@@ -396,14 +397,14 @@ export class MaterialProjectModel extends RenrenModel implements MaterialInterfa
           const documentModel: MaterialDocumentModel = new MaterialDocumentModel({...documentParams});
           // 检查是否存在同名页面
           const storageId: string = SCHEMA_STORAGE_ID + params?.fileName;
-          const doc = await $engine.getSchema(storageId);
+          const doc = await $engine.arrangement.getSchema(storageId);
           if (!doc) {
             // 保存文档节点
-            await $engine.saveSchemaToJson(documentModel, params.fileName).catch(err => {
+            await $engine.arrangement.saveSchemaToJson(documentModel, params.fileName).catch(err => {
               reject(err);
             });
             // 保存文档节点到项目保存文档节点到项目
-            await $engine.saveDocument2Project(params.projectName, documentParams).catch(err => {
+            await $engine.arrangement.saveDocument2Project(params.projectName, documentParams).catch(err => {
               reject(err);
             });
             resolve('创建文档成功');
@@ -427,10 +428,10 @@ export class MaterialProjectModel extends RenrenModel implements MaterialInterfa
     return new Promise<string>(async (resolve, reject) => {
       try {
         // 删除本地缓存的文档节点
-        await $engine.removeSchema(SCHEMA_STORAGE_ID + documentName).catch(err => {
+        await $engine.arrangement.removeSchema(SCHEMA_STORAGE_ID + documentName).catch(err => {
           reject(err);
         });
-        await $engine.removeDocumentFromProject(documentName, this.projectName).catch(err => {
+        await $engine.arrangement.removeDocumentFromProject(documentName, this.projectName).catch(err => {
           reject(err);
         })
         // 移除项目内的文档节点

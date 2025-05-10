@@ -6,6 +6,7 @@ import type {
   MaterialRespDto
 } from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {materialApiAggregation} from "@/componsables/apis/material/materialApiAggregation";
+import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";
 
 
 
@@ -41,6 +42,80 @@ export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(
       })
       .catch(err => {
         console.error(err);
+        reject(err);
+      });
+  });
+}
+
+
+/**
+ * @description 创建物料请求参数
+ */
+export type createMaterialReqDto = {
+  name: string;
+  type: string;
+  data: string; // material toJSONString
+};
+
+
+/**
+ * @description 新建自定义物料
+ * @param params
+ */
+export function createSelfMaterial(params: createMaterialReqDto): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    const { name, type, data } = params;
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('type', type);
+    formData.append('data', data);
+    await materialApiAggregation({
+      url: '/create',
+      options: {
+        method: HttpRequestMethodEnum.POST,
+        body: formData
+      }
+    })
+      .then(res => {
+        resolve(res.data as string);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+
+/**
+ * @description 更新物料状态请求参数
+ */
+export type updateMaterialStatusReqDto = {
+  id: number;
+  status: number;
+};
+
+
+/**
+ * @description 变更物料状态
+ * @param params
+ */
+export function updateMaterialStatus(params: updateMaterialStatusReqDto): Promise<any> {
+  return new Promise<any>(async (resolve, reject) => {
+    const { id, status } = params;
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    formData.append('status', status.toString());
+    await materialApiAggregation({
+      url: '/editStatus',
+      options: {
+        method: HttpRequestMethodEnum.POST,
+        body: formData
+      }
+    })
+      .then(res => {
+        resolve(res);
+      })
+      .catch(err => {
         reject(err);
       });
   });

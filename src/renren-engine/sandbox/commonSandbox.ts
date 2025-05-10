@@ -90,7 +90,7 @@ export function isCallable(fn: any): boolean {
  * @description 判断一个变量 fn 是否是一个绑定函数
  * @param fn
  */
-export function isBoundedFunction(fn: CallableFunction): boolean {
+export function isBoundedFunction(fn: CallableFunction): boolean | undefined {
   if (boundedMap.has(fn)) {
     return boundedMap.get(fn);
   }
