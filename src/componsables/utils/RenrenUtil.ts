@@ -140,3 +140,16 @@ export function isEmpty<T extends Object>(item: T | undefined): boolean {
     return true;
   }
 }
+
+
+/**
+ * @description 深克隆一个对象
+ * @param item
+ */
+export function deepClone<T extends Object>(item: T): T {
+  try {
+    return JSON.parse(JSON.stringify(item)) as T;
+  } catch (e) {
+    throw new Error('failed to clone item -- ' + e);
+  }
+}

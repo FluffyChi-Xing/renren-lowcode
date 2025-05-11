@@ -10,7 +10,7 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import BaseDialog from "@/components/BaseDialog.vue";
 import type {MaterialReqDto} from "@/componsables/interface/dto/req/MaterialReqDto";
 import {MATERIAL_TYPE_OPTIONS} from "@/componsables/constants/ManagementConstant";
-import {$const} from "@/componsables/const";
+import materialTemplateSchema from './material-template-schema.json';
 
 
 
@@ -30,7 +30,7 @@ const materialInfo = reactive<MaterialReqDto.UpdateMaterialReqDto>({
   status: 0,
   type: 0
 });
-const defaultMaterialCode = ref<string>(JSON.stringify($const.ren.MATERIAL_CODE_TEMPLATE, null, 2));
+const defaultMaterialCode = ref<string>(JSON.stringify(materialTemplateSchema, null, 2));
 const MONACO_EDITOR_OPTIONS = {
   automaticLayout: true,
   formatOnType: true,

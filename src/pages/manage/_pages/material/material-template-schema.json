@@ -1,0 +1,34 @@
+{
+  "isNode": true,
+  "title": "material-title",
+  "isLocked": false,
+  "condition": "",
+  "conditionGroup": "",
+  "hidden": false,
+  "id": "1",
+  "children": null,
+  "parent": null,
+  "zLevel": 0,
+  "animation": [],
+  "events": [],
+  "props": {
+    "id": "propsId",
+    "items": [
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "key",
+        "value": "value",
+        "type": "type",
+        "owner": "ownerKey",
+        "parent": "parentId"
+      }
+    ],
+    "owner": "ownerKey",
+    "maps": "undefined",
+    "type": "el-type",
+    "size": 20
+  },
+  "icon": "el-icon-name"
+}

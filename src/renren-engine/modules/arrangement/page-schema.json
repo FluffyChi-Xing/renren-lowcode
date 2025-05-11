@@ -1,0 +1,48 @@
+{
+  "activated": false,
+  "blank": true,
+  "fileName": "页面01",
+  "nodes": [],
+  "opened": true,
+  "rootNode": true,
+  "sections": [],
+  "prop": {
+    "id": "1",
+    "items": [
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "style",
+        "value": "#ffffff",
+        "type": "background-color",
+        "owner": null,
+        "parent": "undefined"
+      },
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "style",
+        "value": "1",
+        "type": "opacity",
+        "owner": null,
+        "parent": "undefined"
+      },
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "style",
+        "value": "16",
+        "type": "font-size",
+        "owner": null,
+        "parent": "undefined"
+      }
+    ],
+    "owner": "页面01",
+    "maps": "undefined",
+    "type": "",
+    "size": 0
+  }
+}

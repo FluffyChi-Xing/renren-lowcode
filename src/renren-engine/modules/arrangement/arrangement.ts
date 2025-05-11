@@ -2,9 +2,9 @@
  * @description 人人低码-编排引擎 编排能力模块
  * @author FluffyChi-Xing
  */
+import pageSchema from  './page-schema.json';
 import {MaterialDocumentModel, MaterialProjectModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {
-  PAGE_SCHEMA,
   PROJECT_KEY_TO_NAME_MAP_ID,
   SCHEMA_PROJECT_STORAGE_ID,
   SCHEMA_STORAGE_ID
@@ -176,7 +176,7 @@ export function hasNode(index: string): Promise<boolean> {
 function createSchema(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const schema = new MaterialDocumentModel(PAGE_SCHEMA);
+      const schema = new MaterialDocumentModel(pageSchema as unknown as MaterialInterface.IDocument);
       await updateSchema(schema);
       resolve('创建 schema 成功');
     } catch (e) {
