@@ -34,8 +34,6 @@ function runAnimation(key: string): Promise<string> {
       animateRef.value[key]?.classList.add(animationNameValueMap.get(key) as string, 'animated', 'no-infinite');
       const removeAnimation = () => {
         animateRef.value[key]?.classList.remove(animationNameValueMap.get(key) as string, 'animated', 'no-infinite');
-        // animateRef.value[key]?.removeEventListener('animationend', removeAnimation);
-        // animateRef.value[key]?.removeEventListener('animationcancel', removeAnimation);
         resolve('运行动画效果成功');
       }
       animateRef.value[key]?.addEventListener('animationend', removeAnimation);

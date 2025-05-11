@@ -163,7 +163,6 @@ onMounted(() => {
     userId: "1",
     username: "adminTest"
   })
-  console.log('init user info data');
 });
 </script>
 

@@ -27,11 +27,6 @@ const defaultCode: string = 'callback = () => {\n' +
   '}';
 
 
-// function formatCode() {
-//   editor.value?.getAction('editor.action.formatDocument').run();
-// }
-
-
 /**
  * @description 保存物料事件到 schemaStore 中
  * @param event

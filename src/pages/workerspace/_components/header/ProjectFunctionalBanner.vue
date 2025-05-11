@@ -132,14 +132,6 @@ function revertMaterialHandler() {
 
 
 /**
- * @description 处理页面预览事件
- */
-function previewPageHandler() {
-  $event.emit('previewPage');
-}
-
-
-/**
  * @description 处理物料插入事件
  */
 watch(() => schemaStore.newElement, () => {
@@ -223,7 +215,7 @@ $event.on(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?
     <!-- 保存到本地 -->
     <el-button>保存到本地</el-button>
     <!-- 预览 -->
-    <el-button @click="previewPageHandler" type="primary">预览</el-button>
+    <el-button @click="() => $event.emit('previewPage')" type="primary">预览</el-button>
   </div>
 </template>
 

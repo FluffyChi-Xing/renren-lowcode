@@ -21,4 +21,22 @@ export namespace UserInfoReqDto {
   export interface UserRegisterReqDto extends UserLoginReqDto {
     email: string;
   }
+
+
+  /**
+   * @description 用户登录表单请求参数
+   */
+  export interface UserLoginFormReqDto {
+    username: string;
+    code: string;
+    password: string;
+  }
+
+
+  /**
+   * @description 用户注册表单请求参数
+   */
+  export interface UserRegisterFormReqDto extends UserLoginFormReqDto{
+    email: string;
+  }
 }

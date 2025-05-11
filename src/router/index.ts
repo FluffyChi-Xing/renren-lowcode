@@ -96,6 +96,14 @@ const router = createRouter({
             title: '人人低码 | 工作空间'
           },
           component: () => import('@/pages/workerspace/index.vue')
+        },
+        {
+          path: '/login',
+          name: 'login',
+          meta: {
+            title: '人人低码 | 登录页',
+          },
+          component: () => import('@/pages/login/index.vue')
         }
       ]
     },

@@ -345,7 +345,6 @@ async function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  // console.log('click grid');
   schemaStore.currentElement = await $engine.arrangement.getSchema() as MaterialDocumentModel;
 }
 

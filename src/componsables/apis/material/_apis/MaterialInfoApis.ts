@@ -120,3 +120,21 @@ export function updateMaterialStatus(params: updateMaterialStatusReqDto): Promis
       });
   });
 }
+
+
+/**
+ * @description 获取回收站物料列表
+ */
+export function queryMaterialRecycleBin<T extends MaterialRespDto.MaterialInfoRespDto>(): Promise<T[]> {
+  return new Promise<T[]>(async (resolve, reject) => {
+    await materialApiAggregation({
+      url: '/recycleBin'
+    })
+      .then(res => {
+        resolve(res as T[]);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}

@@ -153,3 +153,11 @@ export function deepClone<T extends Object>(item: T): T {
     throw new Error('failed to clone item -- ' + e);
   }
 }
+
+
+/**
+ * @description 页面刷新
+ */
+export function refreshPage(): void {
+  location.reload();
+}

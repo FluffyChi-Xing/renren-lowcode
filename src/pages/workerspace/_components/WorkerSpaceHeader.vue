@@ -1,21 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import {ref } from 'vue';
+import { ref } from 'vue';
 import TheHeader from "@/components/TheHeader.vue";
 import CanvasSizeConfiguration from "@/pages/workerspace/_components/header/CanvasSizeConfiguration.vue";
 import ProjectFunctionalBanner from "@/pages/workerspace/_components/header/ProjectFunctionalBanner.vue";
+import {$util} from "@/componsables/utils";
 
 
-const router = useRouter();
 const canvasSize = ref<number>(0);
 // TODO: 当画布尺寸变动的时候，将数据同步到 schema 的 MaterialDocumentModel 的 props 中
-
-/**
- * @description 刷新页面
- */
-function refreshPage() {
-  router.push('/workerspace');
-}
 
 
 /**
@@ -36,7 +28,7 @@ function canvasSizeChangeHandler(index: number) {
     <template #left>
       <div class="w-full h-full pl-10 text-gray-50 flex items-center">
         <!-- TODO: logo -->
-        <span @click="refreshPage" class="w-auto h-auto flex text-[1.2rem] cursor-pointer font-bold">人人低码</span>
+        <span @click="$util.renren.refreshPage()" class="w-auto h-auto flex text-[1.2rem] cursor-pointer font-bold">人人低码</span>
       </div>
     </template>
     <template #middle>

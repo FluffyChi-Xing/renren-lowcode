@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {eventNameValueMap} from "@/componsables/utils/EventAttrUtil";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
@@ -51,7 +50,6 @@ function initEventData() {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material && material.events) {
       eventData.value = material.events as RenrenInterface.IEvent[];
-      // console.log(eventData.value);
     }
   }
 }

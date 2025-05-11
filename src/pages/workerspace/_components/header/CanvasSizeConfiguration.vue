@@ -5,7 +5,6 @@ import {$enum} from "@/componsables/enum";
 import {DEVICE_TYPES} from "@/componsables/constants/WorkerSpaceConstant";
 import {$message} from "@/componsables/element-plus";
 import {
-  DEFAULT_CANVAS_WIDTH,
   DEFAULT_SIZE_LIST,
   MAX_CANVAS_WIDTH,
   MIN_CANVAS_WIDTH
