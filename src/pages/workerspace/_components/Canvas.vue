@@ -20,7 +20,7 @@ import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 import {$util} from "@/componsables/utils";
 
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   clearFlag?: boolean; // 清空画布标识
 }>(), {
   clearFlag: false

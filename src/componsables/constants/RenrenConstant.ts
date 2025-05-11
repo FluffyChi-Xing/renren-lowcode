@@ -80,3 +80,6 @@ export const USER_LOGIN_INFO_FLAG: string = 'renren-lowcode-login';
 
 
 export const DEFAULT_USER_AVATAR: string = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
+
+
+export const DEFAULT_MATERIAL_STORAGE_INDEX: string = 'default-material';

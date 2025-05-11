@@ -3,16 +3,16 @@ import {onMounted, ref, watch} from 'vue';
 import ManageHeader from "@/pages/manage/_component/ManageHeader.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {useRoute} from "vue-router";
-import {useCounterStore} from "@/stores/counter";
 import {$api} from "@/componsables/api";
 import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {setUserLoginInfoToSession} from "@/componsables/request";
+import {LocalforageDB} from "@/componsables/database/LocalforageDB";
+import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";
 
 
 
 
 const route = useRoute();
-const counterStore = useCounterStore();
 /** ========== 菜单初始化-start ==========**/
 const defaultActive = ref<string>('仪表盘');
 const menuList = ref<RenrenInterface.KeyValueIndexType<string, string>[]>([
@@ -118,10 +118,11 @@ function checkCurrentActiveItemHandler(): Promise<string> {
 /**
  * @description 获取物料信息列表
  */
-async function getMaterialSchema() {
+async function getMaterialSchema<T extends MaterialRespDto.defaultMaterialList>() {
   await $api.material.queryMaterialInfo().then(res => {
-    counterStore.defaultMaterialList = res.defaultMaterialList as MaterialRespDto.defaultMaterialList;
-    counterStore.selfMaterialList = res.selfMaterialList as MaterialRespDto.MaterialInfoRespDto[];
+    // 存入 indexedDB
+    const indexedDB = new LocalforageDB<T>();
+    indexedDB.insert(DEFAULT_MATERIAL_STORAGE_INDEX, res.defaultMaterialList as T)
   }).catch(err => {
     console.error(err);
   })

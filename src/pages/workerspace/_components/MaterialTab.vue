@@ -6,8 +6,9 @@ import {$message} from "@/componsables/element-plus";
 import BaseMaterial from "@/components/material/BaseMaterial.vue";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
-import {useCounterStore} from "@/stores/counter";
 import {$util} from "@/componsables/utils";
+import {LocalforageDB} from "@/componsables/database/LocalforageDB";
+import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";
 
 
 
@@ -49,7 +50,6 @@ const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
     value: '布局组件'
   }
 ]);
-const counterStore = useCounterStore();
 const emits = defineEmits(['change', 'search']);
 
 
@@ -106,9 +106,10 @@ function materialModelFactory(list: MaterialRespDto.MaterialInfoRespDto[] | unde
  * @description 初始化物料列表 从 store 中取出请求获取的物料信息
  */
 function initMaterialList<T extends MaterialRespDto.defaultMaterialList>(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    // 从 store 中获取默认物料列表
-    const defaultMaterialList: T | undefined = counterStore.defaultMaterialList as T;
+  return new Promise<string>(async (resolve) => {
+    // 从 indexedDB 中获取默认物料列表
+    const indexedDB = new LocalforageDB<T>();
+    const defaultMaterialList: T | undefined = await indexedDB.query(DEFAULT_MATERIAL_STORAGE_INDEX) as T;
     if (defaultMaterialList !== void 0) {
       if (!$util.renren.isEmpty(defaultMaterialList)) {
         materialList.value = {
