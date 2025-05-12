@@ -110,6 +110,8 @@ export const propAttributesMap = new Map<string, string>([
   ['area', '长文本'],
   ['circle', '圆形'],
   ['round', '圆角'],
+  ['description', '描述'],
+  ['image', '图片链接']
 ]);
 
 
@@ -147,6 +149,8 @@ export const propAttributesTypeMap: Map<string, string> = new Map<string, string
   ['area', 'area'],
   ['circle', 'switch'],
   ['round', 'switch'],
+  ['description', 'input'],
+  ['image', 'input'],
 ]);
 
 
@@ -171,6 +175,8 @@ export const propAttributesSuffixOptions: Map<string, string> = new Map<string, 
   ['loading', ''],
   ['fit', ''],
   ['background-color', ''],
+  ['description', ''],
+  ['image', ''],
 ]);
 
 

@@ -30,6 +30,7 @@ function initMaterialAttributeData(): Promise<string> {
         materialAttribute.value = [];
         if (material.props?.items && material.props.items?.length > 0) {
           material.props.items.forEach((item: MaterialInterface.IProp) => {
+            console.log(item);
             materialAttribute.value.push(item);
           });
           resolve('初始化文档节点响应式属性数据成功');
@@ -73,7 +74,6 @@ const throttledCSSAttributesUpdateHandler = throttle(
               });
             });
             schemaStore.currentElement = item;
-            // canvasStore.updateFlag = generateUUID();
             $event.emit(`updateMaterial:${item.id}`);
             resolve('样式更新成功');
           }
@@ -114,7 +114,7 @@ function inputChangeHandler(): Promise<string> {
  * @description 处理 select 型事件
  */
 function selectChangeHandler(): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
+  return new Promise<string>(async (reject) => {
     try {
       await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({

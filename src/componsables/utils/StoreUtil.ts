@@ -15,6 +15,14 @@ export function isCurrentElementAMaterial(): boolean {
 
 
 /**
+ * @description 判断当前选中的元素是否是一个文档元素
+ */
+export function isCurrentElementADocument(): boolean {
+  return mySchemaStore.currentElement?.type === 'document' && mySchemaStore.currentElement !== void 0;
+}
+
+
+/**
  * @description 判断当前物料元素是否为空元素
  */
 export function isCurrentMaterialEmpty(): boolean {

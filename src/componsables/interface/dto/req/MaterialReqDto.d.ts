@@ -31,10 +31,10 @@ export namespace MaterialReqDto {
 
     name: string;
 
-    type: number;
+    type: string;
 
     data: string; // json string
 
-    status: number;
+    status: string;
   }
 }

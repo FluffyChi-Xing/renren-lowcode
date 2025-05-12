@@ -13,10 +13,34 @@ export enum MaterialTypeEnum {
 }
 
 
-
+/**
+ * @description 物料上下线状态枚举类
+ */
 export enum MaterialStatusEnum {
 
-  ACTIVED = 0, // 启用
+  ONLINE = 0, // 上线
 
-  DE_ACTIVED = 1, // 禁用
+  OFFLINE = 1, // 下线
+}
+
+
+/**
+ * @description 物料删除状态枚举类
+ */
+export enum MaterialDeleteEnum {
+
+  UN_DELETED = 0, // 未删除
+
+  DELETED = 1 // 已删除
+}
+
+
+/**
+ * @description 物料默认状态枚举类
+ */
+export enum MaterialDefaultEnum {
+
+  DEFAULT = 0, // 默认
+
+  NOT_DEFAULT = 1 // 非默认
 }

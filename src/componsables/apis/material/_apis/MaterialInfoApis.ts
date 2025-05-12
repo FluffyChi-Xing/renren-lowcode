@@ -54,7 +54,8 @@ export function queryAllMaterial<T extends MaterialRespDto.MaterialInfoRespDto>(
 export type createMaterialReqDto = {
   name: string;
   type: string;
-  data: string; // material toJSONString
+  // material toJSONString
+  data: string;
 };
 
 
@@ -113,7 +114,7 @@ export function updateMaterialStatus(params: updateMaterialStatusReqDto): Promis
       }
     })
       .then(res => {
-        resolve(res);
+        resolve(res); // TODO: 检查是否需要改为 res.data
       })
       .catch(err => {
         reject(err);
@@ -132,6 +133,25 @@ export function queryMaterialRecycleBin<T extends MaterialRespDto.MaterialInfoRe
     })
       .then(res => {
         resolve(res as T[]);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+
+/**
+ * @description 删除指定的物料信息
+ * @param id
+ */
+export function deleteMaterialInfo(id: number): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    await materialApiAggregation({
+      url: `/delete/${id}`
+    })
+      .then(res => {
+        resolve(res.data as string);
       })
       .catch(err => {
         reject(err);
