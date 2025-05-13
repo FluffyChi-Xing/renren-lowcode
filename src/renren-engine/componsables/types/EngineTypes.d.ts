@@ -4,15 +4,15 @@
  */
 
 
-export namespace EngineTypes {
+declare namespace EngineTypes {
 
 
-  export type WindowProxy = Window;
+  type WindowProxy = Window;
 
   /**
    * @description 基础沙箱类型
    */
-  export interface ISandbox {
+  interface ISandbox {
     name: string; // 沙箱名称
     type: string; // 晒想类型
     proxy: WindowProxy; // 沙箱导出的代理实体
@@ -21,11 +21,11 @@ export namespace EngineTypes {
     patchDocument: (doc: Document) => void; // 挂载到 document 上的沙箱方法
   }
 
-  export type FakeWindow = Window & Record<PropertyKey, any>;
+  type FakeWindow = Window & Record<PropertyKey, any>;
 
-  export type SymbolTarget = 'target' | 'globalContext';
+  type SymbolTarget = 'target' | 'globalContext';
 
-  export interface createWindowType {
+  interface createWindowType {
     fakeWindow: FakeWindow;
 
     propertiesWithGetter: Map<PropertyKey, boolean>;

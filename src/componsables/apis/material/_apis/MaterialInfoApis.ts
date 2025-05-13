@@ -2,9 +2,6 @@
  * @description 物料信息接口模块
  * @author FluffyChi-Xing
  */
-import type {
-  MaterialRespDto
-} from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {materialApiAggregation} from "@/componsables/apis/material/materialApiAggregation";
 import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";
 

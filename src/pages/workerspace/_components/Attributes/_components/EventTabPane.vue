@@ -5,7 +5,6 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$engine} from "@/renren-engine/engine";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 

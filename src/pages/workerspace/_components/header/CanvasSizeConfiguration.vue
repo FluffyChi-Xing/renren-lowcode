@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$enum} from "@/componsables/enum";
 import {DEVICE_TYPES} from "@/componsables/constants/WorkerSpaceConstant";
 import {$message} from "@/componsables/element-plus";

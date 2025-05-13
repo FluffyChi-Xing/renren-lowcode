@@ -1,5 +1,13 @@
-export namespace MarkLineInterface {
-  export interface linePositionType {
+/**
+ * @description 定位标线类型模块
+ * @author FluffyChi-Xing
+ */
+
+declare namespace MarkLineInterface {
+
+
+
+  interface linePositionType {
     isNearly: boolean; // 是否接近
     lineNode: HTMLElement | undefined; // 线节点
     line: string;

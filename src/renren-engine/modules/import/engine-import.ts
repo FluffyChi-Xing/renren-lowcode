@@ -2,7 +2,6 @@
  * @description renren-engine 物料导入/注册 API 模块
  * @author FluffyChi-Xing
  */
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import ProxySandbox from "@/renren-engine/sandbox/proxySandbox";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 

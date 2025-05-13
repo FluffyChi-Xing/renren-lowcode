@@ -3,9 +3,6 @@
  * @author FluffyChi-Xing
  */
 
-
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-
 /**
  * @description 事件名称和值映射表
  */

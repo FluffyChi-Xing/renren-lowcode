@@ -2,7 +2,6 @@
  * @description 画布工具模块
  * @author FluffyChi-Xing
  */
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { debounce } from "lodash-es";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 

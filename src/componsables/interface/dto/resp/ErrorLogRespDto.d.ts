@@ -6,13 +6,13 @@
 
 
 
-export namespace ErrorLogRespDto {
+declare namespace ErrorLogRespDto {
 
 
   /**
    * @description 异常日志响应体类型
    */
-  export interface ErrorLogInfoRespDto {
+  interface ErrorLogInfoRespDto {
     id: number;
     message: string;
     source: string;

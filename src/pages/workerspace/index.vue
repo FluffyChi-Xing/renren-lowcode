@@ -17,7 +17,6 @@ import {useSchemaStore} from "@/stores/schema";
 import $event from "@/componsables/utils/EventBusUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {useCanvasStore} from "@/stores/canvas";

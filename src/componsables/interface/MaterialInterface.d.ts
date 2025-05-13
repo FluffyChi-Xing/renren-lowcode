@@ -2,17 +2,16 @@
  * @description 物料 interface 模块
  * @author FluffyChi-Xing
  */
-import { RenrenEntity } from "@/componsables/entities/RenrenEntity";
 import {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
-export namespace MaterialInterface {
+declare namespace MaterialInterface {
 
 
   /**
    * @description 基础物料类型
    */
-  export interface IMaterial {
+  interface IMaterial {
     isNode: boolean; // 是否是节点
     title: string;
     isLocked: boolean;
@@ -33,7 +32,7 @@ export namespace MaterialInterface {
   /**
    * @description 物料基础属性类型
    */
-  export interface IProps {
+  interface IProps {
     id: string;
     items: IProp[] | null;
     owner: string | null;
@@ -46,14 +45,14 @@ export namespace MaterialInterface {
   /**
    * @description 子物料项类型
    */
-  export interface INodeChildren {
+  interface INodeChildren {
     children: IMaterial[];
     owner: IMaterial | null;
     size: number;
   }
 
 
-  export interface IProp {
+  interface IProp {
     items: IProp[] | null;
     maps: Map<string, IProp> | undefined;
     code: string;
@@ -66,7 +65,7 @@ export namespace MaterialInterface {
 
 
 
-  export interface IDocument {
+  interface IDocument {
     rootNode: boolean; // 是否是根节点
     nodes: IMaterial[] | undefined; // 普通物料节点
     fileName: string | null; // 文件名
@@ -81,7 +80,7 @@ export namespace MaterialInterface {
   /**
    * @description 物料树形结构类型
    */
-  export interface MaterialTreeType extends RenrenInterface.ITree {
+  interface MaterialTreeType extends RenrenInterface.ITree {
     index: number | string; // 当前节点索引
     icon?: string; // 节点图标
     name: string;
@@ -94,7 +93,7 @@ export namespace MaterialInterface {
   /**
    * @description 项目基类 类型
    */
-  export interface IProject {
+  interface IProject {
     projectName: string;
     projectId: string;
     projectPath: string;
@@ -109,7 +108,7 @@ export namespace MaterialInterface {
   /**
    * @description 创建文档节点参数类型
    */
-  export interface createDocumentParamsType {
+  interface createDocumentParamsType {
     isRoot: boolean;
     fileName: string;
     opened: boolean;
@@ -121,7 +120,7 @@ export namespace MaterialInterface {
   /**
    * @description 创建项目参数类型
    */
-  export interface createProjectParamsType {
+  interface createProjectParamsType {
     name: string;
     path: string;
     host?: string;

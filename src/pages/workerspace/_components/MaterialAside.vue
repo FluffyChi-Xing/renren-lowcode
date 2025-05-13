@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {ArrowLeft, ArrowRight} from "@element-plus/icons-vue";
-const toolBarIcon = ref(ArrowLeft);
 import DrawerTransition from "@/components/DrawerTransition.vue";
 import {useSchemaStore} from "@/stores/schema";
 
 const isCollapse = ref<boolean>(false);
 const schemaStore = useSchemaStore();
 const emits = defineEmits(['collapse']);
+const toolBarIcon = ref(ArrowLeft);
 
 
 /**

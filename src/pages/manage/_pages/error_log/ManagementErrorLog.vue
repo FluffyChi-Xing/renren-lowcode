@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
-import type {ErrorLogRespDto} from "@/componsables/interface/dto/resp/ErrorLogRespDto";
 import {$api} from "@/componsables/api";
 import {$message} from "@/componsables/element-plus";
 import HighLightLang from "@/components/HighLightLang.vue";

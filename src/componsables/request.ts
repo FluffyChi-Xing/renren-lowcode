@@ -1,6 +1,5 @@
 import {ofetch} from "ofetch";
 import type { FetchOptions } from "ofetch";
-import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {USER_LOGIN_INFO_FLAG} from "@/componsables/constants/RenrenConstant";
 import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";
 import {HttpCodeEnum} from "@/componsables/enums/HttpCodeEnum";

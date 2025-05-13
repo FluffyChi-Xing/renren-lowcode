@@ -3,8 +3,6 @@
  * @author FluffyChi-Xing
  */
 
-import type { EngineTypes } from "@/renren-engine/componsables/types/EngineTypes";
-
 
 /**
  * @description 遍历对象

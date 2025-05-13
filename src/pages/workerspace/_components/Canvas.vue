@@ -4,7 +4,6 @@ import {useCanvasStore} from "@/stores/canvas";
 import {debounce, throttle} from "lodash-es";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import SelectArea from "@/components/SelectArea.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";

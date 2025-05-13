@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
 import {$util} from "@/componsables/utils";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 const menuList: RenrenInterface.keyValueType<string>[] = [

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";

@@ -5,13 +5,13 @@
 
 
 
-export namespace PageInfoRespDto {
+declare namespace PageInfoRespDto {
 
 
   /**
    * @description 自定义分页响应体类型
    */
-  export interface PageRespDto<T> {
+  interface PageRespDto<T> {
     records: T[];
     total: number;
     size: number;

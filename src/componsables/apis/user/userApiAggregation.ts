@@ -1,4 +1,3 @@
-import type {FetchOptions} from "ofetch";
 import {$request} from "@/componsables/request";
 import {USER_API_REQUEST_PREFIX} from "@/componsables/constants/HttpInfoConstants";
 import type {requestOptions} from "@/componsables/type/RenrenType";

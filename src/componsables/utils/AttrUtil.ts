@@ -1,4 +1,10 @@
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+/**
+ * @description attributes constants utils
+ * @author FluffyChi-Xing
+ */
+
+
+
 
 export const propsAttributes: RenrenInterface.keyValueType<string>[] = [
   {

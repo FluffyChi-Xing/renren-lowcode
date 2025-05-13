@@ -11,7 +11,6 @@ import {
 } from "@/componsables/constants/RenrenConstant";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import { v4 as uuidv4 } from 'uuid';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 /**

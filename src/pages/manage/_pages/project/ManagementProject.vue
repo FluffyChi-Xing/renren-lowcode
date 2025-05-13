@@ -4,9 +4,8 @@ import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$const} from "@/componsables/const";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import type {ProjectRespDto} from "@/componsables/interface/dto/resp/ProjectRespDto";
 import BaseDialog from "@/components/BaseDialog.vue";
-import type {ProjectReqDto} from "@/componsables/interface/dto/req/ProjectReqDto";
+import type {ProjectRespDto} from "@/componsables/interface/dto/resp/ProjectRespDto";
 
 
 

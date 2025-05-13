@@ -5,20 +5,20 @@
 import type {DefineComponent} from "vue";
 
 
-export namespace PluginApiInterface {
+declare namespace PluginApiInterface {
 
 
 
-  export declare type PluginOptionsType = string | number | boolean | object;
+  type PluginOptionsType = string | number | boolean | object;
 
 
-  export declare type PluginMetaType = string | number | boolean | object;
+  type PluginMetaType = string | number | boolean | object;
 
 
-  export declare type PluginCompType = DefineComponent<{}, {}, any>;
+  type PluginCompType = DefineComponent<{}, {}, any>;
 
 
-  export declare type PluginRegisterOptionsType = {
+  type PluginRegisterOptionsType = {
     // 开启自动初始化
     autoInit?: boolean;
     // 是否可以用同名的其他组件对原有组件进行复写
@@ -26,13 +26,13 @@ export namespace PluginApiInterface {
   };
 
 
-  export declare type PluginPreferenceType = string | number | boolean;
+  type PluginPreferenceType = string | number | boolean;
 
 
   /**
    * @description 基础插件类型
    */
-  export interface IPluginType {
+  interface IPluginType {
     // plugin name
     name: string;
     // plugin meta
@@ -45,7 +45,7 @@ export namespace PluginApiInterface {
   /**
    * @description 基础插件api类型
    */
-  export interface IPluginPublicApi {
+  interface IPluginPublicApi {
     [key: string]: any;
 
     // 注册组件

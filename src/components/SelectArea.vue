@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 const props = withDefaults(defineProps<{
   show?: boolean | undefined;
   width?: number;

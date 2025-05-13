@@ -2,7 +2,6 @@
  * @description 人人常量类 模块
  * @author FluffyChi-Xing
  */
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 export const ENTITY_ID: string = 'id';

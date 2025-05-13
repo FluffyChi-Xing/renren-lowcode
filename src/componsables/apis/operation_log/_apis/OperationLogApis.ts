@@ -2,8 +2,6 @@
  * @description 操作日志接口模块
  * @author FluffyChi-Xing
  */
-import type {OperationLogRespDto} from "@/componsables/interface/dto/resp/OperationLogRespDto";
-import type {PageInfoRespDto} from "@/componsables/interface/dto/resp/PageInfoRespDto";
 import {operationApiAggregation} from "@/componsables/apis/operation_log/operationApiAggregation";
 
 

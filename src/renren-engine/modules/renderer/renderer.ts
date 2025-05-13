@@ -7,7 +7,6 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import type {Component} from "vue";
 import { h, defineComponent, shallowReactive } from 'vue';
 import {ElButton, ElImage, ElLink, ElText, ElEmpty} from "element-plus";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";

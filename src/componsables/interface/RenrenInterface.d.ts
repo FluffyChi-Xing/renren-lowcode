@@ -3,15 +3,12 @@
  * @author FluffyChi-Xing
  */
 
-import { RenrenEntity } from "@/componsables/entities/RenrenEntity";
-import {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
-
-export namespace RenrenInterface {
+declare namespace RenrenInterface {
   /**
    * @description k-v 类型
    */
-  export interface keyValueType<T> {
+  interface keyValueType<T> {
     key: string;
     value: T;
   }
@@ -20,7 +17,7 @@ export namespace RenrenInterface {
   /**
    * @description x-y 类型
    */
-  export interface XAndYType<T, K> {
+  interface XAndYType<T, K> {
     x: T;
     y: K;
   }
@@ -29,7 +26,7 @@ export namespace RenrenInterface {
   /**
    * @description k-v-i 类型
    */
-  export interface KeyValueIndexType<T, K> extends keyValueType<T> {
+  interface KeyValueIndexType<T, K> extends keyValueType<T> {
     index: K;
   }
 
@@ -37,7 +34,7 @@ export namespace RenrenInterface {
   /**
    * @description tree interface
    */
-  export interface ITree {
+  interface ITree {
 
     name: string; // 节点名称
 
@@ -50,7 +47,7 @@ export namespace RenrenInterface {
   /**
    * @description 特性卡片类型
    */
-  export interface FeatureCardType {
+  interface FeatureCardType {
     hover: boolean;
     title: string;
     icon: string;
@@ -61,7 +58,7 @@ export namespace RenrenInterface {
   /**
    * @description 动画类型
    */
-  export interface IAnimation {
+  interface IAnimation {
     label: string;
     children: keyValueType<string>[];
   }
@@ -70,7 +67,7 @@ export namespace RenrenInterface {
   /**
    * @description 基础事件类型
    */
-  export interface IEvent {
+  interface IEvent {
     name: string; // 事件名称
     type: string; // 事件类型
     description: string; // 事件描述
@@ -82,7 +79,7 @@ export namespace RenrenInterface {
   /**
    * @description 基础栈类型
    */
-  export interface IStack<T> {
+  interface IStack<T> {
     size: number;
     data: T[] | undefined;
   }

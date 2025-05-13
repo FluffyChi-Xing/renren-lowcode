@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
-import type {UserInfoReqDto} from "@/componsables/interface/dto/req/UserInfoReqDto";
 // 注册表单数据
 const registerForm = reactive<UserInfoReqDto.UserRegisterFormReqDto>({
   code: "",

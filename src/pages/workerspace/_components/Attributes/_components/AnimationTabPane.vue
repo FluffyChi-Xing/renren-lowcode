@@ -4,7 +4,6 @@ import {ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 import '@/assets/animation.css';
 import {$message} from "@/componsables/element-plus";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import $event from "@/componsables/utils/EventBusUtil";
 
 

@@ -3,9 +3,7 @@
  * @author FluffyChi-Xing
  */
 import {rebindTarget2Fn} from "../sandbox/commonSandbox";
-import type {EngineTypes} from "../componsables/types/EngineTypes";
 import {SandboxTypeEnum} from "../componsables/enums/EngineEnums";
-// import * as process from "process";
 
 
 let activeSandboxCount: number = 0;

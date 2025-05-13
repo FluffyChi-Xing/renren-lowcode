@@ -5,7 +5,6 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesOptionsMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";

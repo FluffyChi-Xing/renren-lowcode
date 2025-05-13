@@ -73,7 +73,7 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
       if (currentElement && currentElement.type === 'material') {
         (currentElement as RenrenMaterialModel).props?.items?.forEach(async (item) => {
           // 获取当前选中组件的样式列表
-          currentElementStyleList = await $engine.queryMaterialCSSAttributesList(currentElement as RenrenMaterialModel);
+          currentElementStyleList = await $engine.renderer.queryMaterialCSSAttributesList(currentElement as RenrenMaterialModel);
           if (item.type === 'width') {
             currentElementHalfWidth = item.value / 2;
           } else if (item.type === 'height') {
@@ -91,7 +91,7 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
       if (Array.isArray(components) && components.length > 0) {
         components.forEach(async (comp) => {
           if (comp === currentElement) return;
-          const compStyleList: MaterialInterface.IProp[] | void = await $engine.queryMaterialCSSAttributesList(comp).catch(err => {
+          const compStyleList: MaterialInterface.IProp[] | void = await $engine.renderer.queryMaterialCSSAttributesList(comp).catch(err => {
             console.error(err as string);
           });
           const compHalfWidth: number = compStyleList?.find(item => item.type === 'width')?.value / 2 || 0;

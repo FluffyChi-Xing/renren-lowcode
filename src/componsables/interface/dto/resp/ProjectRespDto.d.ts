@@ -5,13 +5,13 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
-export namespace ProjectRespDto {
+declare namespace ProjectRespDto {
 
 
   /**
    * @description 项目查询返回体结构
    */
-  export interface ProjectQueryRespDto {
+  interface ProjectQueryRespDto {
 
     id: string | number;
 

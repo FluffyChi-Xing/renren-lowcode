@@ -1,5 +1,3 @@
-import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
-import type {UserInfoReqDto} from "@/componsables/interface/dto/req/UserInfoReqDto";
 import {userApiAggregation} from "@/componsables/apis/user/userApiAggregation";
 import type {FetchOptions} from "ofetch";
 import {HttpRequestMethodEnum} from "@/componsables/enums/HttpRequestMethodEnum";

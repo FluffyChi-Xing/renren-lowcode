@@ -2,8 +2,6 @@
  * @description 异常日志请求接口模块
  * @author FluffyChi-Xing
  */
-import type {ErrorLogRespDto} from "@/componsables/interface/dto/resp/ErrorLogRespDto";
-import type {PageInfoRespDto} from "@/componsables/interface/dto/resp/PageInfoRespDto";
 import {errorLogApiAggregation} from "@/componsables/apis/error/errorLogApiAggregation";
 
 

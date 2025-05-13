@@ -5,13 +5,13 @@
 
 
 
-export namespace LoginLogRespDto {
+declare namespace LoginLogRespDto {
 
 
   /**
    * @description 登录日志信息响应体类型
    */
-  export interface LoginLogInfoRespDto {
+  interface LoginLogInfoRespDto {
     id: number;
     userId: number;
     ip: string;

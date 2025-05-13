@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import {$message} from "@/componsables/element-plus";
 import BaseMaterial from "@/components/material/BaseMaterial.vue";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {ref, reactive, onMounted} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
-import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {DEFAULT_USER_AVATAR} from "@/componsables/constants/RenrenConstant";
 import {$api} from "@/componsables/api";
 

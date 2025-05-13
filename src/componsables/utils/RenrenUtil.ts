@@ -3,7 +3,7 @@
  * @author FluffyChi-Xing
  */
 import html2canvas from 'html2canvas';
-import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 
 

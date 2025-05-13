@@ -6,8 +6,6 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import {RenrenModel} from "@/componsables/models/RenrenModel";
 import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 import {$engine} from "@/renren-engine/engine";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import * as arrangement from "@/renren-engine/modules/arrangement/arrangement";
 
 
 /**

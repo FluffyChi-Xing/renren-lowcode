@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH} from "@/componsables/constants/CanvasConstant";
 import {$message} from "@/componsables/element-plus";
 const props = withDefaults(defineProps<{

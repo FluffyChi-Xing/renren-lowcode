@@ -4,13 +4,13 @@
  */
 
 
-export namespace OperationLogRespDto {
+declare namespace OperationLogRespDto {
 
 
   /**
    * @description 操作日志响应体类型
    */
-  export interface OperationLogInfoRespDto {
+  interface OperationLogInfoRespDto {
     id: number;
     operationName: string;
     operationModule: string;
@@ -25,7 +25,7 @@ export namespace OperationLogRespDto {
   /**
    * @description 操作日志搜索响应体类型
    */
-  export interface OperationLogSearchRespDto {
+  interface OperationLogSearchRespDto {
     duration: number;
     createTime: string;
     operationName: string;
@@ -38,7 +38,7 @@ export namespace OperationLogRespDto {
   }
 
 
-  export interface OperationLogSearchFormattedRespDto {
+  interface OperationLogSearchFormattedRespDto {
     id: string;
     userId: string;
     operationName: string;

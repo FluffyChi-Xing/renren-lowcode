@@ -6,13 +6,13 @@
 
 
 
-export namespace MaterialReqDto {
+declare namespace MaterialReqDto {
 
 
   /**
    * @description 创建物料参数
    */
-  export interface CreateMaterialReqDto {
+  interface CreateMaterialReqDto {
 
     name: string;
 
@@ -25,7 +25,7 @@ export namespace MaterialReqDto {
   /**
    * @description 更新物料请求参数
    */
-  export interface UpdateMaterialReqDto {
+  interface UpdateMaterialReqDto {
 
     id: number;
 

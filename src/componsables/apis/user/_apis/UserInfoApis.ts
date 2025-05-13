@@ -2,7 +2,6 @@
  * @description 用户信息相关接口模块
  * @author FluffyChi-Xing
  */
-import type {UserInfoRespDto} from "@/componsables/interface/dto/resp/UserInfoRespDto";
 import {userApiAggregation} from "@/componsables/apis/user/userApiAggregation";
 
 

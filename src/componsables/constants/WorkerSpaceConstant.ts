@@ -2,7 +2,6 @@
  * @description 工作空间常量模块
  * @author FluffyChi-Xing
  */
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$message} from "@/componsables/element-plus";
 
 

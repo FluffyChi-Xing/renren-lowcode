@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import {useSchemaStore} from "@/stores/schema";
-import type {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";

@@ -2,8 +2,6 @@
  * @description 登录日志信息接口模块
  * @author FluffyChi-Xing
  */
-import type {PageInfoRespDto} from "@/componsables/interface/dto/resp/PageInfoRespDto";
-import type {LoginLogRespDto} from "@/componsables/interface/dto/resp/LoginLogRespDto";
 import {loginLogApiAggregation} from "@/componsables/apis/login_log/loginLogApiAggregation";
 
 

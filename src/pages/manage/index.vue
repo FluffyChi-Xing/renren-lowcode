@@ -4,7 +4,6 @@ import ManageHeader from "@/pages/manage/_component/ManageHeader.vue";
 import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {useRoute} from "vue-router";
 import {$api} from "@/componsables/api";
-import type {MaterialRespDto} from "@/componsables/interface/dto/resp/MaterialRespDto";
 import {setUserLoginInfoToSession} from "@/componsables/request";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";

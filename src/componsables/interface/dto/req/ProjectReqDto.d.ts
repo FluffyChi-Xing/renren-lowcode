@@ -5,13 +5,13 @@
 
 
 
-export namespace ProjectReqDto {
+declare namespace ProjectReqDto {
 
 
   /**
    * @description 项目更新请求参数
    */
-  export interface UpdateProjectReqDto {
+  interface UpdateProjectReqDto {
 
     id: number;
 

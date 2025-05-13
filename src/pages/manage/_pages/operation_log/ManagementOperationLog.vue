@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {ref, onMounted} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
-import type {OperationLogRespDto} from "@/componsables/interface/dto/resp/OperationLogRespDto";
 import {$api} from "@/componsables/api";
 import {$message} from "@/componsables/element-plus";
 import dayjs from "dayjs";

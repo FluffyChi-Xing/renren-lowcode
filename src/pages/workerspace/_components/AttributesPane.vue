@@ -5,7 +5,6 @@
 import {useSchemaStore} from "@/stores/schema";
 import {ref, h, watch} from 'vue';
 import type { Component } from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
 import MaterialAttributesPane from "@/pages/workerspace/_components/Attributes/MaterialAttributesPane.vue";

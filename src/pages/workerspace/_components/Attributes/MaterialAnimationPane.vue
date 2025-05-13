@@ -4,7 +4,6 @@ import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import {onMounted, ref} from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {$util} from "@/componsables/utils";

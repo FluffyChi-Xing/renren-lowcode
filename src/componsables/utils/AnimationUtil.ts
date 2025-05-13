@@ -1,4 +1,7 @@
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
+/**
+ * @description 动画 attributes 属性 utils
+ * @author FluffyChi-Xing
+ */
 
 
 

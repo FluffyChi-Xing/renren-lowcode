@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";

@@ -2,7 +2,6 @@
  * @description 管理平台常量模块
  * @author FluffyChi-Xing
  */
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 
 
 export const MATERIAL_TYPE_OPTIONS: RenrenInterface.keyValueType<number>[] = [

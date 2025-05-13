@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 withDefaults(defineProps<{
