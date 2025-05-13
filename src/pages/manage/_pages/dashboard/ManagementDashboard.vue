@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {ref} from 'vue';
 import Statistic from "@/components/Statistic.vue";
 import RecentlyProjectCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyProjectCreationChart.vue";
 import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyPageCreationChart.vue";

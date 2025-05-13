@@ -11,16 +11,26 @@ import hljsVuePlugin from "@highlightjs/vue-plugin";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 import '@/componsables/ErrorHandler/errorHandler';
+import {createPlugin} from "@/componsables/models/PluginModel";
+import UndoRedo from "@/plugin/plugin-undo-redo/UndoRedo.vue";
 
 const app = createApp(App)
 
-const pinia = createPinia()
-pinia.use(piniaPluginPersistedstate)
-app.use(router)
-app.use(createPinia())
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+app.use(router);
+app.use(pinia);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
+// 创建插件实例
+const plugin = createPlugin();
+plugin.register({
+  name: 'UndoRedo',
+  component: UndoRedo
+});
+
+app.use(plugin);
 app.use(hljsVuePlugin);
 app.use(VueMonacoEditorPlugin, {
   paths: {

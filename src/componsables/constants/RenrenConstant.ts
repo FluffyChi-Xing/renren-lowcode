@@ -2,6 +2,7 @@
  * @description 人人常量类 模块
  * @author FluffyChi-Xing
  */
+import FeatureInfo from './Feature_Info.json';
 
 
 export const ENTITY_ID: string = 'id';
@@ -47,26 +48,7 @@ export const MATERIAL_SCHEMA_MAP: RenrenInterface.keyValueType<string>[] = [
 /**
  * @description 特性介绍列表
  */
-export const FEATURE_INFO_LIST: RenrenInterface.FeatureCardType[] = [
-  {
-    icon: '🥰',
-    hover: false,
-    title: '类型友好',
-    description: '使用TS编写'
-  },
-  {
-    icon: '🚀',
-    hover: false,
-    title: '快捷使用',
-    description: '帮助用户快速搭建页面'
-  },
-  {
-    icon: '🍾',
-    hover: false,
-    title: '完全开源',
-    description: '人人都可编辑分发代码'
-  }
-];
+export const FEATURE_INFO_LIST: RenrenInterface.FeatureCardType[] = JSON.parse(JSON.stringify(FeatureInfo)) as RenrenInterface.FeatureCardType[];
 
 /**
  * @description 项目的 github 地址

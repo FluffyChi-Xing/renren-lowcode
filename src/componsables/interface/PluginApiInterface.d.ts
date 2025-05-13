@@ -2,7 +2,8 @@
  * @description 插件接口模块
  * @author FluffyChi-Xing
  */
-import type {DefineComponent} from "vue";
+import type {App, DefineComponent} from "vue";
+import {IPlugin} from "@/componsables/models/PluginModel";
 
 
 declare namespace PluginApiInterface {
@@ -35,8 +36,6 @@ declare namespace PluginApiInterface {
   interface IPluginType {
     // plugin name
     name: string;
-    // plugin meta
-    meta?: Record<string, PluginMetaType>;
     // plugin component
     component: PluginCompType;
   }
@@ -46,13 +45,11 @@ declare namespace PluginApiInterface {
    * @description 基础插件api类型
    */
   interface IPluginPublicApi {
-    [key: string]: any;
+    // 组件的额外属性
+    options?: Set<Record<string, PluginOptionsType>>;
 
     // 注册组件
-    register(pluginModel: IPluginType, options?: Record<string, PluginOptionsType>, registerOptions?: PluginRegisterOptionsType): Promise<void>;
-
-    // 获取组件的相应配置信息
-    getPluginPreference(): Record<string, PluginPreferenceType> | null | undefined;
+    register(pluginModel: IPluginType, options?: Record<string, PluginOptionsType>, registerOptions?: PluginRegisterOptionsType): void;
 
     // 根据 name 获取对应的组件实例
     get(name: string): PluginCompType | null | undefined;
@@ -65,5 +62,11 @@ declare namespace PluginApiInterface {
 
     // 删除某个实例
     delete(name: string): void;
+
+    // install 函数，为了在main.js 中通过 vue.use 安装 plugin
+    install(app: App): void;
+
+    // 获取组件对应的配置项
+    getPreference(name: string): any | null | undefined;
   }
 }

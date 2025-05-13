@@ -15,10 +15,10 @@ export function rebindTarget2Fn(target: any, fn: any): any {
     @warning 这里不要随意替换成别的判断方式，因为可能触发一些 edge case（比如在 lodash.isFunction 在 iframe 上下文中可能由于调用了 top window 对象触发的安全异常）
    */
   if (isCallable(fn) && !isBoundedFunction(fn) && !isConstructable(fn)) {
-    const cachedBoundFunction: CallableFunction | undefined = functionBoundedValueMap.get(fn);
-    if (cachedBoundFunction) {
-      return cachedBoundFunction;
-    }
+    // const cachedBoundFunction: CallableFunction | undefined = functionBoundedValueMap.get(fn);
+    // if (cachedBoundFunction) {
+    //   return cachedBoundFunction;
+    // }
 
     // 绑定 target 到 fn
     const boundValue: any = Function.prototype.bind.call(fn, target);
@@ -26,7 +26,7 @@ export function rebindTarget2Fn(target: any, fn: any): any {
     Object.getOwnPropertyNames(fn).forEach((key: string) => {
       // boundValue might be a proxy, need to check if is the key exist in boundValue
       if (!boundValue.hasOwnProperty(key)) {
-        Object.defineProperty(boundValue, key, Object.getOwnPropertyDescriptor(fn, key));
+        // Object.defineProperty(boundValue, key, Object.getOwnPropertyDescriptor(fn, key));
       }
     });
 
@@ -113,9 +113,9 @@ export function isConstructable(fn: () => any | FunctionConstructor) {
 
   if (hasPrototypeMethods) return true;
 
-  if (fnRegexCheckCacheMap.has(fn)) {
-    return fnRegexCheckCacheMap.get(fn);
-  }
+  // if (fnRegexCheckCacheMap.has(fn)) {
+  //   return fnRegexCheckCacheMap.get(fn);
+  // }
 
   /*
     1. 有 prototype 并且 prototype 上有定义一系列非 constructor 属性
@@ -132,6 +132,6 @@ export function isConstructable(fn: () => any | FunctionConstructor) {
     constructable = constructableFunctionRegex.test(fnString) || classRegex.test(fnString);
   }
 
-  fnRegexCheckCacheMap.set(fn, constructable);
+  // fnRegexCheckCacheMap.set(fn, constructable);
   return constructable;
 }
