@@ -4,7 +4,6 @@ import MaterialAside from "@/pages/workerspace/_components/MaterialAside.vue";
 import EditorConfiguration from "@/pages/workerspace/_components/EditorConfiguration.vue";
 import Canvas from "@/pages/workerspace/_components/Canvas.vue";
 import {onMounted, ref, watch} from "vue";
-import type { Component } from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
 import {initSchema} from "@/renren-engine/modules/arrangement/arrangement";
@@ -18,8 +17,6 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
 import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
-import BaseDialog from "@/components/BaseDialog.vue";
-import {useCanvasStore} from "@/stores/canvas";
 import '@/assets/animation.css';
 
 
@@ -32,10 +29,6 @@ const animateDrawer = ref<boolean>(false); // 动画抽屉标识
 const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
 const schema2String = ref<string>();
 const schemaStore = useSchemaStore();
-const canvasStore = useCanvasStore();
-const previewFlag = ref<boolean>(false);
-const pageElement = ref<Component[]>([]);
-const isLoading = ref<boolean>(false);
 
 
 /**
@@ -142,26 +135,6 @@ $event.on('addAnimation', () => {
 
 $event.on('bindEvent', () => {
   eventDrawer.value = false;
-});
-
-
-
-$event.on('previewPage', () => {
-  previewFlag.value = true;
-  isLoading.value = true;
-  $engine.renderer.previewRenderingPage().then((res: Component[]) => {
-    pageElement.value = res;
-    // TODO: 绑定动画
-    // TODO: 绑定事件
-    isLoading.value = false;
-  }).catch(() => {
-    isLoading.value = false;
-    $message({
-      type: 'warning',
-      message: '预览失败,请稍后'
-    });
-  });
-  isLoading.value = false;
 });
 </script>
 
@@ -287,35 +260,6 @@ $event.on('previewPage', () => {
         </el-aside>
       </el-container>
     </el-container>
-    <!-- preview-whole-page -->
-    <BaseDialog
-      v-model:show="previewFlag"
-      title="预览页面"
-      :width="canvasStore.width"
-      :footer="true"
-      :close-on-click-modal="false"
-      :show-close="false"
-    >
-      <template #default>
-        <div
-          v-loading="isLoading"
-          class="w-full h-auto flex"
-          :style="{ height: canvasStore.height + 'px', backgroundColor: canvasStore.canvasColor }"
-        >
-          <component
-            v-for="(item, index) in pageElement"
-            :key="index"
-            :is="item"
-          />
-        </div>
-      </template>
-      <template #footer>
-        <div class="w-full h-auto flex items-center justify-end">
-          <el-button type="primary">确认</el-button>
-          <el-button @click="() => previewFlag = false" type="info">取消</el-button>
-        </div>
-      </template>
-    </BaseDialog>
   </div>
 </template>
 

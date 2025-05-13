@@ -32,7 +32,7 @@ function addAnimation2MaterialHandler() {
  * @description 处理物料动画预览事件
  */
 function previewMaterialAnimationHandler() {
-  if ($util.store.isCurrentElementAMaterial()) {
+  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     $event.emit(`previewAnimation:${material.id}`);
   }
@@ -43,7 +43,7 @@ function previewMaterialAnimationHandler() {
  * @description 添加动画效果信息到列表中
  */
 function addAnimationInfo2List() {
-  if ($util.store.isCurrentElementAMaterial()) {
+  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material !== void 0) {
       if (material.animation && material.animation.length > 0) {
@@ -78,7 +78,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
         }
       }
       // 清空 schemaStore.currentElement.animation
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           material.animation = [];

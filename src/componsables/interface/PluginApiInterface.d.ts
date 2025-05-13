@@ -52,7 +52,7 @@ declare namespace PluginApiInterface {
     register(pluginModel: IPluginType, options?: Record<string, PluginOptionsType>, registerOptions?: PluginRegisterOptionsType): void;
 
     // 根据 name 获取对应的组件实例
-    get(name: string): PluginCompType | null | undefined;
+    get(name: string): PluginCompType | undefined;
 
     // 获取注册的全部组件实例
     getAll(): PluginCompType[] | null | undefined;
@@ -68,5 +68,19 @@ declare namespace PluginApiInterface {
 
     // 获取组件对应的配置项
     getPreference(name: string): any | null | undefined;
+  }
+
+
+  interface IPluginFuncType {
+    // 获取组件实例
+    pluginGet: (name: string) => PluginCompType | undefined;
+    // 获取全部组件实例
+    pluginAll: PluginCompType[] | null | undefined;
+    // 判断组件是否注册
+    pluginHas: (name: string) => boolean;
+    // 删除组件实例
+    pluginDel: (name: string) => void;
+    // 获取组件配置项
+    pluginPre: (name: string) => any | null | undefined;
   }
 }

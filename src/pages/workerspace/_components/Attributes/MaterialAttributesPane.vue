@@ -23,7 +23,7 @@ const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 function initMaterialAttributeData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
         // 清空现有响应式对象
         materialAttribute.value = [];

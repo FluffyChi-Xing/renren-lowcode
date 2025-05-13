@@ -75,3 +75,10 @@ export const DEFAULT_CONTEXT_MENU_LIST: RenrenInterface.KeyValueIndexType<Functi
     index: 'paste'
   }
 ];
+
+
+
+export const ELEMENT_IN_PROCESSING: string = 'element_in_processing';
+
+
+export const NEW_ELEMENT: string = 'new_element';

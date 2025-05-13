@@ -7,6 +7,7 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 
@@ -93,7 +94,9 @@ const materialList = ref<Record<string, RenrenMaterialModel[]>>({
 function materialModelFactory(list: MaterialRespDto.MaterialInfoRespDto[] | undefined): RenrenMaterialModel[] {
   if (list !== void 0) {
     // 处理物料返回值是 json string 的问题
-    return list?.map(item => new RenrenMaterialModel(JSON.parse(item.data)));
+    return list?.map(item => {
+      return new RenrenMaterialModel(JSON.parse(item.data) as MaterialInterface.IMaterial);
+    });
   } else {
     return [];
   }

@@ -19,7 +19,7 @@ export class IPlugin implements PluginApiInterface.IPluginPublicApi{
   }
 
   // 获取某个插件
-  get(name: string): PluginApiInterface.PluginCompType | null | undefined {
+  get(name: string): PluginApiInterface.PluginCompType | undefined {
     return this.registeredPlugins.filter(item => item.name === name)[0].component;
   }
 
@@ -46,7 +46,7 @@ export class IPlugin implements PluginApiInterface.IPluginPublicApi{
       app.component(plugin.name, plugin.component);
     });
 
-    app.provide('plugin', {
+    app.provide<PluginApiInterface.IPluginFuncType>('plugin', {
       // 通过 $pluginGet 获取组件
       pluginGet: (name: string) => this.get(name),
       // 通过 $pluginAll 获取全部已经注册的组件列表

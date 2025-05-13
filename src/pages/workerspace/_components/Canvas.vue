@@ -11,12 +11,13 @@ import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/m
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {useSchemaStore} from "@/stores/schema";
-import {DEFAULT_CONTEXT_MENU_LIST} from "@/componsables/constants/WorkerSpaceConstant";
+import {DEFAULT_CONTEXT_MENU_LIST, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 import {$util} from "@/componsables/utils";
+import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 
 
 withDefaults(defineProps<{
@@ -233,6 +234,7 @@ const throttleDragEventHandler = throttle(
             value: 'absolute',
             index: 'position'
           };
+          const indexedDB = new LocalforageDB();
           // 注册物料到 materialContainer & schema
           material = await createCSSAttributes(material, [left, top, positions]);
           // 生成 唯一标识
@@ -246,6 +248,7 @@ const throttleDragEventHandler = throttle(
             await $engine.arrangement.insertNode2Document(material).then(() => {
               // 使用 eventBus 触发插入事件
               $event.emit('insert');
+              indexedDB.insert(NEW_ELEMENT, material);
               $event.emit(`pushMaterial:${material.id}`);
             }).catch(err => {
               $message({
@@ -381,7 +384,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
  */
 function pasteMaterial() {
   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
-  if ($util.store.isCurrentElementAMaterial()) {
+  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
     $message({
       type: 'info',
       message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
@@ -399,7 +402,7 @@ function pasteMaterial() {
  * @description 锁定物料节点
  */
 function lockMaterialNode() {
-  if ($util.store.isCurrentElementAMaterial()) {
+  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (!material?.isLocked) {
       material.isLocked = true;
@@ -429,7 +432,7 @@ function lockMaterialNode() {
  * @description 解锁物料节点
  */
 function unLockMaterialNode() {
-  if ($util.store.isCurrentElementAMaterial()) {
+  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material?.isLocked) {
       material.isLocked = false;
@@ -465,9 +468,10 @@ function unLockMaterialNode() {
 function stepZIndexUp(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        if (!$util.store.isCurrentMaterialEmpty()) {
+        let isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+        if (!isEmpty) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
               let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
@@ -515,9 +519,10 @@ function stepZIndexUp(): Promise<string> {
 function stepZIndexDown(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        if (!$util.store.isCurrentMaterialEmpty()) {
+        let isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
+        if (!isEmpty) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
               let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
@@ -600,7 +605,7 @@ function changeZIndex(flag: string = 'up') {
 function deleteCurrentMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         // 暂存 currentElement
         const material = schemaStore.currentElement as RenrenMaterialModel;
         // 清空 schemaStore 中的 currentElement
@@ -663,7 +668,7 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if ($util.store.isCurrentElementAMaterial()) {
+      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
         contextMenuList.value = [
           {
             key: '复制',
