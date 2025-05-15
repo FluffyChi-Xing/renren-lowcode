@@ -63,7 +63,7 @@ function syncValueWithType(index?: string | undefined): Promise<string> {
         resolve('同步成功');
       }
     } catch (e) {
-      console.log('同步失败', e);
+      console.error('同步失败', e);
       reject('同步失败');
     }
   });
@@ -102,7 +102,7 @@ async function sizeChangeHandler(index?: any) {
       });
     }
   } catch (e) {
-    console.log('处理画布大小变化失败', e);
+    console.error('处理画布大小变化失败', e);
     $message({
       type: 'warning',
       message: '功能异常，请稍后再试',

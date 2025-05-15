@@ -23,7 +23,7 @@ const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 function initMaterialAttributeData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
         // 清空现有响应式对象
         materialAttribute.value = [];
@@ -48,7 +48,6 @@ function initMaterialAttributeData(): Promise<string> {
  */
 function getSelectOptionsList<T extends RenrenInterface.keyValueType<string>>(type: string): T[] | undefined {
   if (type) {
-    // console.log(result, type);
     return propAttributesOptionsMap.get(type) as T[];
   } else {
     return undefined;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {type Component, ref} from 'vue';
 import LoginForm from "@/pages/login/_components/LoginForm.vue";
 import RegisterForm from "@/pages/login/_components/RegisterForm.vue";
 
@@ -9,7 +9,7 @@ import RegisterForm from "@/pages/login/_components/RegisterForm.vue";
 const layer = ref();
 const isRegister = ref<boolean>(true);
 // 当前所在的表单
-const currentForm = ref(LoginForm);
+const currentForm = ref<Component>(LoginForm);
 
 
 /**

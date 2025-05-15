@@ -187,3 +187,16 @@ export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | u
     return false;
   }
 }
+
+
+/**
+ * @description 检查一个元素是否为一个文档节点
+ * @param item
+ */
+export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+  if (item !== void 0) {
+    return item.type === 'document';
+  } else {
+    return false;
+  }
+}

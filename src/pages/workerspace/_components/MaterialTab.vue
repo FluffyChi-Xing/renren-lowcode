@@ -8,6 +8,7 @@ import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import materialTab from './materialTab.json';
 
 
 
@@ -27,28 +28,7 @@ const props = withDefaults(defineProps<{
 
 const defaultPaneIndex = ref<string>(props.index || '1');
 const searchValue = ref<string>('');
-const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
-  {
-    key: '1',
-    value: '基础组件'
-  },
-  {
-    key: '2',
-    value: '表单组件'
-  },
-  {
-    key: '3',
-    value: '图表组件'
-  },
-  {
-    key: '4',
-    value: '导航组件'
-  },
-  {
-    key: '5',
-    value: '布局组件'
-  }
-]);
+const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>(JSON.parse(JSON.stringify(materialTab)));
 const emits = defineEmits(['change', 'search']);
 
 
@@ -78,13 +58,7 @@ function searchCompHandler() {
 /**
  * @description 物料类型和对应的物料列表映射表
  */
-const materialList = ref<Record<string, RenrenMaterialModel[]>>({
-  '1': [],
-  '2': [],
-  '3': [],
-  '4': [],
-  '5': []
-});
+const materialList = ref<Record<string, RenrenMaterialModel[]>>({});
 
 
 /**

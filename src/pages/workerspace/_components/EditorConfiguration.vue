@@ -13,11 +13,7 @@ const emits = defineEmits(['collapse']);
 function collapseBanner() {
   isCollapse.value = !isCollapse.value;
   emits('collapse', isCollapse.value);
-  if (isCollapse.value) {
-    collapseIcon.value = ArrowLeft;
-  } else {
-    collapseIcon.value = ArrowRight;
-  }
+  isCollapse.value ? (collapseIcon.value = ArrowRight) : (collapseIcon.value = ArrowLeft);
 }
 
 
@@ -53,6 +49,7 @@ function collapseBanner() {
 <style scoped>
 .editor-aside {
   height: 100%;
+  filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.1));
 }
 
 .editor-aside-bar {

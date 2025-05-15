@@ -6,23 +6,13 @@ import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import {onMounted, ref} from 'vue';
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
+import {$util} from "@/componsables/utils";
 
 
 
 
 const schemaStore = useSchemaStore();
 const animationList = ref<RenrenInterface.keyValueType<string>[]>([]);
-
-
-function isSchemaADocument(schema: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
-  return schema !== void 0 && schema?.type === 'document';
-}
-
-
-
-function isSchemaAMaterial(schema: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
-  return schema !== void 0 && schema?.type === 'material';
-}
 
 /**
  * @description 添加动画事件
@@ -36,7 +26,7 @@ function addAnimation2MaterialHandler() {
  * @description 处理物料动画预览事件
  */
 function previewMaterialAnimationHandler() {
-  if (isSchemaAMaterial(schemaStore.currentElement)) {
+  if ($util.renren.isMaterial(schemaStore.currentElement)) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     $event.emit(`previewAnimation:${material.id}`);
   }
@@ -47,7 +37,7 @@ function previewMaterialAnimationHandler() {
  * @description 添加动画效果信息到列表中
  */
 function addAnimationInfo2List() {
-  if (isSchemaAMaterial(schemaStore.currentElement)) {
+  if ($util.renren.isMaterial(schemaStore.currentElement)) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material !== void 0) {
       if (material.animation && material.animation.length > 0) {
@@ -69,7 +59,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
     try {
       // 清空 schema 对应组件的 animation 属性
       const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
-      if (isSchemaADocument(schema)) {
+      if ($util.renren.isDocument(schema)) {
         if (schema.nodes && schema.nodes.length > 0) {
           const material = schema.nodes.find(item => item.id === (schemaStore.currentElement as RenrenMaterialModel)?.id);
           if (material !== void 0 && material.animation) {
@@ -82,7 +72,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
         }
       }
       // 清空 schemaStore.currentElement.animation
-      if (isSchemaAMaterial(schemaStore.currentElement)) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           material.animation = [];

@@ -8,6 +8,7 @@ import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/Att
 import {useCanvasStore} from "@/stores/canvas";
 import {$engine} from "@/renren-engine/engine";
 import { debounce } from "lodash-es";
+import {$util} from "@/componsables/utils";
 
 
 const schemaStore = useSchemaStore();
@@ -24,7 +25,7 @@ const documentAttribute = ref<MaterialInterface.IProp[]>([]);
 function initDocumentAttributeData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'document') {
+      if ($util.renren.isDocument(schemaStore.currentElement)) {
         const document: MaterialDocumentModel = schemaStore.currentElement as MaterialDocumentModel;
         // 清空现有响应式对象
         documentAttribute.value = [];
@@ -32,7 +33,6 @@ function initDocumentAttributeData(): Promise<string> {
           document.prop.items.forEach((item: MaterialInterface.IProp) => {
             documentAttribute.value.push(item);
           });
-          // console.log(documentAttribute.value);
           resolve('初始化文档节点响应式属性数据成功');
         }
       }

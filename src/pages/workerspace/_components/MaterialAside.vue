@@ -68,6 +68,7 @@ function outerCanvasClickHandler(e: MouseEvent) {
 <style scoped>
 .material-aside {
   height: 100%;
+  filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.1));
 }
 
 .material-aside-toolbar {
