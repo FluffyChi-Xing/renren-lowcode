@@ -161,3 +161,29 @@ export function deepClone<T extends Object>(item: T): T {
 export function refreshPage(): void {
   location.reload();
 }
+
+
+/**
+ * @description 判断物料的属性节点的属性是否为空
+ * @param item
+ */
+export function isMaterialPropItemsEmpty(item: RenrenMaterialModel | undefined): boolean {
+  if (item !== void 0) {
+    return Array.isArray(item?.props?.items) && item?.props?.items.length === 0;
+  } else {
+    return true;
+  }
+}
+
+
+/**
+ * @description 检查一个元素是否是一个物料节点
+ * @param item
+ */
+export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+  if (item !== void 0) {
+    return item.type === 'material';
+  } else {
+    return false;
+  }
+}

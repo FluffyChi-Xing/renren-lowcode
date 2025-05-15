@@ -10,24 +10,14 @@ import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/D
 import MaterialAttributesPane from "@/pages/workerspace/_components/Attributes/MaterialAttributesPane.vue";
 import MaterialAnimationPane from "@/pages/workerspace/_components/Attributes/MaterialAnimationPane.vue";
 import EventAttributesPane from "@/pages/workerspace/_components/Attributes/EventAttributesPane.vue";
+import $event from "@/componsables/utils/EventBusUtil";
+import attributeOptions from './attributesOption.json';
+
 
 
 const schemaStore = useSchemaStore();
 const currentTabIndex = ref<string>('1');
-const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>([
-  {
-    key: '1',
-    value: '属性'
-  },
-  {
-    key: '2',
-    value: '动画'
-  },
-  {
-    key: '3',
-    value: '事件'
-  }
-]);
+const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>(JSON.parse(JSON.stringify(attributeOptions)));
 const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as Component);
 
 
@@ -66,6 +56,14 @@ watch(() => currentTabIndex.value, (newVal: string) => {
         break;
     }
   }
+});
+
+
+
+
+$event.on('clearCanvas', () => {
+  // 当清空画布事件发生后，对属性面板进行重置
+  currentTabIndex.value = '1';
 });
 </script>
 

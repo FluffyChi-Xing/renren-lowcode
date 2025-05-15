@@ -3,34 +3,23 @@ import WorkerSpaceHeader from "@/pages/workerspace/_components/WorkerSpaceHeader
 import MaterialAside from "@/pages/workerspace/_components/MaterialAside.vue";
 import EditorConfiguration from "@/pages/workerspace/_components/EditorConfiguration.vue";
 import Canvas from "@/pages/workerspace/_components/Canvas.vue";
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref} from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
 import {initSchema} from "@/renren-engine/modules/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
-import {$engine} from "@/renren-engine/engine";
-import HighLightLang from "@/components/HighLightLang.vue";
 import AttributesPane from "@/pages/workerspace/_components/AttributesPane.vue";
-import {useSchemaStore} from "@/stores/schema";
-import $event from "@/componsables/utils/EventBusUtil";
-import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
-import EventTabPane from "@/pages/workerspace/_components/Attributes/_components/EventTabPane.vue";
 import '@/assets/animation.css';
+import ViewSchemaDrawer from "@/pages/workerspace/_components/drawer/ViewSchemaDrawer.vue";
+import AddAnimationDrawer from "@/pages/workerspace/_components/drawer/AddAnimationDrawer.vue";
+import AddEventDrawer from "@/pages/workerspace/_components/drawer/AddEventDrawer.vue";
 
 
 
 
 const isMaterialCollapse = ref<boolean>(false);
 const isEditConfigCollapse = ref<boolean>(false);
-const showDrawer = ref<boolean>(false);
-const animateDrawer = ref<boolean>(false); // 动画抽屉标识
-const eventDrawer = ref<boolean>(false); // 事件属性抽屉标识
-const schema2String = ref<string>();
-const schemaStore = useSchemaStore();
-
-
 /**
  * @description 处理物料栏折叠事件
  * @param index
@@ -38,8 +27,6 @@ const schemaStore = useSchemaStore();
 function materialCollapseHandler(index: boolean) {
   isMaterialCollapse.value = index;
 }
-
-
 /**
  * @description 处理属性编辑器栏折叠事件
  * @param index
@@ -47,55 +34,6 @@ function materialCollapseHandler(index: boolean) {
 function editorConfigCollapseHandler(index: boolean) {
   isEditConfigCollapse.value = index;
 }
-
-
-/**
- * @description 处理高亮 schema 事件
- */
-async function showSchemaHandler() {
-  showDrawer.value = !showDrawer.value;
-  const schema = await $engine.arrangement.getSchema();
-  const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-  if (!isEmpty) {
-    schema2String.value = JSON.stringify(schema, null, 2);
-  }
-}
-
-
-/**
- * @description 处理动画绑定事件
- * @param item
- */
-function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    try {
-      // 将动画保存到 store 中
-      if (schemaStore.currentElement?.type === 'material') {
-        const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
-        if (material.animation && material.animation.length > 0) {
-         $message({
-           type: 'warning',
-           message: '每个物料只能绑定一种动画'
-         });
-         reject('每个物料只能绑定一种动画');
-        } else {
-          material.animation?.push(item);
-          schemaStore.currentElement = material;
-        }
-        // 将动画保存在 schema 中
-        await $engine.arrangement.insertAnimation2Material(material.id, item).catch(err => {
-          reject(err as string);
-        });
-        resolve('保存动画成功');
-      }
-    } catch (e) {
-      console.error('同步动画到 store 失败', e);
-      reject('同步动画到 store 失败');
-    }
-  });
-}
-
-
 /**
  * @description 初始化 schema
  */
@@ -106,35 +44,6 @@ onMounted(async () => {
       message: err,
     });
   });
-});
-
-
-watch(() => schemaStore.currentElement, () => {
-  const material = schemaStore.currentElement;
-  if (material !== void 0) {
-    if (material?.type === 'material') {
-      // 处理添加动画绑定事件
-      $event.on(`addAnimation:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {
-        animateDrawer.value = true;
-      });
-      // 处理事件绑定事件
-      $event.on(`addEvent:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {
-        eventDrawer.value = true;
-      });
-    }
-  }
-}, {
-  deep: true
-});
-
-
-
-$event.on('addAnimation', () => {
-  animateDrawer.value = false;
-});
-
-$event.on('bindEvent', () => {
-  eventDrawer.value = false;
 });
 </script>
 
@@ -165,84 +74,11 @@ $event.on('bindEvent', () => {
           <!-- canvas -->
           <Canvas />
           <!-- schema drawer -->
-          <el-drawer
-            v-model="showDrawer"
-            style="width: 300px;"
-            direction="rtl"
-            :show-close="false"
-            :close-on-click-modal="false"
-          >
-            <template #header>
-              <div class="w-full h-auto flex items-center justify-between">
-                <!-- title -->
-                <span class="font-bold text-black">Schema</span>
-                <!-- btns -->
-                <div class="w-auto h-auto flex">
-                  <el-button type="primary" plain>导出</el-button>
-                  <el-button @click="showDrawer = false" type="info">关闭</el-button>
-                </div>
-              </div>
-            </template>
-            <template #default>
-              <div class="w-full h-full flex flex-col">
-                <!-- highlight-block -->
-                <HighLightLang
-                  :code="schema2String"
-                  lang="json"
-                />
-              </div>
-            </template>
-          </el-drawer>
+          <ViewSchemaDrawer />
           <!-- material-animation-drawer -->
-          <el-drawer
-            v-model="animateDrawer"
-            size="350"
-            direction="ltr"
-            :show-close="false"
-            :close-on-click-modal="false"
-          >
-            <template #header>
-              <div class="w-full h-auto flex items-center justify-between">
-                <!-- title -->
-                <span class="font-bold text-black">动画效果</span>
-                <!-- btns -->
-                <div class="w-auto h-auto flex">
-                  <el-button @click="animateDrawer = false" type="text" icon="close">关闭</el-button>
-                </div>
-              </div>
-            </template>
-            <template #default>
-              <div class="w-full h-full flex flex-col">
-                <el-scrollbar height="600">
-                  <AnimationTabPane @add-animate="addAnimationHandler" />
-                </el-scrollbar>
-              </div>
-            </template>
-          </el-drawer>
+          <AddAnimationDrawer />
           <!-- event-drawer -->
-          <el-drawer
-            v-model="eventDrawer"
-            size="350"
-            direction="ltr"
-            :show-close="false"
-            :close-on-click-modal="false"
-          >
-            <template #header>
-              <div class="w-full h-auto flex items-center justify-between">
-                <!-- title -->
-                <span class="font-bold text-black">事件绑定</span>
-                <!-- btns -->
-                <div class="w-auto h-auto flex">
-                  <el-button @click="eventDrawer = false" type="text" icon="close">关闭</el-button>
-                </div>
-              </div>
-            </template>
-            <template #default>
-              <el-scrollbar height="600">
-                <EventTabPane />
-              </el-scrollbar>
-            </template>
-          </el-drawer>
+          <AddEventDrawer />
         </el-main>
         <el-aside :width="isEditConfigCollapse ? '150px' : '350px'">
           <EditorConfiguration
@@ -252,9 +88,7 @@ $event.on('bindEvent', () => {
               <AttributesPane />
             </template>
             <template #side>
-              <EditorSideBar
-                @schema="showSchemaHandler"
-              />
+              <EditorSideBar />
             </template>
           </EditorConfiguration>
         </el-aside>

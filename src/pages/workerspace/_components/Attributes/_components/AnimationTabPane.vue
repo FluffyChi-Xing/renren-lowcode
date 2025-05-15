@@ -76,7 +76,7 @@ function previewAnimation(key: string, e?: MouseEvent): Promise<string> {
  */
 function addAnimationHandler(item: RenrenInterface.keyValueType<string>) {
   emits('addAnimate', item);
-  $event.emit('addAnimation');
+  $event.emit('animationAdded');
   $message({
     type: 'info',
     message: item.key

@@ -7,6 +7,7 @@ import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import {$util} from "@/componsables/utils";
 
 
 
@@ -23,7 +24,8 @@ function mountHandler(val: any[]) {
 }
 const defaultCode: string = 'callback = () => {\n' +
   '  // some-code\n' +
-  '}';
+  '}'
+;
 
 
 /**
@@ -33,7 +35,7 @@ const defaultCode: string = 'callback = () => {\n' +
 function insertEvent2Store(event: RenrenInterface.IEvent): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
         if (material && material.events) {
           if (material.events.filter(item => item.name === event.name).length === 0) {
@@ -56,7 +58,7 @@ function insertEvent2Store(event: RenrenInterface.IEvent): Promise<string> {
  * @param item
  */
 function eventBindingHandler(item: RenrenInterface.IEvent) {
-  if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
+  if ($util.renren.isMaterial(schemaStore.currentElement)) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     // 获取需要绑定的事件
     const code: string = codes.value[item.name] as string;

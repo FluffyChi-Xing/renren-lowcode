@@ -29,7 +29,6 @@ function initMaterialAttributeData(): Promise<string> {
         materialAttribute.value = [];
         if (material.props?.items && material.props.items?.length > 0) {
           material.props.items.forEach((item: MaterialInterface.IProp) => {
-            console.log(item);
             materialAttribute.value.push(item);
           });
           resolve('初始化文档节点响应式属性数据成功');

@@ -4,19 +4,18 @@ import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
+import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.vue";
 
 
 
 
 
 const schemaStore = useSchemaStore();
-const emits = defineEmits(['clear', 'schema']);
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
   await $engine.arrangement.clearMaterialNodes().then(() => {
-    emits('clear')
     $event.emit('clearCanvas');
     schemaStore.currentElement = undefined;
     $message({
@@ -29,13 +28,6 @@ async function clearCanvas() {
       message: err
     });
   });
-}
-
-/**
- * @description 查看页面 schema 代码
- */
-function checkSchema() {
-  emits('schema');
 }
 
 
@@ -55,26 +47,10 @@ function takeScreenPhoto() {
 }
 
 
-/**
- * @description 锁定物料
- */
-function lockMaterial() {
-  $event.emit('lockMaterial');
-}
-
-
-/**
- * @description 解锁物料
- */
-function unLockMaterial() {
-  $event.emit('unLockMaterial');
-}
-
-
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
     key: 'JSON',
-    value: checkSchema,
+    value: () => $event.emit('showSchema'),
     index: 'Document'
   },
   {
@@ -86,16 +62,6 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
     key: '清空画布',
     value: clearCanvas,
     index: 'Delete'
-  },
-  {
-    key: '锁定',
-    value: lockMaterial,
-    index: 'Lock'
-  },
-  {
-    key: '解锁',
-    value: unLockMaterial,
-    index: 'Unlock'
   },
   {
     key: '刷新',
@@ -120,6 +86,8 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
         @click="item.value"
       />
     </el-tooltip>
+    <!-- 解锁与锁定 -->
+    <LockUnlock />
   </div>
 </template>
 

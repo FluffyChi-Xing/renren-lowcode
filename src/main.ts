@@ -18,8 +18,6 @@ import SchemaPreview from "@/plugin/plugin-schema-preview/SchemaPreview.vue";
 
 const app = createApp(App)
 
-// const pinia = createPinia();
-// pinia.use(piniaPluginPersistedstate);
 app.use(router);
 app.use(createPinia());
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

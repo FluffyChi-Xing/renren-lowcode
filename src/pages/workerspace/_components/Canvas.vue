@@ -2,7 +2,7 @@
 import Grid from "@/components/Grid.vue";
 import {useCanvasStore} from "@/stores/canvas";
 import {debounce, throttle} from "lodash-es";
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, reactive, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import SelectArea from "@/components/SelectArea.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
@@ -18,6 +18,7 @@ import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 withDefaults(defineProps<{
@@ -46,10 +47,37 @@ const canvasSize = computed(() => {
     height: `${canvasStore.height}px`,
   }
 });
+type positionType = {
+  left: RenrenInterface.KeyValueIndexType<string, string>;
+  top: RenrenInterface.KeyValueIndexType<string, string>;
+  positions: RenrenInterface.KeyValueIndexType<string, string>;
+};
 const materialContainer = ref<RenrenMaterialModel[]>([]);
 const selectAreaStart = ref<RenrenInterface.XAndYType<number, number>>({
   x: 0,
   y: 0
+});
+const materialZIndex = reactive<RenrenInterface.KeyValueIndexType<string, string>>({
+  index: "z-index",
+  key: "style",
+  value: ""
+});
+const materialPosition = reactive<positionType>({
+  left: {
+    key: 'style',
+    value: '',
+    index: 'left'
+  },
+  positions: {
+    key: 'style',
+    value: 'absolute',
+    index: 'position'
+  },
+  top: {
+    key: 'style',
+    value: '',
+    index: 'top'
+  }
 });
 // 邮件菜单列表
 const contextMenuList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(DEFAULT_CONTEXT_MENU_LIST);
@@ -68,7 +96,6 @@ function getCurrentCursorPosition<T extends MouseEvent>(event: T): Promise<strin
       const containerRect = editor.value?.getBoundingClientRect();
       cursorX.value = clientX - containerRect.left;
       cursorY.value = clientY - containerRect.top;
-      // console.log('获取鼠标坐标成功', cursorX.value, cursorY.value);
       resolve('获取鼠标坐标成功');
     } catch (e) {
       console.log('获取鼠标坐标失败', e);
@@ -219,24 +246,17 @@ const throttleDragEventHandler = throttle(
         }
         // 更新新增物料标识
         requestAnimationFrame(async () => {
-          const left: RenrenInterface.KeyValueIndexType<string, string> = {
-            key: 'style',
-            value: `${position.x}`,
-            index: 'left'
-          };
-          const top: RenrenInterface.KeyValueIndexType<string, string> = {
-            key: 'style',
-            value: `${position.y}`,
-            index: 'top'
-          }
-          const positions: RenrenInterface.KeyValueIndexType<string, string> = {
-            key: 'style',
-            value: 'absolute',
-            index: 'position'
-          };
+          materialPosition.left.value = `${position.x}`;
+          materialPosition.top.value = `${position.y}`;
           const indexedDB = new LocalforageDB();
           // 注册物料到 materialContainer & schema
-          material = await createCSSAttributes(material, [left, top, positions]);
+          material = await createCSSAttributes(
+            material,
+            [
+              materialPosition.left,
+              materialPosition.top,
+              materialPosition.positions
+            ]);
           // 生成 唯一标识
           material.id = generateUUID();
           materialContainer.value.push(material);
@@ -283,24 +303,16 @@ const throttledMaterialMousemoveHandler = throttle(
       }
       // 使用 requestAnimationFrame 更新样式
       requestAnimationFrame(async () => {
-        const left: RenrenInterface.KeyValueIndexType<string, string> = {
-          key: 'style',
-          value: `${position.x}`,
-          index: 'left',
-        };
-        const top: RenrenInterface.KeyValueIndexType<string, string> = {
-          key: 'style',
-          value: `${position.y}`,
-          index: 'top'
-        };
-        const positions: RenrenInterface.KeyValueIndexType<string, string> = {
-          key:'style',
-          value: 'absolute',
-          index: 'position'
-        };
+        materialPosition.left.value = `${position.x}`;
+        materialPosition.top.value = `${position.y}`;
 
         // 更新 schema
-        const node = await updateMaterialCSSAttribute(item.id, [left, top, positions]).catch(err => {
+        const node = await updateMaterialCSSAttribute(item.id,
+          [
+            materialPosition.left,
+            materialPosition.top,
+            materialPosition.positions
+          ]).catch(err => {
           $message({
             type: 'warning',
             message: err,
@@ -334,7 +346,7 @@ async function keepMaterialAlive() {
       message: err
     });
   });
-  if (nodes && nodes.length > 0) {
+  if (Array.isArray(nodes) && nodes.length > 0) {
     materialContainer.value = nodes;
   }
 }
@@ -384,7 +396,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
  */
 function pasteMaterial() {
   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
-  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+  if ($util.renren.isMaterial(schemaStore.currentElement)) {
     $message({
       type: 'info',
       message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
@@ -393,66 +405,6 @@ function pasteMaterial() {
     $message({
       type: 'warning',
       message: '请先选择要粘贴的组件'
-    });
-  }
-}
-
-
-/**
- * @description 锁定物料节点
- */
-function lockMaterialNode() {
-  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
-    if (!material?.isLocked) {
-      material.isLocked = true;
-      schemaStore.currentElement = material;
-      isShow.value = false;
-      $message({
-        type: 'info',
-        message: '节点已锁定',
-      });
-    } else {
-      $message({
-        type: 'warning',
-        message: '节点已锁定',
-      });
-      isShow.value = false;
-    }
-  } else {
-    $message({
-      type: 'warning',
-      message: '请先选择要锁定的组件'
-    });
-  }
-}
-
-
-/**
- * @description 解锁物料节点
- */
-function unLockMaterialNode() {
-  if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
-    if (material?.isLocked) {
-      material.isLocked = false;
-      schemaStore.currentElement = material;
-      isShow.value = false;
-      $message({
-        type: 'info',
-        message: '节点已解锁',
-      });
-    } else {
-      $message({
-        type: 'warning',
-        message: '节点未锁定',
-      });
-      isShow.value = false;
-    }
-  } else {
-    $message({
-      type: 'warning',
-      message: '请先选择要解锁的组件'
     });
   }
 }
@@ -468,34 +420,26 @@ function unLockMaterialNode() {
 function stepZIndexUp(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        let isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(material)) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
-              let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
+              let zIndex: number | undefined = getMaterialIndexNumber(material?.props?.items);
               // 先判断 z-index 是否达到 99,如果是则显示到达最顶层
-              if (zIndex === void 0) {
-                reject('无法调整物料层级');
-              }
               if (zIndex !== void 0) {
                 if (++ zIndex >= 99) {
                   reject('到顶了');
                 } else {
                   // 将当前物料的 z-index ++
-                  zIndex ++;
+                  ++ zIndex;
                   material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
                   // 同步到 store
                   schemaStore.currentElement = material;
                   // 组装 css
-                  const zIndexCSS: RenrenInterface.KeyValueIndexType<string, string> = {
-                    index: 'z-index',
-                    key: 'style',
-                    value: `${zIndex}`
-                  };
+                  materialZIndex.value = zIndex.toString();
                   // 同步到 schema
-                  $engine.renderer.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
+                  $engine.renderer.updateMaterialCSSAttribute(material.id, materialZIndex).catch(err => {
                     console.error(err);
                     reject(err);
                   });
@@ -514,44 +458,45 @@ function stepZIndexUp(): Promise<string> {
 
 
 /**
+ * @description 获取物料属性节点中的 z-index 信息
+ * @param items
+ */
+function getMaterialIndexNumber(items: MaterialInterface.IProp[] | undefined): number | undefined {
+  if (Array.isArray(items) && items.length !== 0) {
+    return Number(items?.find(item => item.type === 'z-index')?.value);
+  }
+}
+
+
+/**
  * @description 步进递减选中组件的层级
  */
 function stepZIndexDown(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
-        let isEmpty: boolean = Object.keys(material).length === 0 && material.constructor === Object;
-        if (!isEmpty) {
-          if (material.props && material.props.items) {
-            if (material.props.items?.length > 0) {
-              let zIndex: number | undefined = Number(material.props.items?.find(item => item.type === 'z-index')?.value);
-              // 先判断 z-index 是否达到 1,如果是则显示到达最底层
-              if (zIndex === void 0) {
-                reject('无法调整物料层级');
-              }
-              if (zIndex !== void 0) {
-                if (-- zIndex === 0) {
-                  reject('到底了');
-                } else {
-                  // 否则将当前物料的 z-index --
-                  zIndex --;
-                  material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
-                  // 同步到 store
-                  schemaStore.currentElement = material;
-                  // 组装 css
-                  const zIndexCSS: RenrenInterface.KeyValueIndexType<string, string> = {
-                    index: 'z-index',
-                    key: 'style',
-                    value: `${zIndex}`
-                  };
-                  // 同步到 schema
-                  $engine.renderer.updateMaterialCSSAttribute(material.id, zIndexCSS).catch(err => {
-                    console.error(err);
-                    reject(err);
-                  });
-                  resolve('变更成功');
-                }
+        if (!$util.renren.isEmpty(material)) {
+          if (Array.isArray(material?.props?.items) && material?.props?.items.length !== 0) {
+            let zIndex: number | undefined = getMaterialIndexNumber(material?.props?.items);
+            // 先判断 z-index 是否达到 1,如果是则显示到达最底层
+            if (zIndex !== void 0) {
+              if (-- zIndex === 0) {
+                reject('到底了');
+              } else {
+                // 否则将当前物料的 z-index --
+                zIndex --;
+                material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
+                // 同步到 store
+                schemaStore.currentElement = material;
+                // 组装 css
+                materialZIndex.value = zIndex.toString();
+                // 同步到 schema
+                $engine.renderer.updateMaterialCSSAttribute(material.id, materialZIndex).catch(err => {
+                  console.error(err);
+                  reject(err);
+                });
+                resolve('变更成功');
               }
             }
           }
@@ -605,7 +550,7 @@ function changeZIndex(flag: string = 'up') {
 function deleteCurrentMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         // 暂存 currentElement
         const material = schemaStore.currentElement as RenrenMaterialModel;
         // 清空 schemaStore 中的 currentElement
@@ -668,7 +613,7 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if (schemaStore.currentElement?.type === 'material' && schemaStore.currentElement !== void 0) {
+      if ($util.renren.isMaterial(schemaStore.currentElement)) {
         contextMenuList.value = [
           {
             key: '复制',
@@ -687,12 +632,12 @@ function initContextMenuItem(): Promise<string> {
           },
           {
             key: '锁定',
-            value: lockMaterialNode,
+            value: () => $event.emit('lock'),
             index: 'lock'
           },
           {
             key: '解锁',
-            value: unLockMaterialNode,
+            value: () => $event.emit('unlock'),
             index: 'unLock'
           },
           {
@@ -734,7 +679,7 @@ function updateMaterialData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       materialContainer.value = materialContainer.value.map(material => {
-        if (schemaStore.currentElement?.type === 'material') {
+        if ($util.renren.isMaterial(schemaStore.currentElement)) {
           if (material.id === (schemaStore.currentElement as RenrenMaterialModel)?.id) {
             return schemaStore.currentElement as RenrenMaterialModel;
           } else {
@@ -764,8 +709,7 @@ function checkGridBackgroundColor(): Promise<string> {
     try {
       const document: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
       if (document !== void 0) {
-        const isEmpty: boolean = Object.keys(document).length === 0 && document.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(document)) {
           if (document.prop && document.prop.items) {
             if (document.prop.items.length > 0) {
               canvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
@@ -848,7 +792,6 @@ $event.on('takePhoto', async () => {
     link.href = url;
     link.download = 'canvas.png';
     link.click();
-    // document.body.removeChild(link);
   }
 });
 
@@ -951,14 +894,8 @@ $event.on('updateMaterial', () => {
 });
 
 
-
-
-$event.on('lockMaterial', () => {
-  lockMaterialNode();
-});
-
-$event.on('unLockMaterial', () => {
-  unLockMaterialNode();
+$event.on('clearContext', () => {
+  isShow.value = false;
 });
 </script>
 
