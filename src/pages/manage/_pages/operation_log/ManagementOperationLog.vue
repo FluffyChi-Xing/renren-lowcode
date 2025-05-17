@@ -7,6 +7,9 @@ import dayjs from "dayjs";
 import {$enum} from "@/componsables/enum";
 import {OPERATION_LOG_REQUEST_HOST} from "@/componsables/constants/HttpInfoConstants";
 import {getUserId} from "@/componsables/request";
+import tableHeaderConfig from '@/components/table-header-config.json';
+import {$util} from "@/componsables/utils";
+import pageSizeOptions from '@/components/pagination-size-options.json';
 
 
 /** ========= 操作日志初始化-start ==========**/
@@ -16,7 +19,7 @@ const searchQuery = ref<string>('');
 // 分页参数
 const pageNum = ref<number>(1);
 const pageSize = ref<number>(10);
-const sizeOptions = ref<number[]>([5, 10, 15, 20]);
+const sizeOptions: number[] = $util.renren.jsonTypeTransfer<number[]>(pageSizeOptions);
 const total = ref<number>(0);
 const pageLayout: string = 'sizes, prev, pager, next';
 const tableData = ref<OperationLogRespDto.OperationLogInfoRespDto[]>([]);
@@ -207,7 +210,7 @@ onMounted(() => {
             stripe
             border
             fit
-            :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+            :header-cell-style="tableHeaderConfig"
             class="h-full"
             style="width: 100%;"
           >

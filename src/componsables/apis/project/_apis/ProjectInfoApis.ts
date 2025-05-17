@@ -19,3 +19,26 @@ export function queryProjectInfo<T extends ProjectRespDto.ProjectQueryRespDto>()
       });
   });
 }
+
+
+/**
+ * @description 分页查询用户项目信息列表
+ * @param pageNum
+ * @param pageSize
+ */
+export function queryProjectPage<T extends PageInfoRespDto.PageRespDto<ProjectRespDto.ProjectQueryRespDto>>(
+  pageNum: number,
+  pageSize: number
+): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    await projectApiAggregation({
+      url: `/page/${pageNum}/${pageSize}`
+    })
+      .then(res => {
+        resolve(res.data as T);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}

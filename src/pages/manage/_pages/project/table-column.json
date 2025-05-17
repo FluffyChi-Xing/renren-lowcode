@@ -1,0 +1,18 @@
+[
+  {
+    "key": "id",
+    "value": "id"
+  },
+  {
+    "key": "项目名称",
+    "value": "name"
+  },
+  {
+    "key": "项目路径",
+    "value": "path"
+  },
+  {
+    "key": "模拟器路径",
+    "value": "simulatorHost"
+  }
+]

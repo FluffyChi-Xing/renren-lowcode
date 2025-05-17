@@ -155,3 +155,25 @@ export function deleteMaterialInfo(id: number): Promise<string> {
       });
   });
 }
+
+
+/**
+ * @description 分页获取物料回收站列表
+ * @param pageNum
+ * @param pageSize
+ */
+export function queryRecycleBinPage<T extends PageInfoRespDto.PageRespDto<MaterialRespDto.MaterialInfoRespDto>>(pageNum: number, pageSize: number): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    await materialApiAggregation(
+      {
+        url: `/recycleBin/page/${pageNum}/${pageSize}`
+      }
+    )
+      .then(res => {
+        resolve(res.data as T);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}

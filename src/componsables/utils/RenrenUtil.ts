@@ -200,3 +200,12 @@ export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | u
     return false;
   }
 }
+
+
+/**
+ * @description json 类型转换
+ * @param item
+ */
+export function jsonTypeTransfer<T>(item: unknown): T {
+  return item as T;
+}

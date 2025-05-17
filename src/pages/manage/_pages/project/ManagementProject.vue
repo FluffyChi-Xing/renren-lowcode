@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import {onMounted, reactive, ref} from 'vue';
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
-import {$const} from "@/componsables/const";
-import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import BaseDialog from "@/components/BaseDialog.vue";
 import type {ProjectRespDto} from "@/componsables/interface/dto/resp/ProjectRespDto";
+import projectTemplate from './project-template.json';
+import tableColumn from './table-column.json';
+import pageSizeOptions from '@/components/pagination-size-options.json';
+import {$util} from "@/componsables/utils";
+import {$api} from "@/componsables/api";
+import {$message} from "@/componsables/element-plus";
+import tableHeaderConfig from '@/components/table-header-config.json';
 
 
 
@@ -25,65 +29,42 @@ const projectInfo = reactive<ProjectReqDto.UpdateProjectReqDto>({
   path: "",
   simulatorHost: ""
 });
+const pageNum = ref<number>(1);
+const pageSize = ref<number>(10);
+const sizeOptions: number[] = $util.renren.jsonTypeTransfer<number[]>(pageSizeOptions);
+const total = ref<number>(0);
+const isLoading = ref<boolean>(false);
 /** ========== 表格初始化-start ==========**/
-const data = ref<ProjectRespDto.ProjectQueryRespDto[]>([]);
-const tableColumnList = ref<RenrenInterface.keyValueType<string>[]>([
-  {
-    key: 'id',
-    value: 'id'
-  },
-  {
-    key: '项目名称',
-    value: 'name'
-  },
-  {
-    key: '项目路径',
-    value: 'path'
-  },
-  {
-    key: '模拟器路径',
-    value: 'simulatorHost'
-  },
+const data = ref<ProjectRespDto.ProjectQueryRespDto[]>([
+  projectTemplate as unknown as ProjectRespDto.ProjectQueryRespDto
 ]);
+const tableColumnList = tableColumn as unknown as RenrenInterface.keyValueType<string>[];
 
 
-/**
- * @description 获取本地存储的全部项目key
- * @warn 本函数只用于在 stand-alone 状态下初始化列表
- */
-function getProjectKeys(): Promise<string[]> {
-  return new Promise<string[]>((resolve) => {
-    let result: string[];
-    result = Object.keys(localStorage).filter(item => item.startsWith($const.ren.SCHEMA_PROJECT_STORAGE_ID));
-    resolve(result);
-  });
+async function initData() {
+  // 初始化数据的时候只保留第一个测试数据
+  data.value = data.value.slice(0, 1);
+  await $api.project.queryProjectPage(pageNum.value, pageSize.value)
+    .then(res => {
+      res.records.forEach(item => {
+        data.value.push(item);
+      });
+      total.value = res.total;
+    })
+    .catch(_ => {
+      $message({
+        type: 'warning',
+        message: '分页获取信息失败'
+      });
+    });
 }
 
 
-/**
- * @description 在离线情况下初始化表格数据
- */
-async function initTableAtStandAlone() {
-  const projectKeys: string[] = await getProjectKeys();
-  if (projectKeys && projectKeys.length > 0) {
-    projectKeys.forEach(item => {
-      let project: MaterialInterface.IProject = JSON.parse(localStorage.getItem(item) || '{}');
-      let isEmpty: boolean = Object.keys(project).length === 0 && project.constructor !== Object;
-      if (!isEmpty) {
-        data.value.push({
-          documents: project.documents as MaterialInterface.IDocument[],
-          id: project.projectId,
-          name: project.projectName,
-          path: project.projectPath,
-          simulatorHost: project.simulatorHost,
-          createTime: "",
-          data: null,
-          isDelete: 0,
-          updateTime: ""
-        });
-      }
-    });
-  }
+
+async function refreshData() {
+  isLoading.value = true;
+  await initData();
+  isLoading.value = false;
 }
 /** =========== 表格初始化-end ==========**/
 
@@ -179,8 +160,12 @@ function cancelCreateHandler() {
 
 /** ========== 新疆项目-end ==========**/
 
-onMounted(() => {
-  initTableAtStandAlone();
+
+
+onMounted(async () =>{
+  isLoading.value = true;
+  await initData();
+  isLoading.value = false;
 });
 </script>
 
@@ -191,16 +176,17 @@ onMounted(() => {
         <div class="w-full h-auto flex items-center justify-between">
           <el-button @click="() => createFlag = true" type="primary" plain>创建项目</el-button>
           <div class="items-center flex">
-            <el-button size="small" plain circle type="info" icon="Refresh" />
+            <el-button @click="refreshData" size="small" plain circle type="info" icon="Refresh" />
             <el-button size="small" plain circle type="warning" icon="Operation" />
           </div>
         </div>
         <el-table
+          v-loading="isLoading"
           :data="data"
           stripe
           border
           fit
-          :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+          :header-cell-style="tableHeaderConfig"
           class="h-full mt-10"
           style="width: 100%;"
         >

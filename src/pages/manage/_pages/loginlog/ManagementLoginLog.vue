@@ -4,7 +4,9 @@ import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import {$api} from "@/componsables/api";
 import {$message} from "@/componsables/element-plus";
 import dayjs from "dayjs";
-
+import tableHeaderConfig from '@/components/table-header-config.json';
+import pageSizeOption from '@/components/pagination-size-options.json';
+import { $util } from "@/componsables/utils";
 
 
 /** ========== 登录日志初始化-start ==========**/
@@ -15,7 +17,7 @@ const tableData = ref<LoginLogRespDto.LoginLogInfoRespDto[]>([]);
 const total = ref<number>(0);
 const pageNum = ref<number>(1);
 const pageSize = ref<number>(10);
-const sizeOptions: number[] = [5, 10, 15, 20];
+const sizeOptions: number[] = $util.renren.jsonTypeTransfer<number[]>(pageSizeOption);
 
 
 /**
@@ -115,7 +117,7 @@ onMounted(async () => {
             stripe
             border
             fit
-            :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+            :header-cell-style="tableHeaderConfig"
             class="h-full"
             style="width: 100%;"
           >

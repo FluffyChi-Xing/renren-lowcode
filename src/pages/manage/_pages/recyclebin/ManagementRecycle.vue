@@ -1,20 +1,66 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import {$enum} from "@/componsables/enum";
-
+import {$api} from "@/componsables/api";
+import {$message} from "@/componsables/element-plus";
+import tableHeaderConfig from '@/components/table-header-config.json';
+import { $util } from "@/componsables/utils";
+import pageSizeOptions from "@/components/pagination-size-options.json";
 
 
 /** ========== 回收站初始化-start ==========**/
 const isLoading = ref<boolean>(false);
 const pageNum = ref<number>(0);
 const pageSize = ref<number>(10);
-const sizeOptions: number[] = [5, 10, 15, 20];
+const sizeOptions: number[] = $util.renren.jsonTypeTransfer<number[]>(pageSizeOptions);
 const total = ref<number>(0);
 const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
 
 
+/**
+ * @description 初始化回收站数据
+ */
+async function initData() {
+  tableData.value = [];
+  await $api.material.queryRecycleBinPage(pageNum.value, pageSize.value)
+    .then(res => {
+      tableData.value = res.records as MaterialRespDto.MaterialInfoRespDto[];
+      total.value = res.total;
+    })
+    .catch(_ => {
+      $message({
+        type: 'warning',
+        message: '分页获取信息失败'
+      });
+    });
+}
+
+
+
+async function refreshData() {
+  isLoading.value = true;
+  await initData();
+  isLoading.value = false;
+}
+
+
+
+async function pageChange(index: number, size: number) {
+  pageNum.value = index;
+  pageSize.value = size;
+  isLoading.value = true;
+  await initData();
+  isLoading.value = false;
+}
 /** ========== 回收站初始化-end ==========**/
+
+
+onMounted(async () => {
+  isLoading.value = true;
+  await initData();
+  isLoading.value = false;
+});
 </script>
 
 <template>
@@ -26,7 +72,7 @@ const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
       <div class="w-full h-full flex flex-col pt-4">
         <!-- functional-banner -->
         <div class="w-full h-auto flex items-start justify-end">
-          <el-button circle size="small" icon="Refresh" plain type="info" />
+          <el-button @click="refreshData" circle size="small" icon="Refresh" plain type="info" />
           <el-button circle size="small" icon="Operation" plain type="warning" />
         </div>
         <el-table
@@ -35,7 +81,7 @@ const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
           stripe
           border
           fit
-          :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+          :header-cell-style="tableHeaderConfig"
           class="h-full mt-10"
           style="width: 100%;"
         >
@@ -75,7 +121,7 @@ const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
                 active-text="启用"
                 inactive-text="禁用"
                 :inactive-value="1"
-                :disabled="row.type === $enum.MaterialTypeEnum.BASE"
+                :disabled="row.isDefalt === $enum.MaterialDefaultEnum.DEFAULT"
               />
             </template>
           </el-table-column>
@@ -90,7 +136,7 @@ const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
                 active-text="否"
                 inactive-text="是"
                 :inactive-value="1"
-                :disabled="row.type === $enum.MaterialTypeEnum.BASE"
+                :disabled="row.isDefalt === $enum.MaterialDefaultEnum.DEFAULT"
               />
             </template>
           </el-table-column>
@@ -103,8 +149,15 @@ const tableData = ref<MaterialRespDto.MaterialInfoRespDto[]>([]);
       </div>
     </template>
     <template #footer>
-      <div class="w-full h-full flex items-center bg-red-500">
-
+      <div class="w-full h-full flex justify-center items-center">
+        <el-pagination
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="sizeOptions"
+          layout="sizes, prev, pager, next"
+          :total="total"
+          @change="pageChange"
+        />
       </div>
     </template>
   </ManageLayout>

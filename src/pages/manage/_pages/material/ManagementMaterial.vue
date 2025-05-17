@@ -10,6 +10,7 @@ import BaseDialog from "@/components/BaseDialog.vue";
 import {MATERIAL_TYPE_OPTIONS} from "@/componsables/constants/ManagementConstant";
 import materialTemplateSchema from './material-template-schema.json';
 import type {createMaterialReqDto} from "@/componsables/apis/material/_apis/MaterialInfoApis";
+import tableHeaderConfig from '@/components/table-header-config.json';
 
 
 
@@ -212,7 +213,7 @@ onMounted(async () => {
           stripe
           border
           fit
-          :header-cell-style="{ backgroundColor: '#33FF33', alignItems: 'center', color: '#000' }"
+          :header-cell-style="tableHeaderConfig"
           class="h-full mt-10"
           style="width: 100%;"
         >

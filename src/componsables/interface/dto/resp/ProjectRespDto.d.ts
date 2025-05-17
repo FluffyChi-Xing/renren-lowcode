@@ -21,14 +21,14 @@ declare namespace ProjectRespDto {
 
     simulatorHost: string;
 
-    isDelete: number;
+    isDelete: string;
 
-    data: MaterialInterface.IProject[] | null;
+    data: string;
 
     createTime: string;
 
     updateTime: string;
 
-    documents: MaterialInterface.IDocument[] | null;
+    documents: MaterialInterface.IDocument[];
   }
 }
