@@ -104,6 +104,14 @@ const router = createRouter({
             title: '人人低码 | 登录页',
           },
           component: () => import('@/pages/login/index.vue')
+        },
+        {
+          path: '/preview',
+          name: 'preview',
+          meta: {
+            title: '人人低码 | 预览'
+          },
+          component: () => import('@/pages/preview/index.vue')
         }
       ]
     },

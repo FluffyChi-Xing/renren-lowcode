@@ -102,12 +102,4 @@ export class LocalforageDB<T> implements ILocalforageDB<T>{
   query(key: string, callback?: (err: any, value: (T | null)) => void): Promise<T | null> {
     return localforage.getItem(key, callback);
   }
-
-  // set(options: LocalForageOptions | string): void {
-  //   if (typeof options === 'string') {
-  //     localforage.config(options);
-  //   } else {
-  //     localforage.config({...options});
-  //   }
-  // }
 }

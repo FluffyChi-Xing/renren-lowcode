@@ -11,6 +11,7 @@ import {
 } from "@/componsables/constants/RenrenConstant";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import { v4 as uuidv4 } from 'uuid';
+import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 
 
 /**
@@ -19,12 +20,16 @@ import { v4 as uuidv4 } from 'uuid';
  * @param fileName
  */
 export function saveSchemaToJson(schema: MaterialDocumentModel, fileName?: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
       if (schema) {
+        const indexedDB = new LocalforageDB();
         if (fileName) {
+          // TODO: 先在 indexeddb 中同步缓存一份，后续过渡到完全使用 indexeddb
+          await indexedDB.insert(SCHEMA_STORAGE_ID + fileName, schema);
           localStorage.setItem(SCHEMA_STORAGE_ID + fileName, JSON.stringify(schema));
         } else {
+          await indexedDB.insert(SCHEMA_STORAGE_ID, schema);
           localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
         }
         resolve('保存 schema 成功');
@@ -45,11 +50,10 @@ export function saveSchemaToJson(schema: MaterialDocumentModel, fileName?: strin
 export function getSchema(key?: string): Promise<MaterialDocumentModel> {
   return new Promise<MaterialDocumentModel>((resolve, reject) => {
     try {
-      if (!key) {
-        resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as MaterialDocumentModel);
-      } else {
-        resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}') as MaterialDocumentModel);
-      }
+      key ?
+      resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}') as MaterialDocumentModel)
+        :
+      resolve(JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as MaterialDocumentModel);
     } catch (e) {
       console.log('获取 schema 失败', e);
       reject('获取 schema 失败');
@@ -64,11 +68,18 @@ export function getSchema(key?: string): Promise<MaterialDocumentModel> {
  * @param key // 文档节点 key optional
  */
 export function updateSchema(schema: MaterialDocumentModel, key?: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
+      const indexedDB = new LocalforageDB();
       if (key) {
+        await indexedDB.insert(SCHEMA_STORAGE_ID + key, schema).catch(err => {
+          console.log(err);
+        });
         localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(schema));
       } else {
+        await indexedDB.insert(SCHEMA_STORAGE_ID, schema).catch(err => {
+          console.log(err);
+        });
         localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
       }
       resolve('更新 schema 成功');
@@ -256,14 +267,14 @@ export function initSchema(): Promise<string> {
       const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
        if (isEmpty) {
          await createSchema().catch(e => {
-           console.log('创建 schema 失败', e);
+           console.error('创建 schema 失败', e);
            reject('初始化 schema 失败');
          });
        } else {
          resolve('初始化 schema 成功');
        }
     } catch (e) {
-      console.log('初始化 schema 失败', e);
+      console.error('初始化 schema 失败', e);
       reject('初始化 schema 失败');
     }
   });
@@ -689,5 +700,23 @@ export function editDocumentTitle(newTitle: string, originalTitle?: string): Pro
 }
 
 
-// TODO: 删除某个特定键的项目键名映射表条目
+
+// TODO querySchema() 该函数从 indexedDb 中获取页面数据，暂时只用于页面预览，后面慢慢迁移到 querySchema上，弃用 getSchema
+
+
+/**
+ * @description 根据 key 获取需要的 页面 schema 数据
+ * @param key
+ */
+export function querySchema<T extends MaterialDocumentModel>(key?: string): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    try {
+      const indexedDB = new LocalforageDB();
+      key ? resolve(await indexedDB.query(SCHEMA_STORAGE_ID + key) as T) : resolve(await indexedDB.query(SCHEMA_STORAGE_ID) as T);
+    } catch (e) {
+      console.error('查询 schema 失败', e);
+      reject('查询 schema 失败');
+    }
+  });
+}
 

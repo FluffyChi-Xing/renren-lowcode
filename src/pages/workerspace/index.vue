@@ -6,7 +6,6 @@ import Canvas from "@/pages/workerspace/_components/Canvas.vue";
 import {onMounted, ref} from "vue";
 import MaterialTab from "@/pages/workerspace/_components/MaterialTab.vue";
 import EditorSideBar from "@/pages/workerspace/_components/EditorSideBar.vue";
-import {initSchema} from "@/renren-engine/modules/arrangement/arrangement";
 import {$message} from "@/componsables/element-plus";
 import MaterialNodeTree from "@/pages/workerspace/_components/MaterialNodeTree.vue";
 import AttributesPane from "@/pages/workerspace/_components/AttributesPane.vue";
@@ -14,6 +13,7 @@ import '@/assets/animation.css';
 import ViewSchemaDrawer from "@/pages/workerspace/_components/drawer/ViewSchemaDrawer.vue";
 import AddAnimationDrawer from "@/pages/workerspace/_components/drawer/AddAnimationDrawer.vue";
 import AddEventDrawer from "@/pages/workerspace/_components/drawer/AddEventDrawer.vue";
+import {$engine} from "@/renren-engine/engine";
 
 
 
@@ -38,7 +38,7 @@ function editorConfigCollapseHandler(index: boolean) {
  * @description 初始化 schema
  */
 onMounted(async () => {
-  await initSchema().catch((err: string) => {
+  await $engine.arrangement.initSchema().catch((err: string) => {
     $message({
       type: 'warning',
       message: err,

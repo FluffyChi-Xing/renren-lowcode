@@ -6,7 +6,7 @@ import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import type {Component} from "vue";
 import { h, defineComponent, shallowReactive } from 'vue';
-import {ElButton, ElImage, ElLink, ElText, ElEmpty} from "element-plus";
+import {ElButton, ElImage, ElLink, ElText, ElEmpty, ElTag} from "element-plus";
 import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import {propAttributesSuffixOptions} from "@/componsables/utils/AttrUtil";
@@ -20,7 +20,8 @@ const componentMap = {
   'el-text': ElText,
   'el-link': ElLink,
   'el-image': ElImage,
-  'el-empty': ElEmpty
+  'el-empty': ElEmpty,
+  'el-tag': ElTag,
 } as const;
 
 
@@ -95,7 +96,6 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
         const props: Record<string, any> = {};
         let textContent = '';
         let styleProp: string = '';
-        // console.log(attr);
         attr.forEach(css => {
           // 如果属性是填充的文字，设置 textContent
           if (css.key === 'text') {
@@ -109,7 +109,6 @@ export function insertCSSAttributes<T extends Component>(attr: MaterialInterface
         if (styleProp) {
           props['style'] = styleProp;
         }
-        // console.log(props);
         const el = throttleCreateVueComponent(type, props, textContent);
         resolve(el as T);
       } else {
@@ -469,12 +468,12 @@ export function previewRenderingPage<T extends Component>(): Promise<T[]> {
       // 获取 schema
       const schema: MaterialDocumentModel = await $engine.arrangement.getSchema();
       const nodes: MaterialInterface.IMaterial[] | undefined = schema.nodes;
-      if (nodes !== void 0 && nodes?.length) {
+      if (Array.isArray(nodes)) {
         if (nodes.length > 0) {
           // 循环遍历 schema.nodes 创建对应的物料组件
           let materialList: Component[] = [];
           nodes.forEach((node: MaterialInterface.IMaterial) => {
-            createMaterialElement(node as RenrenMaterialModel).then(async (material) => {
+            createMaterialElement(node as RenrenMaterialModel).then(async _ => {
               // 绑定 css 属性
               if (node.props?.items) {
                 const newMaterial: Component = throttleCreateVueComponent(
@@ -501,6 +500,44 @@ export function previewRenderingPage<T extends Component>(): Promise<T[]> {
     } catch (e) {
       console.error('预览页面失败', e);
       reject('预览页面失败');
+    }
+  });
+}
+
+
+/**
+ * @description 获取 schema 的 prop configuration
+ * @param key
+ */
+export function getSchemaConfiguration<T extends CanvasInterface.canvasConfig>(key?: string): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
+    try {
+      // 获取 schema
+      const schema: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema(key);
+      let configuration: T = {
+        config: {}
+      } as T;
+      if (schema !== void 0) {
+        // 获取 prop 的 items 属性
+        const { prop } = schema as MaterialDocumentModel;
+        if (prop) {
+          const isEmpty: boolean = Object.keys(prop).length === 0 && prop.constructor === Object;
+          if (!isEmpty) {
+            const { items } = prop as unknown as MaterialInterface.IProp;
+            if (items) {
+              items.forEach(item => {
+                configuration.config[item.type] = item.value;
+              });
+              resolve(configuration);
+            }
+          }
+        }
+      } else {
+        resolve(configuration);
+      }
+    } catch (e) {
+      console.error('获取 schema 配置失败', e);
+      reject('获取 schema 配置失败');
     }
   });
 }

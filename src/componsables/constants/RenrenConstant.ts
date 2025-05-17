@@ -64,3 +64,6 @@ export const DEFAULT_USER_AVATAR: string = 'https://cube.elemecdn.com/0/88/03b0d
 
 
 export const DEFAULT_MATERIAL_STORAGE_INDEX: string = 'default-material';
+
+
+export const PROJECT_ADDRESS: string = 'http://localhost:7070/#';

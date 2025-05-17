@@ -138,7 +138,7 @@ async function createMaterialHandler() {
     const params: createMaterialReqDto = {
       name: name,
       type: type,
-      data: JSON.stringify(data)
+      data: JSON.stringify(data.toString())
     };
     // TODO: 需要创建 data 类型检查函数 api
     await $api.material.createSelfMaterial(params)
