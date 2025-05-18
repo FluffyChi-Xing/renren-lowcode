@@ -9,12 +9,9 @@ import {mySchemaStore} from "@/stores/schema";
 
 const isShow = ref<boolean>(false);
 
-
-
 $event.on('bindEvent', () => {
   isShow.value = false;
 });
-
 
 watch(() => mySchemaStore.currentElement, () => {
   $event.on(`addEvent:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {

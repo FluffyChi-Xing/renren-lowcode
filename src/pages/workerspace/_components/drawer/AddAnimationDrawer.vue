@@ -7,12 +7,13 @@ import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {mySchemaStore} from "@/stores/schema";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
+import {$util} from "@/componsables/utils";
+
+
+
 
 
 const isShow = ref<boolean>(false);
-
-
-
 /**
  * @description 处理动画绑定事件
  * @param item
@@ -21,7 +22,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promis
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 将动画保存到 store 中
-      if (mySchemaStore.currentElement?.type === 'material') {
+      await $util.renren.isMaterial(mySchemaStore.currentElement, async () => {
         const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           $message({
@@ -38,7 +39,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promis
           reject(err as string);
         });
         resolve('保存动画成功');
-      }
+      });
       isShow.value = false;
     } catch (e) {
       console.error('同步动画到 store 失败', e);

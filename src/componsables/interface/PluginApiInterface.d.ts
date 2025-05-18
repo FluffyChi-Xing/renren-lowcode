@@ -73,14 +73,14 @@ declare namespace PluginApiInterface {
 
   interface IPluginFuncType {
     // 获取组件实例
-    pluginGet: (name: string) => PluginCompType | undefined;
+    pluginGet: (name: string) => PluginCompType | unknown;
     // 获取全部组件实例
-    pluginAll: PluginCompType[] | null | undefined;
+    pluginAll: PluginCompType[] | null | unknown;
     // 判断组件是否注册
     pluginHas: (name: string) => boolean;
     // 删除组件实例
     pluginDel: (name: string) => void;
     // 获取组件配置项
-    pluginPre: (name: string) => any | null | undefined;
+    pluginPre: (name: string) => any | null | unknown;
   }
 }

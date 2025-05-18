@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import HighLightLang from "@/components/HighLightLang.vue";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
+import {$util} from "@/componsables/utils";
 const schema2string = ref<string>('');
 const isShow = ref<boolean>(false);
 
@@ -14,12 +15,10 @@ const isShow = ref<boolean>(false);
 async function showSchemaHandler() {
   isShow.value = !isShow.value;
   const schema = await $engine.arrangement.getSchema();
-  const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-  if (!isEmpty) {
+  if (!$util.renren.isEmpty(schema)) {
     schema2string.value = JSON.stringify(schema, null, 2);
   }
 }
-
 
 $event.on('showSchema', () => {
   showSchemaHandler();

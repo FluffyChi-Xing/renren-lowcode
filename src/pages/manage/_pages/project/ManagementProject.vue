@@ -38,7 +38,7 @@ const isLoading = ref<boolean>(false);
 const data = ref<ProjectRespDto.ProjectQueryRespDto[]>([
   projectTemplate as unknown as ProjectRespDto.ProjectQueryRespDto
 ]);
-const tableColumnList = tableColumn as unknown as RenrenInterface.keyValueType<string>[];
+const tableColumnList = $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<string>[]>(tableColumn);
 
 
 async function initData() {

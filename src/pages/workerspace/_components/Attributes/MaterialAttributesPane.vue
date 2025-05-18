@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
-import {useSchemaStore} from "@/stores/schema";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesOptionsMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
@@ -9,9 +8,8 @@ import { throttle } from "lodash-es";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
+import {mySchemaStore} from "@/stores/schema";
 
-
-const schemaStore = useSchemaStore();
 
 
 /** ===== 物料节点属性绑定-start =====**/
@@ -23,8 +21,8 @@ const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 function initMaterialAttributeData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
-        const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
         // 清空现有响应式对象
         materialAttribute.value = [];
         if (material.props?.items && material.props.items?.length > 0) {
@@ -70,7 +68,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
                 message: err as string
               });
             });
-            schemaStore.currentElement = item;
+            mySchemaStore.currentElement = item;
             $event.emit(`updateMaterial:${item.id}`);
             resolve('样式更新成功');
           }
@@ -92,7 +90,7 @@ function inputChangeHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 调用样式更新函数
-      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -113,7 +111,7 @@ function inputChangeHandler(): Promise<string> {
 function selectChangeHandler(): Promise<string> {
   return new Promise<string>(async (reject) => {
     try {
-      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -131,9 +129,9 @@ function selectChangeHandler(): Promise<string> {
  * @description 处理 switch 型事件
  */
 function switchChangeHandler(): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
+  return new Promise<string>(async (reject) => {
     try {
-      await throttledCSSAttributesUpdateHandler(schemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -158,7 +156,7 @@ onMounted(() => {
 });
 
 
-watch(() => schemaStore.currentElement, () => {
+watch(() => mySchemaStore.currentElement, () => {
   initMaterialAttributeData().catch(err => {
     $message({
       type: 'warning',

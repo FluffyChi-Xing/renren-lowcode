@@ -3,37 +3,16 @@ import {ref} from 'vue';
 import Statistic from "@/components/Statistic.vue";
 import RecentlyProjectCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyProjectCreationChart.vue";
 import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyPageCreationChart.vue";
+import {$util} from "@/componsables/utils";
+import mock from './statistic-mock.json';
 
 
 
 /** ========== 统计卡片初始化-start ==========**/
 const loadingStatistic = ref<boolean>(false);
-const statisticCardList = ref<RenrenInterface.keyValueType<number>[]>([
-  {
-    key: '基础物料总数',
-    value: 5,
-  },
-  {
-    key: '自定义物料总数',
-    value: 3,
-  },
-  {
-    key: '个人最大自定义物料数',
-    value: 20,
-  },
-  {
-    key: '项目创建数',
-    value: 1
-  },
-  {
-    key: '操作日志数',
-    value: 215
-  },
-  {
-    key: '创建页面数',
-    value: 2
-  }
-]);
+const statisticCardList = ref<RenrenInterface.keyValueType<number>[]>(
+  $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<number>[]>(mock)
+);
 /** ========= 统计卡片初始化-end ==========**/
 
 

@@ -1,0 +1,14 @@
+[
+  {
+    "key": "首页",
+    "value": "/home"
+  },
+  {
+    "key": "文档",
+    "value": "/document"
+  },
+  {
+    "key": "Github",
+    "value": "/my-project-github-profile-page-link"
+  }
+]

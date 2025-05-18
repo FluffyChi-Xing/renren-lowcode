@@ -3,7 +3,6 @@ import {ref, onMounted} from "vue";
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import {$api} from "@/componsables/api";
 import {$message} from "@/componsables/element-plus";
-import dayjs from "dayjs";
 import tableHeaderConfig from '@/components/table-header-config.json';
 import pageSizeOption from '@/components/pagination-size-options.json';
 import { $util } from "@/componsables/utils";
@@ -143,7 +142,7 @@ onMounted(async () => {
             >
               <template #default="{ row }">
                 <span>
-                  {{ dayjs(row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                  {{ $util.renren.dateTransform(row.createTime, 'YYYY-MM-DD HH:mm:ss') }}
                 </span>
               </template>
             </el-table-column>
@@ -161,7 +160,15 @@ onMounted(async () => {
       </div>
     </template>
     <template #footer>
-      <div class="w-full h-full flex items-center bg-red-500" />
+      <div class="w-full h-full justify-center flex items-center">
+        <el-pagination
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="sizeOptions"
+          layout="sizes, prev, pager, next"
+          :total="total"
+        />
+      </div>
     </template>
   </ManageLayout>
 </template>

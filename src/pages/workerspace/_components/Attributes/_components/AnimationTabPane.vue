@@ -96,7 +96,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>) {
     >
       <div
         class="w-full h-auto grid grid-cols-3 gap-4"
-        :class="`grid-rows-[${item.children.length % 3 === 0 ? item.children.length / 3 : Math.floor(item.children.length / 3) + 1}]`"
+        :class="`grid-rows-[${item.children.length % 3 === 0 ? Math.ceil(item.children.length / 3) : Math.floor(item.children.length / 3) + 1}]`"
       >
         <div
           v-for="(itm, idx) in item.children"

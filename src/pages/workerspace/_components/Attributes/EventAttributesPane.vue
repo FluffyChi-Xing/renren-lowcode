@@ -4,6 +4,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$util} from "@/componsables/utils";
+import tableHeader from './attribute-table-header-style.json';
 
 
 
@@ -82,7 +83,7 @@ onMounted(() => {
         fit
         stripe
         border
-        :header-cell-style="{ backgroundColor: '#5ea0ff', alignItems: 'center', color: '#000' }"
+        :header-cell-style="tableHeader"
       >
         <el-table-column
           label="事件id"

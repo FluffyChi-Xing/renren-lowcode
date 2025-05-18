@@ -5,6 +5,7 @@
 import html2canvas from 'html2canvas';
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
+import dayjs from "dayjs";
 
 
 /**
@@ -176,30 +177,67 @@ export function isMaterialPropItemsEmpty(item: RenrenMaterialModel | undefined):
 }
 
 
+
+export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean;
+
+
+export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | undefined, callback?: Function): Promise<string>;
+
+
 /**
  * @description 检查一个元素是否是一个物料节点
  * @param item
+ * @param callback
  */
-export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+export function isMaterial(item: RenrenMaterialModel | MaterialDocumentModel | undefined, callback?: Function): boolean | Promise<string> {
   if (item !== void 0) {
-    return item.type === 'material';
+    if (callback) {
+      return new Promise<string>((resolve, reject) => {
+        if (item.type === 'material') {
+          callback();
+          resolve('success');
+        } else {
+          reject('不是物料类型');
+        }
+      });
+    } else {
+      return item.type === 'material';
+    }
   } else {
     return false;
   }
 }
-
 
 /**
  * @description 检查一个元素是否为一个文档节点
  * @param item
  */
-export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
+// 重载签名1：同步返回 boolean
+export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean;
+
+// 重载签名2：带回调，返回 Promise<string>
+export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | undefined, callback: () => void): Promise<string>;
+
+// 实现签名（必须兼容所有重载）
+export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | undefined, callback?: () => void): boolean | Promise<string> {
   if (item !== void 0) {
-    return item.type === 'document';
+    if (callback) {
+      return new Promise<string>((resolve, reject) => {
+        if (item.type === 'document') {
+          callback(); // 可选执行回调
+          resolve('success');
+        } else {
+          reject('不是文档节点类型');
+        }
+      });
+    } else {
+      return item.type === 'document';
+    }
   } else {
     return false;
   }
 }
+
 
 
 /**
@@ -208,4 +246,19 @@ export function isDocument(item: RenrenMaterialModel | MaterialDocumentModel | u
  */
 export function jsonTypeTransfer<T>(item: unknown): T {
   return item as T;
+}
+
+
+/**
+ * @description 日期转换包装函数
+ * @param date
+ * @param format
+ */
+export function dateTransform(date: string | undefined, format: string): string {
+  try {
+    return dayjs(date).format(format);
+  } catch (e) {
+    console.error('dateTransform error', e);
+    return '日期转换错误';
+  }
 }

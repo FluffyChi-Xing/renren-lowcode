@@ -10,6 +10,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {mySchemaStore} from "@/stores/schema";
 import {$message} from "@/componsables/element-plus";
+import {$util} from "@/componsables/utils";
 
 
 
@@ -28,17 +29,11 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
 
 
 
-function isSchemaAMaterial(schema: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
-  return schema !== void 0 && schema?.type === 'material';
-}
-
-
-
 /**
  * @description 锁定物料节点
  */
 function lockMaterialNode() {
-  if (isSchemaAMaterial(mySchemaStore.currentElement)) {
+  $util.renren.isMaterial(mySchemaStore.currentElement, () => {
     const material = mySchemaStore.currentElement as RenrenMaterialModel;
     if (!material?.isLocked) {
       material.isLocked = true;
@@ -49,12 +44,12 @@ function lockMaterialNode() {
       });
     }
     $event.emit('clearContext');
-  } else {
+  }).catch(_ => {
     $message({
       type: 'warning',
       message: '请先选择要锁定的组件'
     });
-  }
+  });
 }
 
 
@@ -62,7 +57,7 @@ function lockMaterialNode() {
  * @description 解锁物料节点
  */
 function unLockMaterialNode() {
-  if (isSchemaAMaterial(mySchemaStore.currentElement)) {
+  $util.renren.isMaterial(mySchemaStore.currentElement, () => {
     const material = mySchemaStore.currentElement as RenrenMaterialModel;
     if (material?.isLocked) {
       material.isLocked = false;
@@ -73,20 +68,17 @@ function unLockMaterialNode() {
       });
     }
     $event.emit('clearContext');
-  } else {
+  }).catch(_ => {
     $message({
       type: 'warning',
       message: '请先选择要解锁的组件'
     });
-  }
+  });
 }
-
-
 
 $event.on('lock', () => {
   lockMaterialNode();
 });
-
 
 $event.on('unlock', () => {
   unLockMaterialNode();

@@ -1,111 +1,27 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 import ManageHeader from "@/pages/manage/_component/ManageHeader.vue";
-import type {RenrenInterface} from "@/componsables/interface/RenrenInterface";
 import {useRoute} from "vue-router";
 import {$api} from "@/componsables/api";
 import {setUserLoginInfoToSession} from "@/componsables/request";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {DEFAULT_MATERIAL_STORAGE_INDEX} from "@/componsables/constants/RenrenConstant";
+import menuItems from './menu-items.json';
+import {$util} from "@/componsables/utils";
 
 
 
 
 const route = useRoute();
 /** ========== 菜单初始化-start ==========**/
-const defaultActive = ref<string>('仪表盘');
-const menuList = ref<RenrenInterface.KeyValueIndexType<string, string>[]>([
-  {
-    key: '仪表盘',
-    value: '/manage',
-    index: 'Odometer'
-  },
-  {
-    key: '项目管理',
-    value: '/manage/project',
-    index: 'Box'
-  },
-  {
-    key: '物料管理',
-    value: '/manage/material',
-    index: 'Document'
-  },
-  {
-    key: '用户中心',
-    value: '/manage/userInfo',
-    index: 'User'
-  },
-  {
-    key: '回收站',
-    value: '/manage/recycle',
-    index: 'Delete'
-  },
-  {
-    key: '操作日志',
-    value: '/manage/operation',
-    index: 'Document'
-  },
-  {
-    key: '登录日志',
-    value: '/manage/login',
-    index: 'Compass'
-  },
-  {
-    key: '异常日志',
-    value: '/manage/error',
-    index: 'CloseBold'
-  }
-]);
-
+const menuList: RenrenInterface.KeyValueIndexType<string, string>[] = $util.renren.jsonTypeTransfer<RenrenInterface.KeyValueIndexType<string, string>[]>(menuItems);
+const defaultActive = ref<string>(menuList[0].value);
 
 /**
  * @description 确定当前激活的菜单项
  */
-function checkCurrentActiveItemHandler(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      switch (route.fullPath) {
-        case '/manage':
-          defaultActive.value = '仪表盘';
-          resolve('仪表盘');
-          break;
-        case '/manage/project':
-          defaultActive.value = '项目管理';
-          resolve('项目管理');
-          break;
-        case '/manage/material':
-          defaultActive.value = '物料管理';
-          resolve('物料管理');
-          break;
-        case '/manage/userInfo':
-          defaultActive.value = '用户中心';
-          resolve('用户中心');
-          break;
-        case '/manage/recycle':
-          defaultActive.value = '回收站';
-          resolve('回收站');
-          break;
-        case '/manage/operation':
-          defaultActive.value = '操作日志'
-          break;
-        case '/manage/login':
-          defaultActive.value = '登录日志';
-          resolve('登录日志');
-          break;
-        case '/manage/error':
-          defaultActive.value = '异常日志';
-          resolve('异常日志');
-          break;
-        default:
-          defaultActive.value = '仪表盘';
-          resolve('仪表盘');
-          break;
-      }
-    } catch (e) {
-      console.error('菜单高亮定位失败', e);
-      reject('菜单高亮定位失败');
-    }
-  });
+function checkCurrentActiveItemHandler(): void {
+  defaultActive.value = route.path;
 }
 /** ========== 菜单初始化-end ==========**/
 
@@ -136,18 +52,14 @@ async function getMaterialSchema<T extends MaterialRespDto.defaultMaterialList>(
 
 
 onMounted(async () => {
-  await checkCurrentActiveItemHandler().catch(err => {
-    console.error(err);
-  });
+  checkCurrentActiveItemHandler();
   await getMaterialSchema();
 });
 
 
 
 watch(() => route.path, () => {
-  checkCurrentActiveItemHandler().catch(err => {
-    console.error(err);
-  });
+  checkCurrentActiveItemHandler();
 });
 
 
@@ -187,7 +99,7 @@ onMounted(() => {
               v-for="(item, index) in menuList"
               :key="index"
               :route="item.value"
-              :index="item.key"
+              :index="item.value"
             >
               <el-icon><component :is="item.index" /></el-icon>
               <span>{{ item.key }}</span>

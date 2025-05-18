@@ -7,6 +7,7 @@ import {onMounted, ref} from 'vue';
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {$util} from "@/componsables/utils";
+import tableHeader from './attribute-table-header-style.json';
 
 
 
@@ -59,7 +60,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
     try {
       // 清空 schema 对应组件的 animation 属性
       const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
-      if ($util.renren.isDocument(schema)) {
+      await $util.renren.isDocument(schema, async () => {
         if (schema.nodes && schema.nodes.length > 0) {
           const material = schema.nodes.find(item => item.id === (schemaStore.currentElement as RenrenMaterialModel)?.id);
           if (material !== void 0 && material.animation) {
@@ -70,7 +71,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
             }
           }
         }
-      }
+      });
       // 清空 schemaStore.currentElement.animation
       if ($util.renren.isMaterial(schemaStore.currentElement)) {
         const material = schemaStore.currentElement as RenrenMaterialModel;
@@ -123,7 +124,7 @@ onMounted(() => {
         stripe
         border
         fit
-        :header-cell-style="{ backgroundColor: '#5ea0ff', alignItems: 'center', color: '#000' }"
+        :header-cell-style="tableHeader"
       >
         <el-table-column
           label="动画名称"

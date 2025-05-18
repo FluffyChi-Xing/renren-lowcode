@@ -1,24 +1,10 @@
 <script setup lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
 import {$util} from "@/componsables/utils";
+import menuItems from './header-menu-list.json';
 
 
-const menuList: RenrenInterface.keyValueType<string>[] = [
-  {
-    key: '首页',
-    value: '/home'
-  },
-  {
-    key: '文档',
-    value: '/document'
-  },
-  {
-    key: 'Github',
-    value: '/my-project-github-profile-page-link'
-  }
-];
-
-
+const menuList: RenrenInterface.keyValueType<string>[] = $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<string>[]>(menuItems)
 // TODO: 添加菜单点击跳转事件
 </script>
 
