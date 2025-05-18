@@ -13,9 +13,13 @@
 
 <script>
 import { addClass, removeClass } from "element-plus/es/utils/index";
+import {defineComponent} from "vue";
+defineComponent({
+  name: 'DrawerTransition'
+});
+
 
 export default {
-  name: 'DrawerTransition',
   methods: {
     beforeEnter(el) {
       addClass(el, 'drawer-transition');

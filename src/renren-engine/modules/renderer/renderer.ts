@@ -173,8 +173,7 @@ export function updateMaterialCSSAttribute<T extends RenrenMaterialModel, P exte
   return new Promise<T>(async (resolve, reject) => {
     try {
       const schema = await $engine.arrangement.getSchema();
-      const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-      if (!isEmpty && schema.nodes) {
+      if (!$util.renren.isEmpty(schema) && schema.nodes) {
         if (schema.nodes.length > 0) {
           // 根据 index 索引找到 schema nodes 中的对应 node
           let node: MaterialInterface.IMaterial = schema.nodes.filter(node => node.id === index)[0];
@@ -231,8 +230,7 @@ export function updateDocumentCSSAttribute(index: string, prop: RenrenInterface.
   return new Promise<string>(async (resolve, reject) => {
     try {
       let schema = await $engine.arrangement.getSchema();
-      const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-      if (!isEmpty) {
+      if (!$util.renren.isEmpty(schema)) {
         if (schema.prop && schema.prop.items) {
           if (schema.prop.id === index) {
             if (prop) {
@@ -291,8 +289,7 @@ export function queryMaterialCSSAttributesList<T extends MaterialInterface.IProp
   return new Promise<T[]>((resolve, reject) => {
     try {
       if (item !== void 0) {
-        const isEmpty: boolean = Object.keys(item).length === 0 && item.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(item)) {
          let propItems: MaterialInterface.IProp[] = [];
          if (item.props && item.props.items) {
            if (item.props.items?.length > 0) {
@@ -396,7 +393,7 @@ export function getMaterialCSSAttributesAsStyle(material: RenrenMaterialModel | 
   return new Promise<string>((resolve, reject) => {
     try {
       if (material !== void 0) {
-        if (!$util.renren.isElementEmpty(material)) {
+        if (!$util.renren.isEmpty(material)) {
           let styleCSS: string = '';
           const propList: MaterialInterface.IProp[] | undefined | null = material?.props?.items;
           if (propList !== void 0 && propList?.length) {
@@ -432,9 +429,9 @@ export function getMaterialCSSAttributesAsStyle(material: RenrenMaterialModel | 
  * @param item
  */
 export function createPageElement<T extends HTMLElement>(item: MaterialDocumentModel): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
+  return new Promise<T>(async (resolve, reject) => {
     try {
-      if (item !== void 0 && item?.type === 'document') {
+      await $util.renren.isDocument(item, () => {
         const page: HTMLElement = document.createElement('div');
         // 绑定页面样式
         const prop: MaterialInterface.IProp[] | undefined | null = item.prop?.items;
@@ -448,7 +445,7 @@ export function createPageElement<T extends HTMLElement>(item: MaterialDocumentM
             resolve(page as T);
           }
         }
-      }
+      });
     } catch (e) {
       console.error('预览页面渲染失败', e);
       reject('预览页面渲染失败');

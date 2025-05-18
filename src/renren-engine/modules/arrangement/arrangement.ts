@@ -12,6 +12,8 @@ import {
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import { v4 as uuidv4 } from 'uuid';
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
+import {$util} from "@/componsables/utils";
+import {$engine} from "@/renren-engine/engine";
 
 
 /**
@@ -118,11 +120,10 @@ export function queryNodeList<T extends RenrenMaterialModel>(): Promise<T[]> {
 export function removeSchema(key?: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (key) {
-        localStorage.removeItem(key);
-      } else {
+      key ?
+        localStorage.removeItem(SCHEMA_STORAGE_ID + key)
+        :
         localStorage.removeItem(SCHEMA_STORAGE_ID);
-      }
     } catch (e) {
       console.error('删除 schema 失败', e);
       reject('删除 schema 失败');
@@ -203,10 +204,9 @@ function createSchema(): Promise<string> {
 export function clearMaterialNodes(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = await getSchema();
+      const document: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
       if (document !== void 0) {
-        const isEmpty: boolean = Object.keys(document).length === 0 && document.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(document)) {
           if (document.nodes) {
             if (document.nodes.length > 0) {
               document.nodes = [];
@@ -587,8 +587,7 @@ export function updateDocumentPropNode(props: MaterialInterface.IProp[]): Promis
     try {
       let item: MaterialDocumentModel | undefined = await getSchema();
       if (item !== void 0 && props.length > 0) {
-        const isEmpty: boolean = Object.keys(item).length === 0 && item.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(item)) {
           if (item?.prop && item?.prop.items) {
             if (item.prop.items.length > 0) {
               const nodes = item.prop.items ?? [];
@@ -626,8 +625,7 @@ export function insertAnimation2Material(key: string, animation: RenrenInterface
     try {
       const schema: MaterialDocumentModel | undefined = await getSchema();
       if (schema !== void 0) {
-        const isEmpty: boolean = Object.keys(schema).length === 0 && schema.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(schema)) {
           const nodes: MaterialInterface.IMaterial[] | undefined = schema?.nodes;
           if (nodes !== void 0 && nodes?.length > 0) {
             let material: MaterialInterface.IMaterial | undefined = nodes?.find(node => node.id === key);

@@ -24,7 +24,7 @@ const revertStack: Stack<RenrenMaterialModel> = new Stack<RenrenMaterialModel>()
 //   return new Promise<string>((resolve, reject) => {
 //     try {
 //       if ($util.store.isCurrentElementAMaterial()) {
-//         // const material = schemaStore.currentElement as RenrenMaterialModel;
+//         // const material = schemaStore.currentElement as GenreMaterialModel;
 //         // resetStack.push(material);
 //         resolve('更新成功');
 //       }

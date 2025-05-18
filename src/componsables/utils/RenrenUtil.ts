@@ -105,19 +105,6 @@ export function takeScreenPhoto(containerElement: HTMLElement): Promise<string> 
 
 
 /**
- * @description 判断元素是否为空
- * @param item
- */
-export function isElementEmpty(item: RenrenMaterialModel | MaterialDocumentModel | undefined): boolean {
-  if (item !== void 0) {
-    return Object.keys(item).length === 0 && item.constructor === Object;
-  } else {
-    return true;
-  }
-}
-
-
-/**
  * @description 判断元素是否为物料类型
  * @param element
  */

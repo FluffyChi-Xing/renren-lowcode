@@ -1,0 +1,17 @@
+{
+  "left":{
+    "key":"style",
+    "value":"",
+    "index":"left"
+  },
+  "positions":{
+    "key":"style",
+    "value":"absolute",
+    "index":"position"
+  },
+  "top":{
+    "key":"style",
+    "value":"",
+    "index":"top"
+  }
+}

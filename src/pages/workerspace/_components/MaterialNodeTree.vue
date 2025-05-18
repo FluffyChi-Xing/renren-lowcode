@@ -90,7 +90,7 @@ async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): 
   return new Promise<string>(async (resolve, reject) => {
     try {
       if (schema) {
-        if (!$util.renren.isElementEmpty(schema)) {
+        if (!$util.renren.isEmpty(schema)) {
           // 同步 document 节点
           await createDocumentNode(schema).catch(err => reject(err));
 
@@ -184,7 +184,7 @@ async function settingDocumentHandler() {
   showDocEditor.value = true;
   const documentNode: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
   if (documentNode !== void 0) {
-    if (!$util.renren.isElementEmpty(documentNode)) {
+    if (!$util.renren.isEmpty(documentNode)) {
       documentNodeName.value = documentNode.fileName ?? '未知页面';
     }
   }

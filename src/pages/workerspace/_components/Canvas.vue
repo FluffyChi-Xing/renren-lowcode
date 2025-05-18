@@ -19,6 +19,7 @@ import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import positionTemplate from './material-position-template.json';
 
 
 withDefaults(defineProps<{
@@ -62,23 +63,9 @@ const materialZIndex = reactive<RenrenInterface.KeyValueIndexType<string, string
   key: "style",
   value: ""
 });
-const materialPosition = reactive<positionType>({
-  left: {
-    key: 'style',
-    value: '',
-    index: 'left'
-  },
-  positions: {
-    key: 'style',
-    value: 'absolute',
-    index: 'position'
-  },
-  top: {
-    key: 'style',
-    value: '',
-    index: 'top'
-  }
-});
+const materialPosition = reactive<positionType>(
+  $util.renren.jsonTypeTransfer<positionType>(positionTemplate)
+);
 // 邮件菜单列表
 const contextMenuList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(DEFAULT_CONTEXT_MENU_LIST);
 
@@ -235,7 +222,7 @@ const throttleDragEventHandler = throttle(
       e?.preventDefault();
       // 获取位置信息
       let material: T = getDataTransformMaterial(e) as T;
-      if (!$util.renren.isElementEmpty(material)) {
+      if (!$util.renren.isEmpty(material)) {
         // 设置 props
         let position = {
           x: 0,
@@ -264,7 +251,7 @@ const throttleDragEventHandler = throttle(
           schemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
           // 保存 schema
-          if (!$util.renren.isElementEmpty(material)) {
+          if (!$util.renren.isEmpty(material)) {
             await $engine.arrangement.insertNode2Document(material).then(() => {
               // 使用 eventBus 触发插入事件
               $event.emit('insert');
