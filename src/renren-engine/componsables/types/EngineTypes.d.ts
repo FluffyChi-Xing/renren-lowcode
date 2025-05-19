@@ -49,11 +49,11 @@ declare namespace EngineTypes {
    */
   type BaseElement = {
     // page nodes or material children
-    nodes: MaterialInterface.IMaterial[];
+    nodes: BaseElement[];
     // prop attributes
     prop: MaterialInterface.IProp[];
     // other attributes
-    meta: DocumentCoreAttr | MaterialCoreAttr | undefined;
+    meta: DocumentCoreAttr & MaterialCoreAttr | undefined;
     // events
     events: RenrenInterface.IEvent[];
     // animation
