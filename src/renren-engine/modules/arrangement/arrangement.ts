@@ -13,7 +13,6 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import { v4 as uuidv4 } from 'uuid';
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {$util} from "@/componsables/utils";
-import {$engine} from "@/renren-engine/engine";
 
 
 /**
@@ -204,7 +203,7 @@ function createSchema(): Promise<string> {
 export function clearMaterialNodes(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
+      const document: MaterialDocumentModel | undefined = await getSchema();
       if (document !== void 0) {
         if (!$util.renren.isEmpty(document)) {
           if (document.nodes) {
@@ -264,8 +263,7 @@ export function initSchema(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       const schema = await getSchema();
-      const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
-       if (isEmpty) {
+       if ($util.renren.isEmpty(schema)) {
          await createSchema().catch(e => {
            console.error('创建 schema 失败', e);
            reject('初始化 schema 失败');
@@ -290,8 +288,7 @@ export function getPersistNodeList<T extends RenrenMaterialModel>(): Promise<T[]
     try {
     // 获取保存的 schema 信息
       const schema = await getSchema();
-      const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
-      if (!isEmpty) {
+      if (!$util.renren.isEmpty(schema)) {
         // 判断是否存在 nodes 属性，否则 schema 损坏
         if (schema.nodes) {
           // 判断 nodes 是否为空， 如果为空，则返回空数组
@@ -549,8 +546,7 @@ export function updateMaterialNodeById(item: MaterialInterface.IMaterial): Promi
     try {
       if (item !== void 0) {
         let schema = await getSchema();
-        const isEmpty = Object.keys(schema).length === 0 && schema.constructor === Object;
-        if (!isEmpty) {
+        if (!$util.renren.isEmpty(schema)) {
           // 使用空值合并操作符确保 schema.nodes 不为 undefined
           const nodes = schema.nodes ?? [];
           nodes.forEach((node, index) => {

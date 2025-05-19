@@ -2,6 +2,7 @@
  * @description 引擎类型模块
  * @author FluffyChi-Xing
  */
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 declare namespace EngineTypes {
@@ -30,4 +31,40 @@ declare namespace EngineTypes {
 
     propertiesWithGetter: Map<PropertyKey, boolean>;
   }
+
+
+  type DocumentCoreAttr = {
+    rootNode: boolean;
+    fileName: string | null;
+  };
+
+  type MaterialCoreAttr = {
+    fileName: string;
+    type: string;
+  };
+
+
+  /**
+   * @description 节点统一属性规范类型
+   */
+  type BaseElement = {
+    // page nodes or material children
+    nodes: MaterialInterface.IMaterial[];
+    // prop attributes
+    prop: MaterialInterface.IProp[];
+    // other attributes
+    meta: DocumentCoreAttr | MaterialCoreAttr | undefined;
+    // events
+    events: RenrenInterface.IEvent[];
+    // animation
+    animation: RenrenInterface.keyValueType<string>[];
+  };
+
+
+
+  // 代码转换中间结构
+  type tempGenerateStructure = {
+    page: BaseElement | undefined;
+    material: BaseElement[];
+  };
 }

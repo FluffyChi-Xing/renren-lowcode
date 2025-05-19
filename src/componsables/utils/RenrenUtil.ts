@@ -117,13 +117,32 @@ export function isElementAMaterialModelType(element: RenrenMaterialModel | Mater
 }
 
 
+export function isEmpty<T extends Object>(item: T | undefined): boolean;
+
+
+export function isEmpty<T extends Object>(item: T | undefined, callback?: Function): Promise<string>;
+
 /**
  * @description 判断一个对象是否为空
  * @param item
+ * @param callback
+ * @warn callback function 只会在 item 非空的情况下回调
  */
-export function isEmpty<T extends Object>(item: T | undefined): boolean {
+export function isEmpty<T extends Object>(item: T | undefined, callback?: Function): boolean | Promise<string> {
   if (item !== void 0) {
-    return Object.keys(item).length === 0 && item?.constructor === Object;
+    let isEmpty: boolean = Object.keys(item).length === 0 && item?.constructor === Object;
+    if (callback) {
+      return new Promise<string>((resolve, reject) => {
+        if (!isEmpty) {
+          callback();
+          resolve('success');
+        } else {
+          reject('item is empty');
+        }
+      });
+    } else {
+      return isEmpty;
+    }
   } else {
     return true;
   }

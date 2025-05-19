@@ -67,13 +67,13 @@ watch(() => route.path, () => {
 /**
  * @description 测试请求模块的正确性
  */
-onMounted(() => {
-  setUserLoginInfoToSession({
+onMounted(async () => {
+  await setUserLoginInfoToSession({
     key: "vqwn-beonij-obevuwivbq",
     token: "ejh.xxxx.xxxx",
     userId: "1",
     username: "adminTest"
-  })
+  });
 });
 </script>
 
