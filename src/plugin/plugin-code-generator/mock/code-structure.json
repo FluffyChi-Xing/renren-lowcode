@@ -1,0 +1,212 @@
+[
+  {
+    "label": {
+      "icon": "folder",
+      "name": "project",
+      "path": ""
+    },
+    "id": "0",
+    "children": [
+      {
+        "label": {
+          "name": "public",
+          "icon": "folder",
+          "path": ""
+        },
+        "id": "0-1",
+        "children": [
+          {
+            "id": "0-1-2",
+            "children": [
+
+            ],
+            "label": {
+              "name": "favicon.ico",
+              "icon": "ico",
+              "path": ""
+            }
+          }
+        ]
+      },
+      {
+        "id": "0-2",
+        "label": {
+          "name": "src",
+          "icon": "folder",
+          "path": ""
+        },
+        "children": [
+          {
+            "label": {
+              "name": "assets",
+              "icon": "folder",
+              "path": ""
+            },
+            "id": "0-2-1",
+            "children": [
+              {
+                "id": "0-2-1-1",
+                "children": [],
+                "label": {
+                  "name": "base.css",
+                  "icon": "CSS",
+                  "path": "BaseCSS"
+                }
+              }
+            ]
+          },
+          {
+            "label": {
+              "name": "composables",
+              "icon": "folder",
+              "path": ""
+            },
+            "id": "0-2-2",
+            "children": [
+
+            ]
+          },
+          {
+            "id": "0-2-3",
+            "children": [
+
+            ],
+            "label": {
+              "name": "components",
+              "icon": "folder",
+              "path": ""
+            }
+          },
+          {
+            "id": "0-2-4",
+            "children": [
+
+            ],
+            "label": {
+              "name": "pages",
+              "icon": "folder",
+              "path": ""
+            }
+          },
+          {
+            "id": "0-2-5",
+            "children": [
+              {
+                "id": "0-2-5-1",
+                "children": [
+
+                ],
+                "label": {
+                  "name": "index.ts",
+                  "icon": "typescript",
+                  "path": "indexTs"
+                }
+              }
+            ],
+            "label": {
+              "name": "router",
+              "icon": "folder",
+              "path": ""
+            }
+          },
+          {
+            "id": "0-2-6",
+            "children": [
+              {
+                "id": "0-2-6-1",
+                "children": [
+
+                ],
+                "label": {
+                  "name": "counter.ts",
+                  "icon": "typescript",
+                  "path": "counterTs"
+                }
+              }
+            ],
+            "label": {
+              "name": "store",
+              "icon": "folder",
+              "path": ""
+            }
+          },
+          {
+            "id": "0-2-7",
+            "children": [],
+            "label": {
+              "name": "App.vue",
+              "icon": "Vue",
+              "path": "AppVue"
+            }
+          },
+          {
+            "parentId": "0-2-8",
+            "children": [
+
+            ],
+            "label": {
+              "path": "mainTs",
+              "name": "main.ts",
+              "icon": "typescript"
+            }
+          },
+          {
+            "parentId": "0-2-9",
+            "children": [
+
+            ],
+            "label": {
+              "path": "packageJson",
+              "name": "package.json",
+              "icon": "JSON"
+            }
+          },
+          {
+            "parentId": "0-2-10",
+            "children": [
+
+            ],
+            "label": {
+              "path": "packageLockJson",
+              "name": "package-lock.json",
+              "icon": "JSON"
+            }
+          },
+          {
+            "id": "0-2-11",
+            "children": [
+
+            ],
+            "label": {
+              "path": "viteConfig",
+              "name": "vite.config.ts",
+              "icon": "typescript"
+            }
+          },
+          {
+            "id": "0-2-12",
+            "children": [
+
+            ],
+            "label": {
+              "path": "readMeMd",
+              "name": "README.md",
+              "icon": "file-markdown"
+            }
+          },
+          {
+            "id": "0-2-13",
+            "children": [
+
+            ],
+            "label": {
+              "path": "indexHtml",
+              "name": "index.html",
+              "icon": "html"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

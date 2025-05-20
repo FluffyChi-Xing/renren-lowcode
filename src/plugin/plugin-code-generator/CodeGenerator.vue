@@ -39,6 +39,7 @@ async function exportSourceCode() {
       size="50%"
       :close-on-click-modal="false"
       :show-close="false"
+      :destroy-on-close="true"
     >
       <template #header>
         <div class="w-full h-auto flex items-center justify-between">

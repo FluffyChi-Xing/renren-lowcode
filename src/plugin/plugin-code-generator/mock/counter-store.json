@@ -1,0 +1,4 @@
+{
+  "key": "counter.ts",
+  "value": "import { ref, computed } from 'vue'\nimport { defineStore } from 'pinia'\n\nexport const useCounterStore = defineStore('counter', () => {\n  const count = ref(0)\n  const doubleCount = computed(() => count.value * 2)\n  function increment() {\n    count.value++\n  }\n\n  return {\n    count,\n    doubleCount,\n    increment\n  };\n})"
+}

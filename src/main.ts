@@ -1,6 +1,8 @@
 import './assets/main.css'
 import './style.css'
 import '@/renren-engine/__init__'
+import '@/assets/iconfont/iconfont.js'
+import '@/assets/iconfont/iconfont.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'

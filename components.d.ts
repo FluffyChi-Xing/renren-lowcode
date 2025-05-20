@@ -51,6 +51,7 @@ declare module 'vue' {
     ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
+    ElTree: typeof import('element-plus/es')['ElTree']
     FeatureCard: typeof import('./src/components/FeatureCard.vue')['default']
     Grid: typeof import('./src/components/Grid.vue')['default']
     HighLightLang: typeof import('./src/components/HighLightLang.vue')['default']
@@ -60,6 +61,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
     Statistic: typeof import('./src/components/Statistic.vue')['default']
+    SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
   }
   export interface ComponentCustomProperties {
