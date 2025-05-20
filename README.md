@@ -3,6 +3,9 @@
 人人低码是一个低代码平台，致力于帮助用户快速构建商品互动页和表单页面，并支持json和源代码的导出功能。
 ## 编辑器
 ![image](https://github.com/user-attachments/assets/bc0fb0d4-c989-45d4-8f79-adcf625e8c8e)
+## 代码导出预览
+![image](https://github.com/user-attachments/assets/6e21c345-61d5-4262-bda3-ee6b4ae7ab68)
+
 
 ## 项目目录
 ```
