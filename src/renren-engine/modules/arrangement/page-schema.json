@@ -38,6 +38,26 @@
         "type": "font-size",
         "owner": null,
         "parent": "undefined"
+      },
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "style",
+        "value": "1280",
+        "type": "width",
+        "owner": null,
+        "parent": "undefined"
+      },
+      {
+        "items": null,
+        "maps": "undefined",
+        "code": "",
+        "key": "style",
+        "value": "720",
+        "type": "height",
+        "owner": null,
+        "parent": "undefined"
       }
     ],
     "owner": "页面01",

@@ -190,7 +190,7 @@ $event.on('clearCanvas', () => {
 <template>
   <div class="w-auto h-auto">
     <!-- 撤销/重做 -->
-    <el-button-group class="mr-2">
+    <el-button-group>
       <el-tooltip
         placement="bottom"
         effect="light"

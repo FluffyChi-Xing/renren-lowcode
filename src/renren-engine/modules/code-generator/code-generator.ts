@@ -8,6 +8,8 @@ import {$engine} from "@/renren-engine/engine";
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import {$util} from "@/componsables/utils";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import prettier from 'prettier/standalone';
+import htmlParser from 'prettier/plugins/html';
 
 /**
  * @description 从当前页面节点中提取基本元素 nodes, prop, event, animation
@@ -148,12 +150,12 @@ function templateGenerator(schema: EngineTypes.tempGenerateStructure): Promise<s
       if (schema.page) {
         if (Array.isArray(schema.page?.prop)) {
           schema.page.prop.forEach(prop => {
-            pageProp += `${prop.type}:${prop.value},`;
+            pageProp += `${prop.type}:${prop.value}${$util.arr.propAttributesSuffixOptions.get(prop.type)};`;
           });
         }
       }
-      let page: string = `<div ${pageProp}>${material}</div>`;
-      let template: string = `<template>${page}</template>`;
+      let page: string = '';
+      let template: string = '';
       await $util.renren.isEmpty(schema, async () => {
         // 使用 baseElement2VueAst 递归生成 vue ast
         // 处理页面物料节点
@@ -162,8 +164,51 @@ function templateGenerator(schema: EngineTypes.tempGenerateStructure): Promise<s
             material += await baseElement2VueAst(item);
           }
         }
-        resolve(template);
       });
+      page = `<div ${pageProp}>${material}</div>`;
+      template = `<template>${page}</template>`;
+
+      /**
+       * @description 格式化 html 返回值
+       * @param template
+       */
+      async function formatHtml(template: string): Promise<string> {
+        // 提取 <template> 标签中的内容
+        const templateRegex = /<template[^>]*>([\s\S]*?)<\/template>/i;
+        const match = template.match(templateRegex);
+
+        if (!match) {
+          console.warn('未找到 <template> 标签，跳过格式化');
+          return template;
+        }
+
+        const innerHTML = match[1]?.trim() || '';
+
+        if (!innerHTML) {
+          console.warn('模板内容为空，跳过格式化');
+          return template;
+        }
+
+        try {
+          // 格式化 HTML 内容
+          const formattedHTML = await prettier.format(innerHTML, {
+            parser: 'html',
+            plugins: [htmlParser],
+            tabWidth: 2,
+            printWidth: 100,
+            endOfLine: 'auto'
+          });
+
+          // 替换回 <template> 标签中
+          return template.replace(templateRegex, `<template>\n${formattedHTML}\n</template>`);
+        } catch (e) {
+          console.error('格式化 HTML 模板失败', e);
+          return template;
+        }
+      }
+
+      const sourceCode: string = await formatHtml(template);
+      resolve(sourceCode);
     } catch (e) {
       console.error('基于中间产物构造 vue template 失败', e);
       reject('基于中间产物构造 vue template 失败');
@@ -183,26 +228,26 @@ function baseElement2VueAst(item: EngineTypes.BaseElement): Promise<string> {
       await $util.renren.isEmpty(item, () => {
         const { nodes, prop, meta, events, animation } = item;
         // 处理子节点
-        if (Array.isArray(nodes)) {
+        if (Array.isArray(nodes) && nodes.length > 0) {
           // 递归处理子节点
-          return nodes.map(node => {
-            return baseElement2VueAst(node);
+          return nodes.map(async (node) => {
+            return await baseElement2VueAst(node);
           });
         }
         // 处理当前节点
         // 构造 props
-        let style: string = 'style:';
-        let classList: string = 'class';
+        let style: string = '';
+        let classList: string = '';
         let innerText: string = '';
         const getPropsString = (): string => {
           let propAttr: string = '';
           if (Array.isArray(prop)) {
             prop.forEach(item => {
               if (item.key !== 'style' && item.key !== 'text') {
-                propAttr += `${item.key}=${item.value} `;
+                propAttr += `${item.key}="${item.value}" `;
               } else if (item.key !== 'text') {
                 // 处理 style
-                style += `${item.type}: ${item.value};`;
+                style += `${item.type}: ${item.value}${$util.arr.propAttributesSuffixOptions.get(item.type)};`;
               } else {
                 // 一个元素只可能有一个 text 属性的 prop
                 innerText = `${item.value}`;
@@ -233,11 +278,12 @@ function baseElement2VueAst(item: EngineTypes.BaseElement): Promise<string> {
             classList += `${item.value} `;
           });
         }
+        let styleProp: string = `style="${style}"`;
         // 构造节点
         let element: string =
           `<${meta?.type}
-            ${classList}
-            ${style}
+            ${classList ? `class="${classList}"` : '' }
+            ${styleProp}
             ${props}
             ${eventAttr}
           >
@@ -259,9 +305,7 @@ function baseElement2VueAst(item: EngineTypes.BaseElement): Promise<string> {
 export function getCodeTemplate(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     let template: EngineTypes.tempGenerateStructure = await extractBaseElement();
-    console.log('template', template);
     await templateGenerator(template).then(res => {
-      console.log('res', res);
       resolve(res);
     }).catch(err => {
       console.error('获取代码转换模板失败', err);
@@ -269,3 +313,27 @@ export function getCodeTemplate(): Promise<string> {
     });
   });
 }
+
+
+
+function serializeAST(ast: any): string {
+  function nodeToString(node: any): string {
+    if (node.type === 1 /* ELEMENT */) {
+      const tag = node.tag;
+      const props = node.props.map((p: any) =>
+        p.value ? `${p.name}="${p.value.content}"` : p.name
+      ).join(' ');
+
+      const children = node.children.map(nodeToString).join('');
+      return `<${tag}${props ? ' ' + props : ''}>${children}</${tag}>`;
+    } else if (node.type === 2 /* TEXT */) {
+      return node.content;
+    } else if (node.type === 3 /* COMMENT */) {
+      return `<!--${node.content}-->`;
+    }
+    return '';
+  }
+
+  return ast.children.map(nodeToString).join('');
+}
+

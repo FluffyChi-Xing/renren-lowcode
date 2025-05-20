@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {ref} from 'vue';
 import Statistic from "@/components/Statistic.vue";
 import RecentlyProjectCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyProjectCreationChart.vue";
 import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyPageCreationChart.vue";
 import {$util} from "@/componsables/utils";
 import mock from './statistic-mock.json';
-import {$engine} from "@/renren-engine/engine";
 
 
 
@@ -31,15 +30,6 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
   }
 ]);
 /** ========= 统计图初始化-end ==========**/
-
-
-onMounted(async () => {
-  await $engine.codeGenerator.getCodeTemplate().then(res => {
-    console.log(res);
-  }).catch(err => {
-    console.error(err);
-  });
-});
 </script>
 
 <template>
