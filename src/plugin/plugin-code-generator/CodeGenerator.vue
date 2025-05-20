@@ -9,6 +9,8 @@ const exportFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const sourceCode = ref<string>('');
 const currentIndex = ref<string>('0');
+// 所有低代码页面 名称转换源码映射表
+const sourceCodes = ref<Map<string, string>>();
 
 
 
@@ -22,6 +24,11 @@ async function exportSourceCode() {
       type: 'warning',
       message: '代码生成失败'
     });
+  });
+  await $engine.codeGenerator.getAllCodeTemplates().then((res: Map<string, string>) =>{
+    sourceCodes.value = res;
+  }).catch(err => {
+    console.error(err);
   });
   isLoading.value = false;
 }
@@ -60,7 +67,11 @@ async function exportSourceCode() {
                  </div>
                </template>
                <div class="w-full h-[500px] flex flex-col">
-                 <VisualCodeEditor :source-code="sourceCode" :is-loading="isLoading" />
+                 <VisualCodeEditor
+                   :source-code="sourceCode"
+                   :is-loading="isLoading"
+                   :sources="sourceCodes"
+                 />
                </div>
              </el-collapse-item>
              <!-- online shell view -->

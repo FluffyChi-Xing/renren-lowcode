@@ -1,0 +1,4 @@
+{
+  "key": "viteConfig",
+  "value": "import AutoImport from 'unplugin-auto-import/vite'\nimport Components from 'unplugin-vue-components/vite'\nimport { ElementPlusResolver } from 'unplugin-vue-components/resolvers'\nimport { defineConfig } from 'vite'\nimport vue from '@vitejs/plugin-vue'\nimport vueDevTools from 'vite-plugin-vue-devtools'\n\n// https://vite.dev/config/\nexport default defineConfig({\n  server: {\n    port: 8080,\n    open: false\n  },\n  plugins: [\n    vue(),\n    vueDevTools(),\n    AutoImport({\n      resolvers: [ElementPlusResolver()],\n    }),\n    Components({\n      resolvers: [ElementPlusResolver()],\n    }),\n  ]\n})"
+}

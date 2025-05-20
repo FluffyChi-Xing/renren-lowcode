@@ -1,0 +1,4 @@
+{
+  "key": "mainTs",
+  "value": "import './assets/main.css'\nimport './style.css'\nimport { createApp } from 'vue'\nimport { createPinia } from 'pinia'\nimport App from './App.vue'\nimport router from './router'\nimport 'element-plus/dist/index.css'\nimport * as ElementPlusIconsVue from '@element-plus/icons-vue'\nimport '@/componsables/ErrorHandler/errorHandler';\n\nconst app = createApp(App)\n\napp.use(router);\napp.use(createPinia());\nfor (const [key, component] of Object.entries(ElementPlusIconsVue)) {\n  app.component(key, component)\n}\n\napp.mount('#app')"
+}

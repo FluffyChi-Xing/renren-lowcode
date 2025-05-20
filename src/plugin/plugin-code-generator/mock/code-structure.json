@@ -167,8 +167,8 @@
 
             ],
             "label": {
-              "path": "packageLockJson",
-              "name": "package-lock.json",
+              "path": "tsconfig",
+              "name": "tsconfig.json",
               "icon": "JSON"
             }
           },

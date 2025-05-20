@@ -714,3 +714,24 @@ export function querySchema<T extends MaterialDocumentModel>(key?: string): Prom
   });
 }
 
+
+/**
+ * @description 获取本地持久化的全部页面节点
+ */
+export function queryAllDocuments<T extends MaterialDocumentModel>(): Promise<T[]> {
+  return new Promise<T[]>((resolve, reject) => {
+    try {
+      let result: T[] = [];
+      Object.keys(localStorage).forEach(item => {
+        if (item.startsWith(SCHEMA_STORAGE_ID)) {
+          result.push(JSON.parse(localStorage.getItem(item) as string) as T);
+        }
+      });
+      resolve(result);
+    } catch (e) {
+      console.error('查询所有文档失败', e);
+      reject('查询所有文档失败');
+    }
+  });
+}
+

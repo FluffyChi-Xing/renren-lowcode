@@ -5,11 +5,25 @@ import structure from '../mock/code-structure.json';
 import {$util} from "@/componsables/utils";
 import SvgIcon from "@/components/SvgIcon.vue";
 import counterData from '../mock/counter-store.json';
+import baseCSS from '../mock/base-css.json';
+import indexHtml from '../mock/index-html.json';
+import appVue from '../mock/app-vue.json';
+import readme from '../mock/readme.json';
+import indexTs from '../mock/router.json';
+import mainTs from '../mock/main-js.json';
+import {$message} from "@/componsables/element-plus";
+import packageJson from '../mock/package-json.json';
+import tsConfig from '../mock/ts-config.json';
+import viteConfig from '../mock/vite-config.json';
+import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 const props = withDefaults(defineProps<{
+  // 后期会弃用 sourceCode 属性，全面改为 sources attribute
   sourceCode?: string;
   isLoading?: boolean;
+  // 自动生成的文件映射表
+  sources?: Map<string, string> | undefined;
 }>(), {
   sourceCode: '',
   isLoading: false,
@@ -45,6 +59,15 @@ const fileSuffix2languageMap: Map<string, string> = new Map<string, string>(
 const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
   // 默认 pinia store 文件
   ['counterTs', counterData],
+  ['BaseCSS', baseCSS],
+  ['indexHtml', indexHtml],
+  ['AppVue', appVue],
+  ['readMeMd', readme],
+  ['indexTs', indexTs],
+  ['mainTs', mainTs],
+  ['packageJson', packageJson],
+  ['tsconfig', tsConfig],
+  ['viteConfig', viteConfig],
 ]);
 
 function initRef(name: string, el: HTMLElement | null | unknown) {
@@ -70,22 +93,97 @@ function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
       currentEl.classList.add('is-active');
     }
 
-    // 处理对应的代码预览
-    let code: RenrenInterface.keyValueType<string> = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
-    if (code !== void 0) {
-      fileInnerContext.value = code.value;
-      // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
-      currentLan.value = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+    if (props.sources) {
+      // 处理自定义页面对应的预览逻辑
+      let name: string = node?.label.name.split('.').slice(0, -1).join('.');
+      if (!props.sources.has(name)) {
+        // 处理对应的代码预览
+        let code: RenrenInterface.keyValueType<string> = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
+        if (code !== void 0) {
+          fileInnerContext.value = code.value;
+          // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
+          let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+          if (suffix !== 'ico') {
+            currentLan.value = suffix;
+          } else {
+            $message({
+              type: 'warning',
+              message: `${suffix}格式的文件暂不支持预览`
+            });
+          }
+        }
+      } else {
+        let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+        fileInnerContext.value = node.label.path as string;
+        if (suffix !== 'ico') {
+          currentLan.value = suffix;
+        } else {
+          $message({
+            type: 'warning',
+            message: `${suffix}格式的文件暂不支持预览`
+          });
+        }
+      }
     }
   }
 }
 
 
+/**
+ * @description 初始化文件目录树
+ */
 function initFileTree() {
   if (generateFileStructure.value !== void 0) {
-    // 处理 file-tree 文件结构，在 pages 文件夹下创建页面信息
-    // 并将 pages 的第一个页面文件选中
-    // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
+    // 创建页面文件
+    if (props.sources) {
+      props.sources.forEach((value, key) => {
+        let file: WorkerSpaceInterface.IFileTree = {
+          children: [],
+          id: "",
+          label: {
+            icon: "",
+            name: "",
+            path: ""
+          }
+        };
+        // 初始化新的页面 file tree item
+        file.id = generateUUID();
+        let name: string = key.concat('.vue');
+        file.label = {
+          icon: "Vue",
+          name: name,
+          path: value
+        }
+        function insertNewFile(list: WorkerSpaceInterface.IFileTree) {
+          if (list) {
+            if (list?.children.length > 0) {
+              list?.children?.forEach(item => {
+                insertNewFile(item);
+              });
+            } else {
+              if (list.label?.name === 'pages') {
+                list.children?.push(file);
+              }
+            }
+          }
+        }
+        insertNewFile(generateFileStructure.value[0]);
+        // 去除 is-active 效果
+        if (treeItemRefs.value) {
+          Object.values(treeItemRefs.value).forEach(el => {
+            if (el && el.classList.contains('is-active')) {
+              el.classList.remove('is-active');
+            }
+          });
+
+          // 给当前节点添加 is-active 类
+          const currentEl = treeItemRefs.value[name];
+          if (currentEl) {
+            currentEl.classList.add('is-active');
+          }
+        }
+      });
+    }
   }
 }
 
@@ -106,6 +204,7 @@ onMounted(() => {
   // 处理 file-tree 文件结构，在 pages 文件夹下创建页面信息
   // 并将 pages 的第一个页面文件选中
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
+  initFileTree();
 });
 
 

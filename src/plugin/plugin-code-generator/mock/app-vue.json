@@ -1,0 +1,4 @@
+{
+  "key": "AppVue",
+  "value": "<script setup lang=\"ts\">\nimport { RouterView } from 'vue-router'\n</script>\n\n<template>\n  <RouterView />\n</template>"
+}

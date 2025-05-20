@@ -1,0 +1,4 @@
+{
+  "key": "ReadMeMd",
+  "value": "# meetingRoom\n\nThis template should help get you started developing with Vue 3 in Vite.\n\n\n## Recommended IDE Setup\n\n[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).\n\n## Customize configuration\n\nSee [Vite Configuration Reference](https://vitejs.dev/config/).\n\n## Project Setup\n\n```sh\nnpm install\n```\n\n### Compile and Hot-Reload for Development\n\n```sh\nnpm run dev\n```\n\n### Compile and Minify for Production\n\n```sh\nnpm run build\n```\n\n### Lint with [ESLint](https://eslint.org/)\n\n```sh\nnpm run lint\n```\n"
+}

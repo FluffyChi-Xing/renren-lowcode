@@ -1,0 +1,4 @@
+{
+  "key": "base-css",
+  "value": "#app {\n  max-width: 1280px;\n  font-weight: normal;\n}\n\na,\n.green {\n  text-decoration: none;\n  color: hsla(160, 100%, 37%, 1);\n  transition: 0.4s;\n  padding: 3px;\n}\n\n@media (min-width: 1024px) {\n  body {\n    display: flex;\n    place-items: center;\n  }\n\n  #app {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n  }\n}\n"
+}

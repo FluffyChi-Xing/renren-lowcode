@@ -10,6 +10,7 @@ import {$util} from "@/componsables/utils";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import prettier from 'prettier/standalone';
 import htmlParser from 'prettier/plugins/html';
+import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 
 /**
  * @description 从当前页面节点中提取基本元素 nodes, prop, event, animation
@@ -335,5 +336,40 @@ function serializeAST(ast: any): string {
   }
 
   return ast.children.map(nodeToString).join('');
+}
+
+
+/**
+ * @description 获取全部页面的 名称-源代码 映射表
+ */
+export function getAllCodeTemplates(): Promise<Map<string, string>> {
+  return new Promise<Map<string, string>>(async (resolve, reject) => {
+    try {
+      let result: Map<string, string> = new Map<string, string>([]);
+      // 获取本地持久化的全部 document 节点
+      let documents: MaterialDocumentModel[] | undefined = await $engine.arrangement.queryAllDocuments();
+      if (documents !== void 0 && documents.length > 0) {
+        for (const item of documents) {
+          // 生成页面节点对应的源代码
+          // 如果存在不正确初始化存储主键id的  document node
+          let special: unknown | undefined = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + item.fileName as string) as string);
+          if (special) {
+            let temp: EngineTypes.tempGenerateStructure = await extractBaseElement(item.fileName as string);
+            await templateGenerator(temp).then(res => {
+              result.set(item.fileName as string, res);
+            })
+          } else {
+            await getCodeTemplate().then(res => {
+              result.set(item.fileName as string, res);
+            });
+          }
+          resolve(result);
+        }
+      }
+    } catch (e) {
+      console.error('获取所有代码模板失败', e);
+      reject('获取所有代码模板失败');
+    }
+  });
 }
 
