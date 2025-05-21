@@ -133,6 +133,39 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
 }
 
 
+
+function initPageRoute(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    try {
+      if (Array.isArray(props.keys) && props.keys.length > 0) {
+        // 构造路由节点集合，用于整体替换 index.ts 中的 routes
+        let routes: RenrenInterface.IRoute[] = [];
+        props.keys.forEach(item => {
+          // 构造路由节点
+          let route: RenrenInterface.IRoute = {
+            component: () => import((`@/pages/${item}.vue`)),
+            meta: {
+              keepAlive: false,
+              title: `${item}`
+            },
+            name: `${item}`,
+            path: `/${item}`
+          };
+          routes.push(route);
+        });
+        // 从 generateFileStructure 中获取 index.ts 文件内容
+        // 使用 ts-node 模块解析 index.ts 文件内容
+        // 整体替换 index.ts 中的 routes 属性
+      }
+      resolve('success');
+    } catch (e) {
+      console.error('初始化路由结构失败', e);
+      reject('初始化路由结构失败');
+    }
+  });
+}
+
+
 /**
  * @description 初始化文件目录树
  */
@@ -171,6 +204,7 @@ function initFileTree() {
                 list.children?.push(file);
               }
             }
+            // TODO: init RouteFiles 在插入页面的同时将页面注册到对应的 router folder 下的 index.ts 中
             resolve('success');
           });
         }

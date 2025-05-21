@@ -83,4 +83,22 @@ declare namespace RenrenInterface {
     size: number;
     data: T[] | undefined;
   }
+
+
+
+  type IRouteMeta = {
+    title: string;
+    keepAlive?: boolean;
+  }
+
+
+  /**
+   * @description 基础路由类型
+   */
+  interface IRoute {
+    path: string;
+    name: string;
+    component: unknown; // () => import("*.vue");
+    meta: IRouteMeta;
+  }
 }

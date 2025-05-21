@@ -220,7 +220,6 @@ function templateGenerator(schema: EngineTypes.tempGenerateStructure): Promise<s
 }
 
 
-// TODO: generator 存在 bug
 
 /**
  * @description 基于中间产物生成对应的 vue ast
