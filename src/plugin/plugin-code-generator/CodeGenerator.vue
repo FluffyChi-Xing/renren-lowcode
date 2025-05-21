@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import VisualCodeEditor from "@/plugin/plugin-code-generator/_components/VisualCodeEditor.vue";
 import {$engine} from "@/renren-engine/engine";
+import $event from "@/componsables/utils/EventBusUtil";
 
 /** ========== 源码导出-start ========== **/
 const exportFlag = ref<boolean>(false);
@@ -23,6 +24,11 @@ async function exportSourceCode() {
     console.error(err);
   });
   isLoading.value = false;
+}
+
+
+function exportCode() {
+  $event.emit('exportCode');
 }
 /** ========== 源码导出-end ========== **/
 </script>
@@ -55,7 +61,7 @@ async function exportSourceCode() {
                <template #title>
                  <div class="w-full h-auto flex items-center justify-between">
                    <span class="text-black font-bold">出码生成的源代码</span>
-                   <el-button type="text">导出/下载 zip 包</el-button>
+                   <el-button @click="exportCode" type="text">导出/下载 zip 包</el-button>
                  </div>
                </template>
                <div class="w-full h-[500px] flex flex-col">

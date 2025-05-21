@@ -12,6 +12,7 @@ declare namespace WorkerSpaceInterface {
     icon: string;
     path: string;
     name: string;
+    data: string;
   };
 
   /**

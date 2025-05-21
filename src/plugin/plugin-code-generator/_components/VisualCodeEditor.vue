@@ -16,6 +16,9 @@ import packageJson from '../mock/package-json.json';
 import tsConfig from '../mock/ts-config.json';
 import viteConfig from '../mock/vite-config.json';
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
+import {fileSuffix2languageMap} from "@/renren-engine/componsables/constants/EngineConstants";
+import $event from "@/componsables/utils/EventBusUtil";
+import {$engine} from "@/renren-engine/engine";
 
 
 const props = withDefaults(defineProps<{
@@ -37,23 +40,6 @@ const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>(
 const currentNode = ref<WorkerSpaceInterface.IFileTree>();
 const treeItemRefs = ref<Record<string, HTMLElement>>({});
 const currentLan = ref<string>('html');
-const fileSuffix2languageMap: Map<string, string> = new Map<string, string>(
-  [
-    ['html', 'html'],
-    ['css', 'css'],
-    ['js', 'javascript'],
-    ['ts', 'typescript'],
-    ['json', 'json'],
-    ['vue', 'html'],
-    ['md', 'markdown'],
-    ['tsx', 'typescript'],
-    ['jsx', 'javascript'],
-    ['scss', 'scss'],
-    ['less', 'less'],
-    ['styl', 'stylus'],
-    ['ts', 'typescript'],
-  ]
-);
 
 const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
   // 默认 pinia store 文件
@@ -72,6 +58,36 @@ const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
 function initRef(name: string, el: HTMLElement | null | unknown) {
   if (treeItemRefs.value && el instanceof HTMLElement) {
     treeItemRefs.value[name] = el;
+  }
+}
+
+
+
+function initFileData(list: WorkerSpaceInterface.IFileTree[]) {
+  if (Array.isArray(list) && list.length > 0) {
+    list.forEach(item => {
+      if (Array.isArray(item.children) && item.children.length > 0) {
+        initFileData(item.children);
+      } else {
+        if (item.label.icon !== 'folder' && defaultFileMap.has(item.label.name)) {
+          item.label.data = defaultFileMap.get(item.label.name) as unknown as string;
+        }
+        generateFileStructure.value.push(item);
+      }
+    });
+  }
+}
+
+
+
+//TODO 存在bug
+/**
+ * @description 初始化文件结构(将默认文件源码与默认文件进行关联)
+ */
+function initFileStructure() {
+  let list: WorkerSpaceInterface.IFileTree[] = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(structure);
+  if (Array.isArray(list) && list.length > 0) {
+    initFileData(list);
   }
 }
 
@@ -182,7 +198,8 @@ function initFileTree() {
           label: {
             icon: "",
             name: "",
-            path: ""
+            path: "",
+            data: ""
           }
         };
         // 初始化新的页面 file tree item
@@ -191,7 +208,8 @@ function initFileTree() {
         file.label = {
           icon: "Vue",
           name: name,
-          path: value
+          path: key,
+          data: value
         }
         async function insertNewFile(list: WorkerSpaceInterface.IFileTree): Promise<string> {
           return new Promise<string>((resolve) => {
@@ -228,14 +246,29 @@ function clearDataBinding() {
 
 
 onMounted(() => {
+  // initFileStructure();
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();
+  console.log('project', generateFileStructure.value);
 });
 
 
 
 watch(() => props.sources, () => {
   initFileContext();
+});
+
+
+$event.on('exportCode', async () => {
+  await $engine.exportCode.saveFile(
+    generateFileStructure.value,
+    generateFileStructure.value[0].label?.name as string,
+  ).catch(_ => {
+    $message({
+      type: 'warning',
+      message: '导出失败'
+    });
+  });
 });
 
 

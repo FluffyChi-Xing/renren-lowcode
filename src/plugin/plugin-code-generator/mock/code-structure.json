@@ -3,7 +3,8 @@
     "label": {
       "icon": "folder",
       "name": "project",
-      "path": ""
+      "path": "",
+      "value": ""
     },
     "id": "0",
     "children": [
@@ -11,19 +12,19 @@
         "label": {
           "name": "public",
           "icon": "folder",
-          "path": ""
+          "path": "",
+          "value": ""
         },
         "id": "0-1",
         "children": [
           {
             "id": "0-1-2",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "name": "favicon.ico",
               "icon": "ico",
-              "path": ""
+              "path": "",
+              "value": ""
             }
           }
         ]
@@ -33,14 +34,16 @@
         "label": {
           "name": "src",
           "icon": "folder",
-          "path": ""
+          "path": "",
+          "value": ""
         },
         "children": [
           {
             "label": {
               "name": "assets",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             },
             "id": "0-2-1",
             "children": [
@@ -50,7 +53,8 @@
                 "label": {
                   "name": "base.css",
                   "icon": "CSS",
-                  "path": "BaseCSS"
+                  "path": "BaseCSS",
+                  "value": ""
                 }
               }
             ]
@@ -59,33 +63,30 @@
             "label": {
               "name": "composables",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             },
             "id": "0-2-2",
-            "children": [
-
-            ]
+            "children": []
           },
           {
             "id": "0-2-3",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "name": "components",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             }
           },
           {
             "id": "0-2-4",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "name": "pages",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             }
           },
           {
@@ -93,20 +94,20 @@
             "children": [
               {
                 "id": "0-2-5-1",
-                "children": [
-
-                ],
+                "children": [],
                 "label": {
                   "name": "index.ts",
                   "icon": "typescript",
-                  "path": "indexTs"
+                  "path": "indexTs",
+                  "value": ""
                 }
               }
             ],
             "label": {
               "name": "router",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             }
           },
           {
@@ -114,20 +115,20 @@
             "children": [
               {
                 "id": "0-2-6-1",
-                "children": [
-
-                ],
+                "children": [],
                 "label": {
                   "name": "counter.ts",
                   "icon": "typescript",
-                  "path": "counterTs"
+                  "path": "counterTs",
+                  "value": ""
                 }
               }
             ],
             "label": {
               "name": "store",
               "icon": "folder",
-              "path": ""
+              "path": "",
+              "value": ""
             }
           },
           {
@@ -136,73 +137,68 @@
             "label": {
               "name": "App.vue",
               "icon": "Vue",
-              "path": "AppVue"
+              "path": "AppVue",
+              "value": ""
             }
           },
           {
             "parentId": "0-2-8",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "mainTs",
               "name": "main.ts",
-              "icon": "typescript"
+              "icon": "typescript",
+              "value": ""
             }
           },
           {
             "parentId": "0-2-9",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "packageJson",
               "name": "package.json",
-              "icon": "JSON"
+              "icon": "JSON",
+              "value": ""
             }
           },
           {
             "parentId": "0-2-10",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "tsconfig",
               "name": "tsconfig.json",
-              "icon": "JSON"
+              "icon": "JSON",
+              "value": ""
             }
           },
           {
             "id": "0-2-11",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "viteConfig",
               "name": "vite.config.ts",
-              "icon": "typescript"
+              "icon": "typescript",
+              "value": ""
             }
           },
           {
             "id": "0-2-12",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "readMeMd",
               "name": "README.md",
-              "icon": "file-markdown"
+              "icon": "file-markdown",
+              "value": ""
             }
           },
           {
             "id": "0-2-13",
-            "children": [
-
-            ],
+            "children": [],
             "label": {
               "path": "indexHtml",
               "name": "index.html",
-              "icon": "html"
+              "icon": "html",
+              "value": ""
             }
           }
         ]
