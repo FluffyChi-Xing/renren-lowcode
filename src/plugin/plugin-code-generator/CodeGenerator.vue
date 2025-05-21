@@ -2,31 +2,23 @@
 import { ref } from 'vue';
 import VisualCodeEditor from "@/plugin/plugin-code-generator/_components/VisualCodeEditor.vue";
 import {$engine} from "@/renren-engine/engine";
-import {$message} from "@/componsables/element-plus";
 
 /** ========== 源码导出-start ========== **/
 const exportFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
-const sourceCode = ref<string>('');
 const currentIndex = ref<string>('0');
 // 所有低代码页面 名称转换源码映射表
 const sourceCodes = ref<Map<string, string>>();
+const sourceCodesKeys = ref<string[]>([]);
 
 
 
 async function exportSourceCode() {
   exportFlag.value = true;
   isLoading.value = true;
-  await $engine.codeGenerator.getCodeTemplate().then(res => {
-    sourceCode.value = res;
-  }).catch(_ => {
-    $message({
-      type: 'warning',
-      message: '代码生成失败'
-    });
-  });
-  await $engine.codeGenerator.getAllCodeTemplates().then((res: Map<string, string>) =>{
-    sourceCodes.value = res;
+  await $engine.codeGenerator.getAllCodeTemplates().then(res =>{
+    sourceCodes.value = res?.templates;
+    sourceCodesKeys.value = res.keys;
   }).catch(err => {
     console.error(err);
   });
@@ -68,16 +60,18 @@ async function exportSourceCode() {
                </template>
                <div class="w-full h-[500px] flex flex-col">
                  <VisualCodeEditor
-                   :source-code="sourceCode"
-                   :is-loading="isLoading"
-                   :sources="sourceCodes"
+                   v-model:is-loading="isLoading"
+                   v-model:sources="sourceCodes"
+                   v-model:keys="sourceCodesKeys"
                  />
                </div>
              </el-collapse-item>
              <!-- online shell view -->
              <el-collapse-item name="1" title="在线预览">
-               <div class="w-full h-[500px] flex flex-col bg-yellow-500">
-
+               <div class="w-full h-[500px] flex flex-col items-center justify-center">
+                 <el-empty
+                   description="暂未支持"
+                 />
                </div>
              </el-collapse-item>
            </el-collapse>
@@ -91,5 +85,6 @@ async function exportSourceCode() {
 <style scoped>
 :deep(.el-scrollbar__view) {
   height: 100%;
+  width: 100%;
 }
 </style>

@@ -19,19 +19,18 @@ import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 
 
 const props = withDefaults(defineProps<{
-  // 后期会弃用 sourceCode 属性，全面改为 sources attribute
-  sourceCode?: string;
   isLoading?: boolean;
   // 自动生成的文件映射表
   sources?: Map<string, string> | undefined;
+  keys?: string[];
 }>(), {
-  sourceCode: '',
   isLoading: false,
+  keys: () => [],
 });
 
 
 
-const fileInnerContext = ref<string>(props.sourceCode);
+const fileInnerContext = ref<string>();
 const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>(
   $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(structure)
 );
@@ -76,10 +75,15 @@ function initRef(name: string, el: HTMLElement | null | unknown) {
   }
 }
 
-function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
-  currentNode.value = node;
+function initFileContext() {
+  if (props.sources) {
+    fileInnerContext.value = props.sources.get(props.keys[0] as string);
+  }
+}
 
-  // 清除所有节点的 is-active 类
+
+
+async function itemHighLight(key: string) {
   if (treeItemRefs.value) {
     Object.values(treeItemRefs.value).forEach(el => {
       if (el && el.classList.contains('is-active')) {
@@ -88,11 +92,28 @@ function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
     });
 
     // 给当前节点添加 is-active 类
-    const currentEl = treeItemRefs.value[node.label?.name];
+    const currentEl = treeItemRefs.value[key];
     if (currentEl) {
       currentEl.classList.add('is-active');
     }
+  }
+}
 
+async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
+  currentNode.value = node;
+  // 清除所有节点的 is-active 类
+  await itemHighLight(node.label?.name);
+  // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
+  let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+  if (treeItemRefs.value) {
+
+    if (suffix === 'ico') {
+      $message({
+        type: 'warning',
+        message: `${suffix}格式的文件暂不支持预览`
+      });
+      return;
+    }
     if (props.sources) {
       // 处理自定义页面对应的预览逻辑
       let name: string = node?.label.name.split('.').slice(0, -1).join('.');
@@ -101,28 +122,11 @@ function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
         let code: RenrenInterface.keyValueType<string> = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
         if (code !== void 0) {
           fileInnerContext.value = code.value;
-          // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
-          let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
-          if (suffix !== 'ico') {
-            currentLan.value = suffix;
-          } else {
-            $message({
-              type: 'warning',
-              message: `${suffix}格式的文件暂不支持预览`
-            });
-          }
+          currentLan.value = suffix;
         }
       } else {
-        let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
-        fileInnerContext.value = node.label.path as string;
-        if (suffix !== 'ico') {
-          currentLan.value = suffix;
-        } else {
-          $message({
-            type: 'warning',
-            message: `${suffix}格式的文件暂不支持预览`
-          });
-        }
+        fileInnerContext.value = props.sources.get(name) as string;
+        currentLan.value = suffix;
       }
     }
   }
@@ -133,10 +137,12 @@ function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
  * @description 初始化文件目录树
  */
 function initFileTree() {
+  // 默认在挂载的时候打开的是 pages 文件夹下的第一个页面文件
+  initFileContext();
   if (generateFileStructure.value !== void 0) {
     // 创建页面文件
     if (props.sources) {
-      props.sources.forEach((value, key) => {
+      props.sources.forEach(async (value, key) => {
         let file: WorkerSpaceInterface.IFileTree = {
           children: [],
           id: "",
@@ -154,9 +160,9 @@ function initFileTree() {
           name: name,
           path: value
         }
-        function insertNewFile(list: WorkerSpaceInterface.IFileTree) {
-          if (list) {
-            if (list?.children.length > 0) {
+        async function insertNewFile(list: WorkerSpaceInterface.IFileTree): Promise<string> {
+          return new Promise<string>((resolve) => {
+            if (list !== void 0 && list?.children.length > 0) {
               list?.children?.forEach(item => {
                 insertNewFile(item);
               });
@@ -165,23 +171,12 @@ function initFileTree() {
                 list.children?.push(file);
               }
             }
-          }
-        }
-        insertNewFile(generateFileStructure.value[0]);
-        // 去除 is-active 效果
-        if (treeItemRefs.value) {
-          Object.values(treeItemRefs.value).forEach(el => {
-            if (el && el.classList.contains('is-active')) {
-              el.classList.remove('is-active');
-            }
+            resolve('success');
           });
-
-          // 给当前节点添加 is-active 类
-          const currentEl = treeItemRefs.value[name];
-          if (currentEl) {
-            currentEl.classList.add('is-active');
-          }
         }
+        await insertNewFile(generateFileStructure.value[0]).then(async () => {
+          await itemHighLight(name);
+        });
       });
     }
   }
@@ -199,18 +194,14 @@ function clearDataBinding() {
 
 
 onMounted(() => {
-  // 默认在挂载的时候打开的是 pages 文件夹下的第一个页面文件
-  fileInnerContext.value = props.sourceCode;
-  // 处理 file-tree 文件结构，在 pages 文件夹下创建页面信息
-  // 并将 pages 的第一个页面文件选中
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();
 });
 
 
 
-watch(() => props.sourceCode, (newVal: string) => {
-  fileInnerContext.value = newVal;
+watch(() => props.sources, () => {
+  initFileContext();
 });
 
 
@@ -221,7 +212,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-full grid grid-cols-4 gap-4">
+  <div class="w-full h-full grid grid-cols-4 gap-2">
     <el-skeleton
       animated
       :rows="7"
@@ -229,33 +220,35 @@ onUnmounted(() => {
     >
       <!-- file tree -->
       <div class="w-full h-full flex flex-col">
-        <el-scrollbar>
-          <el-tree
-            class="w-[200px] h-full"
-            :data="generateFileStructure"
-            node-key="id"
-            default-expand-all
-            :expand-on-click-node="false"
-          >
-            <template #default="{ node }">
-              <div
-                :ref="(el) => initRef(node?.label?.name, el)"
-                @click="checkSourceCode(node)"
-                class="w-full tree-item hover:bg-gray-300 px-2 py-1 h-auto flex items-center"
-              >
-                <div class="w-5 h-5 flex">
-                  <SvgIcon size="20" :icon-class="node?.label?.icon" />
-                </div>
-                <el-tooltip
-                  effect="light"
-                  placement="right"
-                  :content="node?.label?.name"
+        <el-scrollbar height="500">
+          <div class="w-[250px] h-auto flex flex-col pb-4">
+            <el-tree
+              class="h-full"
+              :data="generateFileStructure"
+              node-key="id"
+              default-expand-all
+              :expand-on-click-node="false"
+            >
+              <template #default="{ node }">
+                <div
+                  :ref="(el) => initRef(node?.label?.name, el)"
+                  @click="checkSourceCode(node)"
+                  class="w-full tree-item hover:bg-gray-300 px-2 py-1 h-auto flex items-center"
                 >
-                  <span class="ml-4 text-sm">{{ node?.label?.name }}</span>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-tree>
+                  <div class="w-5 h-5 flex">
+                    <SvgIcon size="20" :icon-class="node?.label?.icon" />
+                  </div>
+                  <el-tooltip
+                    effect="light"
+                    placement="right"
+                    :content="node?.label?.name"
+                  >
+                    <span class="ml-4 text-sm">{{ node?.label?.name }}</span>
+                  </el-tooltip>
+                </div>
+              </template>
+            </el-tree>
+          </div>
         </el-scrollbar>
       </div>
       <!-- file-info-view -->
@@ -274,7 +267,7 @@ onUnmounted(() => {
 <style scoped>
 :deep(.el-scrollbar__view) {
   height: 100%;
-  width: 100%;
+  width: 180px;
 }
 
 .tree-item {

@@ -90,11 +90,13 @@ function extractMaterialBaseElement<T extends EngineTypes.BaseElement>(item: Mat
           rootNode: false
         };
         // children
-        input.children?.forEach(async (child) => {
-          result.nodes.push(
-            await extractMaterialBaseElement(child),
-          );
-        });
+        if (input.children) {
+          for (let child of input.children) {
+            result.nodes.push(
+              await extractMaterialBaseElement(child),
+            );
+          }
+        }
         resolve(result as T);
       } else {
         reject('item 为空');
@@ -157,18 +159,6 @@ function templateGenerator(schema: EngineTypes.tempGenerateStructure): Promise<s
       }
       let page: string = '';
       let template: string = '';
-      await $util.renren.isEmpty(schema, async () => {
-        // 使用 baseElement2VueAst 递归生成 vue ast
-        // 处理页面物料节点
-        if (Array.isArray(schema.material)) {
-          for (const item of schema.material) {
-            material += await baseElement2VueAst(item);
-          }
-        }
-      });
-      page = `<div ${pageProp}>${material}</div>`;
-      template = `<template>${page}</template>`;
-
       /**
        * @description 格式化 html 返回值
        * @param template
@@ -207,9 +197,21 @@ function templateGenerator(schema: EngineTypes.tempGenerateStructure): Promise<s
           return template;
         }
       }
+      await $util.renren.isEmpty(schema, async () => {
+        // 使用 baseElement2VueAst 递归生成 vue ast
+        // 处理页面物料节点
+        if (Array.isArray(schema.material)) {
+          for (const item of schema.material) {
+            let ast: string = await baseElement2VueAst(item);
+            material = material.concat(ast + '\n');
+          }
+        }
+        page = `<div ${pageProp}>${material}</div>`;
+        template = `<template>${page}</template>`;
 
-      const sourceCode: string = await formatHtml(template);
-      resolve(sourceCode);
+        const sourceCode: string = await formatHtml(template);
+        resolve(sourceCode);
+      });
     } catch (e) {
       console.error('基于中间产物构造 vue template 失败', e);
       reject('基于中间产物构造 vue template 失败');
@@ -339,13 +341,25 @@ function serializeAST(ast: any): string {
 }
 
 
+type templateRespDto = {
+  // 全部模板源码
+  templates: Map<string, string> | undefined;
+  // keys
+  keys: string[];
+};
+
 /**
  * @description 获取全部页面的 名称-源代码 映射表
  */
-export function getAllCodeTemplates(): Promise<Map<string, string>> {
-  return new Promise<Map<string, string>>(async (resolve, reject) => {
+export function getAllCodeTemplates<T extends templateRespDto>(): Promise<T> {
+  return new Promise<T>(async (resolve, reject) => {
     try {
-      let result: Map<string, string> = new Map<string, string>([]);
+      let template: Map<string, string> = new Map<string, string>([]);
+      let result: templateRespDto = {
+        keys: [],
+        templates: undefined
+      };
+      let keys: string[] = [];
       // 获取本地持久化的全部 document 节点
       let documents: MaterialDocumentModel[] | undefined = await $engine.arrangement.queryAllDocuments();
       if (documents !== void 0 && documents.length > 0) {
@@ -356,14 +370,18 @@ export function getAllCodeTemplates(): Promise<Map<string, string>> {
           if (special) {
             let temp: EngineTypes.tempGenerateStructure = await extractBaseElement(item.fileName as string);
             await templateGenerator(temp).then(res => {
-              result.set(item.fileName as string, res);
+              template.set(item.fileName as string, res);
+              keys.push(item.fileName as string);
             })
           } else {
             await getCodeTemplate().then(res => {
-              result.set(item.fileName as string, res);
+              template.set(item.fileName as string, res);
+              keys.push(item.fileName as string);
             });
           }
-          resolve(result);
+          result.templates = template;
+          result.keys = keys;
+          resolve(result as T);
         }
       }
     } catch (e) {
