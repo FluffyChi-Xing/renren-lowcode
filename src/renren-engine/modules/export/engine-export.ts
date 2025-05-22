@@ -49,7 +49,11 @@ function generateFile(codes: WorkerSpaceInterface.IFileTree[], folder: zip | nul
   if (Array.isArray(codes) && codes.length > 0) {
     codes.forEach(item => {
       if (Array.isArray(item.children) && item.children.length > 0) {
-        return generateFile(item.children, folder);
+        // 创建子文件夹并递归添加内容
+        const subFolder = folder?.folder(item.label.name);
+        if (subFolder !== void 0) {
+          return generateFile(item.children, subFolder);
+        }
       }
       // 检查是否为另一层文件夹
       if (item.label.icon !== 'folder') {

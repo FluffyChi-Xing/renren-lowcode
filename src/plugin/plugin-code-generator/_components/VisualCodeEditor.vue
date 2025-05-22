@@ -62,32 +62,22 @@ function initRef(name: string, el: HTMLElement | null | unknown) {
 }
 
 
-
+/**
+ * @description 用于将默认文件的内容与文件节点进行绑定
+ * @param list
+ */
 function initFileData(list: WorkerSpaceInterface.IFileTree[]) {
   if (Array.isArray(list) && list.length > 0) {
     list.forEach(item => {
       if (Array.isArray(item.children) && item.children.length > 0) {
         initFileData(item.children);
       } else {
-        if (item.label.icon !== 'folder' && defaultFileMap.has(item.label.name)) {
-          item.label.data = defaultFileMap.get(item.label.name) as unknown as string;
+        let name: string = item.label?.path as string;
+        if (item.label.icon !== 'folder' && defaultFileMap.has(name)) {
+          item.label.data = (defaultFileMap.get(name) as RenrenInterface.keyValueType<string>).value;
         }
-        generateFileStructure.value.push(item);
       }
     });
-  }
-}
-
-
-
-//TODO 存在bug
-/**
- * @description 初始化文件结构(将默认文件源码与默认文件进行关联)
- */
-function initFileStructure() {
-  let list: WorkerSpaceInterface.IFileTree[] = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(structure);
-  if (Array.isArray(list) && list.length > 0) {
-    initFileData(list);
   }
 }
 
@@ -150,29 +140,38 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
 
 
 
+// TODO: 处理路由函数尚存在问题
+/**
+ * @description 在初始化页面的同时将数据同步到 router下的 index.js 中
+ */
 function initPageRoute(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if (Array.isArray(props.keys) && props.keys.length > 0) {
-        // 构造路由节点集合，用于整体替换 index.ts 中的 routes
-        let routes: RenrenInterface.IRoute[] = [];
-        props.keys.forEach(item => {
-          // 构造路由节点
-          let route: RenrenInterface.IRoute = {
-            component: () => import((`@/pages/${item}.vue`)),
-            meta: {
-              keepAlive: false,
-              title: `${item}`
-            },
-            name: `${item}`,
-            path: `/${item}`
-          };
-          routes.push(route);
-        });
-        // 从 generateFileStructure 中获取 index.ts 文件内容
-        // 使用 ts-node 模块解析 index.ts 文件内容
-        // 整体替换 index.ts 中的 routes 属性
+      // 从 generateFileStructure 中获取 index.ts 文件内容
+      let router: WorkerSpaceInterface.IFileTree | undefined;
+      if (generateFileStructure.value) {
+        router = generateFileStructure.value.find(item => item?.label.name === 'router');
+        if (router !== void 0) {
+          // 使用 ts-node 模块解析 index.ts 文件内容
+          console.log('router.js', router);
+          // 整体替换 index.ts 中的 routes 属性
+        }
       }
+      // 构造路由节点集合，用于整体替换 index.ts 中的 routes
+      let routes: RenrenInterface.IRoute[] = [];
+      props.keys.forEach(item => {
+        // 构造路由节点
+        let route: RenrenInterface.IRoute = {
+          component: () => import((`@/pages/${item}.vue`)),
+          meta: {
+            keepAlive: false,
+            title: `${item}`
+          },
+          name: `${item}`,
+          path: `/${item}`
+        };
+        routes.push(route);
+      });
       resolve('success');
     } catch (e) {
       console.error('初始化路由结构失败', e);
@@ -211,6 +210,7 @@ function initFileTree() {
           path: key,
           data: value
         }
+        // 同步页面文件
         async function insertNewFile(list: WorkerSpaceInterface.IFileTree): Promise<string> {
           return new Promise<string>((resolve) => {
             if (list !== void 0 && list?.children.length > 0) {
@@ -222,10 +222,10 @@ function initFileTree() {
                 list.children?.push(file);
               }
             }
-            // TODO: init RouteFiles 在插入页面的同时将页面注册到对应的 router folder 下的 index.ts 中
             resolve('success');
           });
         }
+        //TODO: insert pages info into router config
         await insertNewFile(generateFileStructure.value[0]).then(async () => {
           await itemHighLight(name);
         });
@@ -246,10 +246,10 @@ function clearDataBinding() {
 
 
 onMounted(() => {
-  // initFileStructure();
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();
-  console.log('project', generateFileStructure.value);
+  initFileData(generateFileStructure.value);
+  initPageRoute();
 });
 
 
@@ -262,7 +262,7 @@ watch(() => props.sources, () => {
 $event.on('exportCode', async () => {
   await $engine.exportCode.saveFile(
     generateFileStructure.value,
-    generateFileStructure.value[0].label?.name as string,
+    (generateFileStructure.value[0])?.label.name as string,
   ).catch(_ => {
     $message({
       type: 'warning',

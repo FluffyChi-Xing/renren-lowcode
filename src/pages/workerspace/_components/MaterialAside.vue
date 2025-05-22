@@ -84,5 +84,6 @@ function outerCanvasClickHandler(e: MouseEvent) {
   padding: 3px;
   cursor: pointer;
   z-index: 999;
+  transition: .5s all ease;
 }
 </style>

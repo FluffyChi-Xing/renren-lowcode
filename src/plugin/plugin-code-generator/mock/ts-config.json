@@ -1,4 +1,4 @@
 {
   "key": "tsConfig",
-  "value": "{\n  \"files\": [],\n  \"references\": [\n    {\n      \"path\": \"./tsconfig.node.json\"\n    },\n    {\n      \"path\": \"./tsconfig.app.json\"\n    }\n  ],\n  \"compilerOptions\": {\n    \"module\": \"ESNext\",\n    \"target\": \"ESNext\",\n    \"esModuleInterop\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"types\": [\"@types/node\"]\n  }\n}"
+  "value": "{\n  \"files\": [],\n  \"references\": [\n],\n  \"compilerOptions\": {\n    \"module\": \"ESNext\",\n    \"target\": \"ESNext\",\n    \"esModuleInterop\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"types\": [\"@types/node\"]\n  }\n}"
 }

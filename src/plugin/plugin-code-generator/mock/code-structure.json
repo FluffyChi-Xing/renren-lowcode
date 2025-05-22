@@ -23,7 +23,7 @@
             "label": {
               "name": "favicon.ico",
               "icon": "ico",
-              "path": "",
+              "path": "favIcon",
               "value": ""
             }
           }
@@ -150,58 +150,58 @@
               "icon": "typescript",
               "value": ""
             }
-          },
-          {
-            "parentId": "0-2-9",
-            "children": [],
-            "label": {
-              "path": "packageJson",
-              "name": "package.json",
-              "icon": "JSON",
-              "value": ""
-            }
-          },
-          {
-            "parentId": "0-2-10",
-            "children": [],
-            "label": {
-              "path": "tsconfig",
-              "name": "tsconfig.json",
-              "icon": "JSON",
-              "value": ""
-            }
-          },
-          {
-            "id": "0-2-11",
-            "children": [],
-            "label": {
-              "path": "viteConfig",
-              "name": "vite.config.ts",
-              "icon": "typescript",
-              "value": ""
-            }
-          },
-          {
-            "id": "0-2-12",
-            "children": [],
-            "label": {
-              "path": "readMeMd",
-              "name": "README.md",
-              "icon": "file-markdown",
-              "value": ""
-            }
-          },
-          {
-            "id": "0-2-13",
-            "children": [],
-            "label": {
-              "path": "indexHtml",
-              "name": "index.html",
-              "icon": "html",
-              "value": ""
-            }
           }
         ]
+      },
+      {
+        "parentId": "0-2-9",
+        "children": [],
+        "label": {
+          "path": "packageJson",
+          "name": "package.json",
+          "icon": "JSON",
+          "value": ""
+        }
+      },
+      {
+        "parentId": "0-2-10",
+        "children": [],
+        "label": {
+          "path": "tsconfig",
+          "name": "tsconfig.json",
+          "icon": "JSON",
+          "value": ""
+        }
+      },
+      {
+        "id": "0-2-11",
+        "children": [],
+        "label": {
+          "path": "viteConfig",
+          "name": "vite.config.ts",
+          "icon": "typescript",
+          "value": ""
+        }
+      },
+      {
+        "id": "0-2-12",
+        "children": [],
+        "label": {
+          "path": "readMeMd",
+          "name": "README.md",
+          "icon": "file-markdown",
+          "value": ""
+        }
+      },
+      {
+        "id": "0-2-13",
+        "children": [],
+        "label": {
+          "path": "indexHtml",
+          "name": "index.html",
+          "icon": "html",
+          "value": ""
+        }
       }
     ]
   }

@@ -3,11 +3,13 @@ import { ref } from 'vue';
 import VisualCodeEditor from "@/plugin/plugin-code-generator/_components/VisualCodeEditor.vue";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
+import {useRoute} from "vue-router";
 
 /** ========== 源码导出-start ========== **/
 const exportFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const currentIndex = ref<string>('0');
+const route = useRoute();
 // 所有低代码页面 名称转换源码映射表
 const sourceCodes = ref<Map<string, string>>();
 const sourceCodesKeys = ref<string[]>([]);
@@ -61,7 +63,7 @@ function exportCode() {
                <template #title>
                  <div class="w-full h-auto flex items-center justify-between">
                    <span class="text-black font-bold">出码生成的源代码</span>
-                   <el-button @click="exportCode" type="text">导出/下载 zip 包</el-button>
+                   <a @click="exportCode" href="/#/workerspace" class="text-blue-700 hover:underline hover:text-blue-500">导出/下载 zip 包</a>
                  </div>
                </template>
                <div class="w-full h-[500px] flex flex-col">
