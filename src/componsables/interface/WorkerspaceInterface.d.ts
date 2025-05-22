@@ -23,4 +23,20 @@ declare namespace WorkerSpaceInterface {
     id: string;
     label: fileTreeItem;
   }
+
+
+  type IRouteMeta = {
+    title: string;
+  }
+
+
+  /**
+   * @description 基础路由类型
+   */
+  type IRoute = {
+    path: string;
+    name: string;
+    meta?: IRouteMeta;
+    component: unknown; // () => import('../pages/{pageName}.vue')
+  }
 }
