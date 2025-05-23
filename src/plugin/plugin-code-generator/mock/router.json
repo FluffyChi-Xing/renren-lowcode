@@ -1,4 +1,0 @@
-{
-  "key": "indexTs",
-  "value": "import {createRouter, createWebHashHistory} from 'vue-router';\nimport NProgress from \"nprogress\";\nimport 'nprogress/nprogress.css';\n\nconst router = createRouter({\n  history: createWebHashHistory(import.meta.env.BASE_URL),\n  routes: []\n})\n\n\nrouter.beforeEach((to, from, next) => {\n  NProgress.start();\n  if (to.meta?.title) {\n    document.title = to.meta.title as string;\n  }\n  next();\n});\n\n\n\nrouter.afterEach(() => {\n  NProgress.done();\n});\n\nexport default router"
-}

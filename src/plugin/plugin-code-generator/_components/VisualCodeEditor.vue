@@ -1,24 +1,15 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch} from "vue";
 import { Editor } from '@guolao/vue-monaco-editor'
-import structure from '../mock/code-structure.json';
 import {$util} from "@/componsables/utils";
 import SvgIcon from "@/components/SvgIcon.vue";
-import counterData from '../mock/counter-store.json';
-import baseCSS from '../mock/base-css.json';
-import indexHtml from '../mock/index-html.json';
-import appVue from '../mock/app-vue.json';
-import readme from '../mock/readme.json';
-import indexTs from '../mock/router.json';
-import mainTs from '../mock/main-js.json';
 import {$message} from "@/componsables/element-plus";
-import packageJson from '../mock/package-json.json';
-import tsConfig from '../mock/ts-config.json';
-import viteConfig from '../mock/vite-config.json';
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {fileSuffix2languageMap} from "@/renren-engine/componsables/constants/EngineConstants";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$engine} from "@/renren-engine/engine";
+import * as mockData from '../mock/index';
+import { ROUTER_CONTEXT } from "@/plugin/plugin-code-generator/common/constant";
 
 
 const props = withDefaults(defineProps<{
@@ -41,16 +32,15 @@ const currentLan = ref<string>('html');
 
 const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
   // 默认 pinia store 文件
-  ['counterTs', counterData],
-  ['BaseCSS', baseCSS],
-  ['indexHtml', indexHtml],
-  ['AppVue', appVue],
-  ['readMeMd', readme],
-  ['indexTs', indexTs],
-  ['mainTs', mainTs],
-  ['packageJson', packageJson],
-  ['tsconfig', tsConfig],
-  ['viteConfig', viteConfig],
+  ['counterTs', mockData.counterData],
+  ['BaseCSS', mockData.baseCSS],
+  ['indexHtml', mockData.indexHtml],
+  ['AppVue', mockData.appVue],
+  ['readMeMd', mockData.readme],
+  ['mainTs', mockData.mainTs],
+  ['packageJson', mockData.packageJson],
+  ['tsconfig', mockData.tsConfig],
+  ['viteConfig', mockData.viteConfig],
 ]);
 
 function initRef(name: string, el: HTMLElement | null | unknown) {
@@ -72,7 +62,12 @@ function initFileData(list: WorkerSpaceInterface.IFileTree[]) {
       } else {
         let name: string = item.label?.path as string;
         if (item.label.icon !== 'folder' && defaultFileMap.has(name)) {
-          item.label.data = (defaultFileMap.get(name) as RenrenInterface.keyValueType<string>).value;
+          // 判断是否是路由文件
+          if (item.label.name === 'router') {
+            item.label.data = ROUTER_CONTEXT();
+          } else {
+            item.label.data = (defaultFileMap.get(name) as RenrenInterface.keyValueType<string>).value;
+          }
         }
       }
     });
@@ -123,7 +118,15 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
       let name: string = node?.label.name.split('.').slice(0, -1).join('.');
       if (!props.sources.has(name)) {
         // 处理对应的代码预览
-        let code: RenrenInterface.keyValueType<string> = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
+        let code: RenrenInterface.keyValueType<string>;
+        if (node.label.path !== 'indexTs') {
+          code = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
+        } else {
+          code = {
+            key: 'router',
+            value: node.label.data as string
+          }
+        }
         if (code !== void 0) {
           fileInnerContext.value = code.value;
           currentLan.value = suffix;
@@ -136,47 +139,6 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
   }
 }
 
-
-
-// TODO: 处理路由函数尚存在问题
-/**
- * @description 在初始化页面的同时将数据同步到 router下的 index.js 中
- */
-function initPageRoute(): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      // 从 generateFileStructure 中获取 index.ts 文件内容
-      let router: WorkerSpaceInterface.IFileTree | undefined;
-      if (generateFileStructure.value) {
-        router = generateFileStructure.value.find(item => item?.label.name === 'router');
-        if (router !== void 0) {
-          // 使用 ts-node 模块解析 index.ts 文件内容
-          console.log('router.js', router);
-          // 整体替换 index.ts 中的 routes 属性
-        }
-      }
-      // 构造路由节点集合，用于整体替换 index.ts 中的 routes
-      let routes: RenrenInterface.IRoute[] = [];
-      props.keys.forEach(item => {
-        // 构造路由节点
-        let route: RenrenInterface.IRoute = {
-          component: () => import((`@/pages/${item}.vue`)),
-          meta: {
-            keepAlive: false,
-            title: `${item}`
-          },
-          name: `${item}`,
-          path: `/${item}`
-        };
-        routes.push(route);
-      });
-      resolve('success');
-    } catch (e) {
-      console.error('初始化路由结构失败', e);
-      reject('初始化路由结构失败');
-    }
-  });
-}
 
 
 /**
@@ -215,24 +177,15 @@ function insertRouteConfig<T extends WorkerSpaceInterface.IFileTree>(structure: 
     let routeFolder: T | undefined = queryFolderByName(structure, 'router') as T;
     if (!$util.renren.isEmpty(routeFolder) && routeFolder.children.length > 0) {
       // build routes info list
-      let path: string = `../src/${file.label.name}.vue`;
-      let config: WorkerSpaceInterface.IRoute[] = [
-        {
-          component: () => import(/* @vite-ignore */path),
-          meta: {
-            title: file.label.name as string,
-          },
-          name: file.label.name as string,
-          path: `/${file.label.name}`
-        }
-      ];
-      // TODO: 插入 route config 存在 bug
-      // 使用正则表达式匹配 routeList 中的 routes: [] 属性,将 routes 后的数组完整替换为 config
-      let routeList: string = generateFileStructure.value[0]?.children[1]?.children[4].children[0].label.data as string;
-      const newRouteList = routeList.replace(/\s*routes:\s*\[\s*\]\s*/, `\n  routes: ${JSON.stringify(config)}`);
-      // 更新源数据
-      generateFileStructure.value[0].children[1].children[4].children[0].label.data = newRouteList;
-
+      let config: WorkerSpaceInterface.IRoute = {
+        meta: {
+          title: file.label.name as string,
+        },
+        name: file.label.name as string,
+        path: `/${file.label.name}`
+      };
+      let routes: WorkerSpaceInterface.IRoute[] = [config];
+      generateFileStructure.value[0].children[1].children[4].children[0].label.data = ROUTER_CONTEXT(routes) as string;
     }
   } catch (e) {
     console.error('插入路由配置失败');
@@ -245,14 +198,17 @@ function insertRouteConfig<T extends WorkerSpaceInterface.IFileTree>(structure: 
  * @param list
  * @param file
  */
-function insertNewFile<T extends WorkerSpaceInterface.IFileTree>(list: T, file?: T): void {
-  if (list !== void 0 && list?.children.length > 0) {
-    list?.children?.forEach(item => {
-      insertNewFile(item, file);
-    });
-  } else {
-    if (list.label?.name === 'pages') {
-      list.children?.push(file as T);
+function insertNewFile<T extends WorkerSpaceInterface.IFileTree>(list: T, file: T): void {
+  if (list !== void 0) {
+    if (list?.children.length > 0) {
+      list?.children?.forEach(item => {
+        insertNewFile(item, file);
+      });
+    } else {
+      if (list.label?.name === 'pages') {
+        list.children = [];
+        list.children.push(file);
+      }
     }
   }
 }
@@ -306,11 +262,10 @@ function clearDataBinding() {
 
 
 onMounted(() => {
-  generateFileStructure.value = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(structure);
+  generateFileStructure.value = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(mockData.structure);
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();
   initFileData(generateFileStructure.value);
-  initPageRoute();
 });
 
 
@@ -321,16 +276,17 @@ watch(() => props.sources, () => {
 
 
 $event.on('exportCode', async () => {
-  console.log('export source code', generateFileStructure.value);
-  await $engine.exportCode.saveFile(
-    generateFileStructure.value,
-    (generateFileStructure.value[0])?.label.name as string,
-  ).catch(_ => {
-    $message({
-      type: 'warning',
-      message: '导出失败'
+  if (generateFileStructure.value !== void 0) {
+    await $engine.exportCode.saveFile(
+      generateFileStructure.value,
+      (generateFileStructure.value[0])?.label.name as string,
+    ).catch(_ => {
+      $message({
+        type: 'warning',
+        message: '导出失败'
+      });
     });
-  });
+  }
 });
 
 

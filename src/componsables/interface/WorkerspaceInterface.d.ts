@@ -37,6 +37,5 @@ declare namespace WorkerSpaceInterface {
     path: string;
     name: string;
     meta?: IRouteMeta;
-    component: unknown; // () => import('../pages/{pageName}.vue')
   }
 }
