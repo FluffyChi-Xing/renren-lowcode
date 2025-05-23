@@ -6,8 +6,9 @@ import '@/assets/animation.css';
 import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
 import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
-import {useSchemaStore} from "@/stores/schema";
+import {mySchemaStore} from "@/stores/schema";
 import {$engine} from "@/renren-engine/engine";
+import {$util} from "@/componsables/utils";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -19,7 +20,6 @@ const emits = defineEmits(['create', 'move']);
 
 const comp = ref();
 const materialNode = ref();
-const schemaStore = useSchemaStore();
 const item = ref<RenrenMaterialModel>(props.item as RenrenMaterialModel);
 
 
@@ -57,7 +57,6 @@ function updateMaterialHandler(): Promise<string> {
           message: err as string
         });
       });
-      // console.log(props.item);
       resolve('更新物料成功');
     } catch (e) {
       console.error('更新物料失败', e);
@@ -74,8 +73,8 @@ function runAnimationOnMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (materialNode.value !== void 0) {
-        if (schemaStore.currentElement !== void 0 && schemaStore.currentElement?.type === 'material') {
-          const material: RenrenMaterialModel = schemaStore.currentElement as RenrenMaterialModel;
+        if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+          const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
           if (material.animation !== void 0) {
             // 获取 DOM 元素（处理组件实例的情况）
             const domElement = materialNode.value?.$el;
@@ -92,11 +91,9 @@ function runAnimationOnMaterial(): Promise<string> {
                   'animated',
                   'no-infinite'
                 );
-                // console.log(domElement.classList);
                 resolve('运行动画成功');
               }
             };
-
             domElement.addEventListener('animationend', removeAnimation);
             domElement.addEventListener('animationcancel', removeAnimation);
           }

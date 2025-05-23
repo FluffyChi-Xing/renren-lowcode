@@ -1,21 +1,17 @@
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
-import {useCanvasStore} from "@/stores/canvas";
+import {myCanvasStore} from "@/stores/canvas";
 import {debounce, throttle} from "lodash-es";
 import {computed, nextTick, onMounted, reactive, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
 import SelectArea from "@/components/SelectArea.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {getCursorPosition, getDataTransformMaterial} from "@/componsables/utils/CanvasUtil";
-import {createCSSAttributes, updateMaterialCSSAttribute} from "@/renren-engine/modules/renderer/renderer";
 import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
-import {useSchemaStore} from "@/stores/schema";
+import {mySchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
-import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
-import {takeScreenPhoto} from "@/componsables/utils/RenrenUtil";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
@@ -34,18 +30,16 @@ withDefaults(defineProps<{
 
 const editor = ref();
 const emits = defineEmits(['paste']);
-const canvasStore = useCanvasStore();
 const cursorX = ref<number>(0);
 const cursorY = ref<number>(0);
 const isShow = ref<boolean>(false);
 const isShowArea = ref<boolean>(false);
 const areaWidth = ref<number>(0);
 const areaHeight = ref<number>(0);
-const schemaStore = useSchemaStore();
 const canvasSize = computed(() => {
   return {
-    width: `${canvasStore.width}px`,
-    height: `${canvasStore.height}px`,
+    width: `${myCanvasStore.width}px`,
+    height: `${myCanvasStore.height}px`,
   }
 });
 type positionType = {
@@ -221,7 +215,7 @@ const throttleDragEventHandler = throttle(
     if (e) {
       e?.preventDefault();
       // 获取位置信息
-      let material: T = getDataTransformMaterial(e) as T;
+      let material: T = $util.canvas.getDataTransformMaterial(e) as T;
       if (!$util.renren.isEmpty(material)) {
         // 设置 props
         let position = {
@@ -229,7 +223,7 @@ const throttleDragEventHandler = throttle(
           y: 0
         };
         if (editor.value) {
-          position = await getCursorPosition(e, editor.value, 300);
+          position = await $util.canvas.getCursorPosition(e, editor.value, 300);
         }
         // 更新新增物料标识
         requestAnimationFrame(async () => {
@@ -237,7 +231,7 @@ const throttleDragEventHandler = throttle(
           materialPosition.top.value = `${position.y}`;
           const indexedDB = new LocalforageDB();
           // 注册物料到 materialContainer & schema
-          material = await createCSSAttributes(
+          material = await $engine.renderer.createCSSAttributes(
             material,
             [
               materialPosition.left,
@@ -245,25 +239,13 @@ const throttleDragEventHandler = throttle(
               materialPosition.positions
             ]);
           // 生成 唯一标识
-          material.id = generateUUID();
+          material.id = $util.nano.generateUUID();
           materialContainer.value.push(material);
           // 将新增物料暂存到 store
-          schemaStore.newElement = material as RenrenMaterialModel;
+          mySchemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
           // 保存 schema
-          if (!$util.renren.isEmpty(material)) {
-            await $engine.arrangement.insertNode2Document(material).then(() => {
-              // 使用 eventBus 触发插入事件
-              $event.emit('insert');
-              indexedDB.insert(NEW_ELEMENT, material);
-              $event.emit(`pushMaterial:${material.id}`);
-            }).catch(err => {
-              $message({
-                type: 'warning',
-                message: err
-              });
-            });
-          }
+          await saveSchema(material);
         });
       }
     }
@@ -286,7 +268,7 @@ const throttledMaterialMousemoveHandler = throttle(
       // 获取物料拖动位置
       let position = { x: 0, y: 0 };
       if (editor.value) {
-        position = await getCursorPosition(event, editor.value, 500);
+        position = await $util.canvas.getCursorPosition(event, editor.value, 500);
       }
       // 使用 requestAnimationFrame 更新样式
       requestAnimationFrame(async () => {
@@ -294,7 +276,7 @@ const throttledMaterialMousemoveHandler = throttle(
         materialPosition.top.value = `${position.y}`;
 
         // 更新 schema
-        const node = await updateMaterialCSSAttribute(item.id,
+        const node = await $engine.renderer.updateMaterialCSSAttribute(item.id,
           [
             materialPosition.left,
             materialPosition.top,
@@ -311,7 +293,7 @@ const throttledMaterialMousemoveHandler = throttle(
             return material.id === node.id ? node : material;
           });
           // 同步到 schemaStore 中
-          schemaStore.currentElement = node;
+          mySchemaStore.currentElement = node;
         }
       });
     }
@@ -346,7 +328,7 @@ async function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  schemaStore.currentElement = await $engine.arrangement.getSchema() as MaterialDocumentModel;
+  mySchemaStore.currentElement = await $engine.arrangement.getSchema() as MaterialDocumentModel;
 }
 
 
@@ -356,7 +338,7 @@ async function gridClickHandler(event: MouseEvent) {
  */
 async function outerGridClickHandler(e: MouseEvent) {
   e.stopPropagation();
-  schemaStore.currentElement = undefined;
+  mySchemaStore.currentElement = undefined;
 }
 
 
@@ -371,9 +353,27 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
     e.stopPropagation();
   }
   // 将[当前物料]元素设为当前点击选中的物料
-  schemaStore.currentElement = undefined;
+  mySchemaStore.currentElement = undefined;
   if (item !== void 0) {
-    schemaStore.currentElement = item as RenrenMaterialModel;
+    mySchemaStore.currentElement = item as RenrenMaterialModel;
+  }
+}
+
+
+async function saveSchema(item: RenrenMaterialModel | undefined) {
+  if (item !== void 0) {
+    const indexedDB = new LocalforageDB();
+    await $engine.arrangement.insertNode2Document(item).then(() => {
+      // 使用 eventBus 触发插入事件
+      $event.emit('insert');
+      indexedDB.insert(NEW_ELEMENT, item);
+      $event.emit(`pushMaterial:${item.id}`);
+    }).catch(err => {
+      $message({
+        type: 'warning',
+        message: err
+      });
+    });
   }
 }
 
@@ -381,17 +381,20 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 /**
  * @description 粘贴物料
  */
-function pasteMaterial() {
+async function pasteMaterial() {
   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    $message({
-      type: 'info',
-      message: `粘贴组件: ${(schemaStore.currentElement as RenrenMaterialModel)?.title}`,
-    });
+  if ($util.renren.isMaterial(mySchemaStore.copyMaterial)) {
+    if (mySchemaStore.copyMaterial !== void 0) {
+      let newMaterial: RenrenMaterialModel = $util.renren.deepClone(mySchemaStore.copyMaterial) as RenrenMaterialModel;
+      // 重新生成新的 id
+      newMaterial.id = $util.nano.generateUUID();
+      materialContainer.value.push(newMaterial);
+      await saveSchema(newMaterial);
+    }
   } else {
     $message({
       type: 'warning',
-      message: '请先选择要粘贴的组件'
+      message: '请先复制要粘贴的组件'
     });
   }
 }
@@ -407,8 +410,8 @@ function pasteMaterial() {
 function stepZIndexUp(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
-        const material = schemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        const material = mySchemaStore.currentElement as RenrenMaterialModel;
         if (!$util.renren.isEmpty(material)) {
           if (material.props && material.props.items) {
             if (material.props.items?.length > 0) {
@@ -422,7 +425,7 @@ function stepZIndexUp(): Promise<string> {
                   ++ zIndex;
                   material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
                   // 同步到 store
-                  schemaStore.currentElement = material;
+                  mySchemaStore.currentElement = material;
                   // 组装 css
                   materialZIndex.value = zIndex.toString();
                   // 同步到 schema
@@ -461,8 +464,8 @@ function getMaterialIndexNumber(items: MaterialInterface.IProp[] | undefined): n
 function stepZIndexDown(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
-        const material = schemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        const material = mySchemaStore.currentElement as RenrenMaterialModel;
         if (!$util.renren.isEmpty(material)) {
           if (Array.isArray(material?.props?.items) && material?.props?.items.length !== 0) {
             let zIndex: number | undefined = getMaterialIndexNumber(material?.props?.items);
@@ -475,7 +478,7 @@ function stepZIndexDown(): Promise<string> {
                 zIndex --;
                 material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
                 // 同步到 store
-                schemaStore.currentElement = material;
+                mySchemaStore.currentElement = material;
                 // 组装 css
                 materialZIndex.value = zIndex.toString();
                 // 同步到 schema
@@ -508,7 +511,7 @@ function changeZIndex(flag: string = 'up') {
       });
     });
     isShow.value = false;
-    $event.emit(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`);
+    $event.emit(`updateMaterial:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`);
   } else if (flag === 'down') {
     stepZIndexDown().catch(err => {
       $message({
@@ -517,7 +520,7 @@ function changeZIndex(flag: string = 'up') {
       });
     });
     isShow.value = false;
-    $event.emit(`updateMaterial:${(schemaStore.currentElement as RenrenMaterialModel)?.id}`);
+    $event.emit(`updateMaterial:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`);
   } else {
     $message({
       type: 'warning',
@@ -537,11 +540,11 @@ function changeZIndex(flag: string = 'up') {
 function deleteCurrentMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
         // 暂存 currentElement
-        const material = schemaStore.currentElement as RenrenMaterialModel;
+        const material = mySchemaStore.currentElement as RenrenMaterialModel;
         // 清空 schemaStore 中的 currentElement
-        schemaStore.currentElement = undefined;
+        mySchemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
         $engine.arrangement.deleteNode(material.id).catch(err => {
           console.error('删除物料失败',err);
@@ -583,10 +586,9 @@ function deleteNode() {
  * @description 处理复制组件事件
  */
 function copyMaterialHandler() {
-  $message({
-    type: 'info',
-    message: '复制成功'
-  });
+  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+    mySchemaStore.copyMaterial = mySchemaStore.currentElement as RenrenMaterialModel;
+  }
   isShow.value = false;
 }
 
@@ -600,7 +602,7 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
         contextMenuList.value = [
           {
             key: '复制',
@@ -666,9 +668,9 @@ function updateMaterialData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       materialContainer.value = materialContainer.value.map(material => {
-        if ($util.renren.isMaterial(schemaStore.currentElement)) {
-          if (material.id === (schemaStore.currentElement as RenrenMaterialModel)?.id) {
-            return schemaStore.currentElement as RenrenMaterialModel;
+        if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+          if (material.id === (mySchemaStore.currentElement as RenrenMaterialModel)?.id) {
+            return mySchemaStore.currentElement as RenrenMaterialModel;
           } else {
             return material;
           }
@@ -699,7 +701,7 @@ function checkGridBackgroundColor(): Promise<string> {
         if (!$util.renren.isEmpty(document)) {
           if (document.prop && document.prop.items) {
             if (document.prop.items.length > 0) {
-              canvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
+              myCanvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
               resolve('检查网格背景颜色成功');
             }
           }
@@ -719,7 +721,7 @@ function checkGridBackgroundColor(): Promise<string> {
 function resetEventHandler(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      const material = schemaStore.elementInProcess as RenrenMaterialModel;
+      const material = mySchemaStore.elementInProcess as RenrenMaterialModel;
       // 如果触发撤销操作，就从当前容器内删除对应的元素
       if (material !== void 0) {
         materialContainer.value = materialContainer.value.filter(item => item.id !== material?.id);
@@ -742,7 +744,7 @@ function revertEventHandler(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       const debounceRevert = debounce(() => {
-        const material = schemaStore.elementInProcess as RenrenMaterialModel;
+        const material = mySchemaStore.elementInProcess as RenrenMaterialModel;
         if (material !== void 0) {
           materialContainer.value.push(material);
           nextTick(() => {
@@ -763,7 +765,7 @@ function revertEventHandler(): Promise<string> {
  */
 $event.on('clearCanvas', () => {
   materialContainer.value = [];
-  schemaStore.newElement = undefined;
+  mySchemaStore.newElement = undefined;
 });
 
 
@@ -771,7 +773,7 @@ $event.on('clearCanvas', () => {
  * @description 处理画布截图事件
  */
 $event.on('takePhoto', async () => {
-  const url: string | void = await takeScreenPhoto(editor.value).catch(err => {
+  const url: string | void = await $util.renren.takeScreenPhoto(editor.value).catch(err => {
     console.error('截图失败', err);
   });
   if (url) {
@@ -787,7 +789,7 @@ $event.on('takePhoto', async () => {
 /**
  * @description 处理撤销操作
  */
-watch(() => schemaStore.elementInProcess, (newVal, oldVal) => {
+watch(() => mySchemaStore.elementInProcess, (newVal, oldVal) => {
 
     // 移除旧的监听器
     if (oldVal && oldVal.id) {
@@ -850,7 +852,7 @@ onMounted(async () => {
 /**
  * @description 初始化右键菜单列表
  */
-watch(() => schemaStore.currentElement, () => {
+watch(() => mySchemaStore.currentElement, () => {
   // 初始化右键菜单
   initContextMenuItem().catch(err => {
     $message({
@@ -898,7 +900,7 @@ $event.on('clearContext', () => {
         @dragover="handleDragover"
         @drop="throttleDragEventHandler($event)"
         draggable="false"
-        :style="`height: ${canvasStore.height}px;width: ${canvasStore.width};`"
+        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
         class="flex items-center justify-center relative"
       >
         <!-- 网格线 -->
@@ -906,9 +908,9 @@ $event.on('clearContext', () => {
           @mousedown.left="mousedownHandler"
           :height="canvasSize.height"
           :width="canvasSize.width"
-          :back-color="canvasStore.canvasColor"
-          :opacity="canvasStore.opacity"
-          :line-height="canvasStore.lineHeight"
+          :back-color="myCanvasStore.canvasColor"
+          :opacity="myCanvasStore.opacity"
+          :line-height="myCanvasStore.lineHeight"
           @click="gridClickHandler"
         />
         <!-- 右键单选框 -->

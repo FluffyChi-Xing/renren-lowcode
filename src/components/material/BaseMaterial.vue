@@ -15,17 +15,6 @@ const props = withDefaults(defineProps<{
 
 
 /**
- * @description 处理开始拖拽事件
- * @param index
- */
-function startHandler(index: any): Promise<any> {
-  return new Promise<any>((resolve) => {
-    resolve(index);
-  });
-}
-
-
-/**
  * @description 处理拖拽开始事件
  * @param event
  * @param item
@@ -44,7 +33,6 @@ function startDrag(event: DragEvent, item: RenrenMaterialModel) {
       :group="{ name: 'simulator', pull: 'clone', put: false }"
       :animation="150"
       class="w-full h-full"
-      @start="startHandler"
     >
       <div class="w-full h-full grid grid-cols-2 gap-1">
         <MaterialItem

@@ -1,27 +1,19 @@
 <script setup lang="ts">
-import { ref, shallowRef } from "vue";
+import { ref } from "vue";
 import {eventNameValueMap, eventTypeList} from "@/componsables/utils/EventAttrUtil";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
-import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {$util} from "@/componsables/utils";
+import { Editor } from '@guolao/vue-monaco-editor';
 
 
 
-const MONACO_EDITOR_OPTIONS = {
-  automaticLayout: true,
-  formatOnType: true,
-  formatOnPaste: true
-};
 const codes = ref<Record<string, string>>({});
-const editor = shallowRef();
 const schemaStore = useSchemaStore();
-function mountHandler(val: any[]) {
-  editor.value = val;
-}
 const defaultCode: string = 'callback = () => {\n' +
   '  // some-code\n' +
   '}'
@@ -112,13 +104,11 @@ function eventBindingHandler(item: RenrenInterface.IEvent) {
               <div class="w-full h-auto flex flex-col">
                 <el-form-item label="回调函数">
                   <div class="w-full h-auto flex flex-col">
-                    <vue-monaco-editor
+                    <Editor
                       v-model:value="codes[itm.name]"
                       theme="vs-dark"
-                      :options="MONACO_EDITOR_OPTIONS"
                       :default-value="defaultCode"
-                      @mount="mountHandler"
-                      language="JavaScript"
+                      language="javascript"
                       style="height: 100px;"
                     />
                     <div class="w-full mt-4 h-auto flex items-center justify-end">

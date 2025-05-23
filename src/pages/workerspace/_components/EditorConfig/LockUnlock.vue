@@ -7,7 +7,7 @@
  */
 import { ref } from 'vue';
 import $event from "@/componsables/utils/EventBusUtil";
-import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {mySchemaStore} from "@/stores/schema";
 import {$message} from "@/componsables/element-plus";
 import {$util} from "@/componsables/utils";

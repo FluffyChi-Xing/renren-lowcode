@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, reactive, ref, shallowRef, toRaw} from 'vue';
+import {onMounted, reactive, ref, toRaw} from 'vue';
 import ManageLayout from "@/pages/manage/_component/ManageLayout.vue";
 import {$enum} from "@/componsables/enum";
 import {$api} from "@/componsables/api";
@@ -11,6 +11,7 @@ import {MATERIAL_TYPE_OPTIONS} from "@/componsables/constants/ManagementConstant
 import materialTemplateSchema from './material-template-schema.json';
 import type {createMaterialReqDto} from "@/componsables/apis/material/_apis/MaterialInfoApis";
 import tableHeaderConfig from '@/components/table-header-config.json';
+import { Editor } from '@guolao/vue-monaco-editor'
 
 
 
@@ -28,16 +29,6 @@ const materialInfo = reactive<MaterialReqDto.UpdateMaterialReqDto>({
   status: '0', // 需要改为 enum
   type: '0' // 需要改为 enum
 });
-const MONACO_EDITOR_OPTIONS = {
-  automaticLayout: true,
-  formatOnType: true,
-  formatOnPaste: true
-};
-const editor = shallowRef();
-function mountHandler(val: any[]) {
-  editor.value = val;
-}
-
 
 /**
  * @description 初始化默认物料代码
@@ -381,13 +372,11 @@ onMounted(async () => {
           <el-form-item label="物料源码(json)" required />
           <div class="w-full h-auto">
             <el-scrollbar height="500">
-              <vue-monaco-editor
+              <Editor
                 v-model:value="materialInfo.data"
                 :default-value="initDefaultMaterialCode"
                 theme="vs"
-                language="JavaScript"
-                @mount="mountHandler"
-                :options="MONACO_EDITOR_OPTIONS"
+                language="json"
                 style="width: 100%;height: 100%;"
               />
             </el-scrollbar>

@@ -39,7 +39,7 @@ export function getCursorPosition<T extends RenrenInterface.XAndYType<number, nu
         reject('获取光标位置失败');
       }
     } catch (e) {
-      console.log('获取光标位置失败', e);
+      console.error('获取光标位置失败', e);
       reject('获取光标位置失败');
     }
   });
