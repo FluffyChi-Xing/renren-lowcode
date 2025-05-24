@@ -16,6 +16,7 @@ import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import positionTemplate from './material-position-template.json';
+import CoreEngine from "@/renren-engine";
 
 
 withDefaults(defineProps<{
@@ -27,7 +28,7 @@ withDefaults(defineProps<{
 
 
 
-
+const engineInstance = new CoreEngine();
 const editor = ref();
 const emits = defineEmits(['paste']);
 const cursorX = ref<number>(0);
@@ -363,7 +364,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 async function saveSchema(item: RenrenMaterialModel | undefined) {
   if (item !== void 0) {
     const indexedDB = new LocalforageDB();
-    await $engine.arrangement.insertNode2Document(item).then(() => {
+    await engineInstance.arrangement.addComponent(item).then(() => {
       // 使用 eventBus 触发插入事件
       $event.emit('insert');
       indexedDB.insert(NEW_ELEMENT, item);

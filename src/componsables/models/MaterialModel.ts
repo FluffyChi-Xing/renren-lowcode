@@ -301,6 +301,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
   sections: MaterialInterface.IMaterial[] | undefined;
   prop: MaterialInterface.IProps | null = null;
   type: string = 'document';
+  path: string = '/somepath';
 
 
   constructor(params?: MaterialInterface.IDocument) {
@@ -314,6 +315,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
       this.rootNode = params.rootNode;
       this.sections = params.sections ? params.sections.map(section => new RenrenMaterialModel(section)) : [];
       this.prop = params.prop ? params.prop : null;
+      this.path = params.path;
     }
   }
 }
@@ -391,6 +393,7 @@ export class MaterialProjectModel extends RenrenModel implements MaterialInterfa
             activated: false,
             sections: undefined,
             prop: params.prop,
+            path: ''
           };
           const documentModel: MaterialDocumentModel = new MaterialDocumentModel({...documentParams});
           // 检查是否存在同名页面

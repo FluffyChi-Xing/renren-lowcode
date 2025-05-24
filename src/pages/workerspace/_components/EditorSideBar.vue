@@ -3,21 +3,22 @@ import { ref } from 'vue';
 import {$message} from "@/componsables/element-plus";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
-import {useSchemaStore} from "@/stores/schema";
+
 import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.vue";
+import {mySchemaStore} from "@/stores/schema";
+import CoreEngine from "@/renren-engine";
 
 
 
 
-
-const schemaStore = useSchemaStore();
+const engineInstance = new CoreEngine();
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
-  await $engine.arrangement.clearMaterialNodes().then(() => {
+  await engineInstance.arrangement.clear().then(() => {
     $event.emit('clearCanvas');
-    schemaStore.currentElement = undefined;
+    mySchemaStore.currentElement = undefined;
     $message({
       type: 'info',
       message: '清空画布成功'
