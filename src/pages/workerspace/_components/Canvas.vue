@@ -10,13 +10,13 @@ import {$message} from "@/componsables/element-plus";
 import DisplayItem from "@/components/DisplayItem.vue";
 import {mySchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
-import {$engine} from "@/renren-engine/engine";
-import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import positionTemplate from './material-position-template.json';
 import CoreEngine from "@/renren-engine";
+import $event from "@/componsables/utils/EventBusUtil";
+import {$engine} from "@/renren-engine/engine";
 
 
 withDefaults(defineProps<{
@@ -29,6 +29,7 @@ withDefaults(defineProps<{
 
 
 const engineInstance = new CoreEngine();
+const indexedDB = new LocalforageDB();
 const editor = ref();
 const emits = defineEmits(['paste']);
 const cursorX = ref<number>(0);
@@ -230,7 +231,6 @@ const throttleDragEventHandler = throttle(
         requestAnimationFrame(async () => {
           materialPosition.left.value = `${position.x}`;
           materialPosition.top.value = `${position.y}`;
-          const indexedDB = new LocalforageDB();
           // 注册物料到 materialContainer & schema
           material = await $engine.renderer.createCSSAttributes(
             material,
@@ -277,7 +277,7 @@ const throttledMaterialMousemoveHandler = throttle(
         materialPosition.top.value = `${position.y}`;
 
         // 更新 schema
-        const node = await $engine.renderer.updateMaterialCSSAttribute(item.id,
+        const node = await engineInstance.arrangement.moveComponent(item,
           [
             materialPosition.left,
             materialPosition.top,
@@ -291,17 +291,17 @@ const throttledMaterialMousemoveHandler = throttle(
 
         if (node) {
           materialContainer.value = materialContainer.value.map(material => {
-            return material.id === node.id ? node : material;
+            return material.id === node.id ? new RenrenMaterialModel(node) : material;
           });
           // 同步到 schemaStore 中
-          mySchemaStore.currentElement = node;
+          mySchemaStore.currentElement = new RenrenMaterialModel(node);
         }
       });
     }
     // 通知 物料编辑框 进行更新
     $event.emit('updateShape');
   },
-  16 // 节流时间设为16ms，与浏览器帧率（60fps）同步
+  100
 );
 
 
@@ -309,13 +309,8 @@ const throttledMaterialMousemoveHandler = throttle(
 /**
  * @description 保持物料容器数据持久化
  */
-async function keepMaterialAlive() {
-  const nodes: RenrenMaterialModel[] | void = await $engine.arrangement.getPersistNodeList().catch((err: string) => {
-    $message({
-      type: 'warning',
-      message: err
-    });
-  });
+function keepMaterialAlive() {
+  const nodes: RenrenMaterialModel[] = engineInstance.arrangement.getAllElementNodes() as RenrenMaterialModel[];
   if (Array.isArray(nodes) && nodes.length > 0) {
     materialContainer.value = nodes;
   }
@@ -363,7 +358,6 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 
 async function saveSchema(item: RenrenMaterialModel | undefined) {
   if (item !== void 0) {
-    const indexedDB = new LocalforageDB();
     await engineInstance.arrangement.addComponent(item).then(() => {
       // 使用 eventBus 触发插入事件
       $event.emit('insert');
@@ -547,7 +541,7 @@ function deleteCurrentMaterial(): Promise<string> {
         // 清空 schemaStore 中的 currentElement
         mySchemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
-        $engine.arrangement.deleteNode(material.id).catch(err => {
+        engineInstance.arrangement.removeComponent(material.id).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -646,19 +640,10 @@ function initContextMenuItem(): Promise<string> {
       }
       resolve('初始化右键菜单列表成功');
     } catch (e) {
-      console.log('初始化右键菜单列表失败', e);
+      console.error('初始化右键菜单列表失败', e);
       reject('初始化右键菜单列表失败');
     }
   });
-}
-
-
-/**
- * @description
- * @param e
- */
-function displayItemDragendHandler(e: DragEvent) {
-  e?.preventDefault();
 }
 
 
@@ -937,7 +922,6 @@ $event.on('clearContext', () => {
           @click="selectCurrentElement(item, $event);"
           :key="index"
           :item="item"
-          @dragend="displayItemDragendHandler"
           @move="throttledMaterialMousemoveHandler(item, $event)"
         />
       </div>

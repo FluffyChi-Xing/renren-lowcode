@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref, watch, shallowRef} from 'vue';
 import { nextTick } from "vue";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import '@/assets/animation.css';
@@ -18,9 +18,9 @@ const props = withDefaults(defineProps<{
 const emits = defineEmits(['create', 'move']);
 
 
-const comp = ref();
-const materialNode = ref();
-const item = ref<RenrenMaterialModel>(props.item as RenrenMaterialModel);
+const comp = shallowRef();
+const materialNode = shallowRef();
+const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 
 
 /**

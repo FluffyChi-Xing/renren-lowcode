@@ -120,7 +120,7 @@ onMounted(() => {
   <div class="w-full h-full flex items-center justify-between">
     <!-- device-type-radios -->
     <div class="w-auto h-full flex items-center">
-      <el-radio-group v-model="defaultTypes">
+      <el-radio-group disabled v-model="defaultTypes">
         <el-radio-button
           v-for="(item, index) in deviceTypes"
           :key="index"
