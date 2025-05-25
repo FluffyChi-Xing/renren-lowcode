@@ -5,14 +5,14 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {SCHEMA_PROJECT_STORAGE_ID, SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
-import pageTemplate from './page-schema.json';
+
 
 
 /**
  * @description 基本状态类型
  */
-interface IState {
-  components: MaterialInterface.IMaterial[];
+interface IState<T extends MaterialInterface.IMaterial> {
+  components: Map<string, T>;
   selectedId?: string;
   /** other attributes wait for update **/
 }
@@ -56,7 +56,7 @@ export interface IArrangement<T> {
   emit(event: string, data: any): void;
 
   // 状态获取
-  getState(): IState | undefined;
+  getState(): IState<MaterialInterface.IMaterial> | undefined;
 
   // 实例销毁
   destroy(): void;
@@ -86,7 +86,7 @@ export interface IArrangement<T> {
   createDocument(params: createDocument): void;
 
   // 获取页面
-  getDocument(documentId: string): MaterialInterface.IDocument | undefined;
+  getDocument(documentId?: string): MaterialInterface.IDocument | undefined;
 
   // 编辑页面
   editDocument(documentId: string): MaterialInterface.IDocument | undefined;
@@ -105,15 +105,21 @@ export interface IArrangement<T> {
 
   // 更新页面属性
   updateDocumentProp(props: MaterialInterface.IProp[], key?: string): Promise<string>;
+
+  get getComponentCount(): number;
+
+  get getInstance(): IArrangement<T>;
 }
 
 
 /**
  * @description 编排引擎
  */
-class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
+class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangement<T>{
 
-  private state: IState = { components: [] };
+  private state: IState<T> = {
+    components: new Map(),
+  };
 
   private eventListeners: Map<string, EventListener[]> = new Map<string, EventListener[]>();
 
@@ -125,7 +131,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
    * @description 初始化编排引擎
    */
   init(): void {
-    this.state = { components: [] };
+    this.state = { components: new Map() };
     this.eventListeners.clear();
   }
 
@@ -133,7 +139,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
    * @description 销毁引擎实例
    */
   destroy(): void {
-    this.state.components = [];
+    this.state.components = new Map<string, T>();
     this.eventListeners.clear();
   }
 
@@ -165,8 +171,8 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
   /**
    * @description 获取状态
    */
-  getState(): IState | undefined {
-    return { ...this.state };
+  getState(): IState<T> | undefined {
+    return this.state;
   }
 
   /**
@@ -185,7 +191,8 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
         }
         if (targetDocument !== void 0) {
           targetDocument?.nodes?.push(item);
-          this.state.components?.push(item);
+          // 将组件信息存入索引表，方便进行快速查找
+          this.state.components?.set(item.id, item as T);
           this.updateDocument(targetDocument, key);
           resolve('添加物料成功');
         } else {
@@ -205,7 +212,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
    */
   getComponent<T extends MaterialInterface.IMaterial>(itemId: string, key?: string): T | undefined {
     // 先从状态管理中获取
-    let component: T | undefined = this.state.components.filter(item => item.id === itemId)[0] as T;
+    let component: T | undefined = this.state.components.get(itemId) as unknown as T;
     if (component === void 0) {
       // 否则查询本地缓存
       let targetDocument: MaterialInterface.IDocument | undefined;
@@ -223,12 +230,29 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
     return component;
   }
 
+
+  /**
+   * @description 获取当前物料总数
+   */
+  get getComponentCount(): number {
+    return this.state.components.size;
+  }
+
+
+  /**
+   * @description 获取编排引擎实例
+   */
+  get getInstance(): IArrangement<T> {
+    return this;
+  }
+
+
   /**
    * @description 获取所有物料节点
    * @param documentId
    */
-  getComponents(documentId?: string): MaterialInterface.IMaterial[] {
-    return this.getAllElementNodes(documentId);
+  getComponents(documentId?: string): T[] {
+    return this.getAllElementNodes(documentId) as T[];
   }
 
 
@@ -269,7 +293,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
    * @param position
    * @param key
    */
-  moveComponent<T extends MaterialInterface.IMaterial, K extends RenrenInterface.KeyValueIndexType<string, string>>(
+  moveComponent<K extends RenrenInterface.KeyValueIndexType<string, string>>(
     item: T,
     position: K[],
     key?: string
@@ -287,12 +311,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
             });
             // 更新属性
             await this.updateComponent(item, key);
-            this.state.components = this.state.components.map(node => {
-              if (node.id === item.id) {
-                return item;
-              }
-              return node;
-            });
+            this.state.components.set(item.id, item);
             resolve(item);
           }
         }
@@ -319,7 +338,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
         }
         if (targetDocument !== void 0) {
           targetDocument.nodes = targetDocument?.nodes?.filter(item => item.id !== itemId);
-          this.state.components = this.state.components.filter(item => item.id !== itemId);
+          this.state.components.delete(itemId);
           this.updateDocument(targetDocument, documentId);
           resolve('移除物料节点成功');
         } else {
@@ -333,10 +352,11 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
   }
 
   /**
-   * @description TODO: 验证物料是否为合法格式
+   * @description 校验物料格式
    * @param item
    */
   verify(item: any): boolean {
+    // TODO: 基于 zod 进行 schema json  的合法性检验
     return false;
   }
 
@@ -393,7 +413,7 @@ class Arrangement implements IArrangement<MaterialInterface.IMaterial>{
    * @description 获取当前页面信息 等同于重构前的 getSchema api
    * @param documentId
    */
-  getDocument<T extends MaterialInterface.IDocument>(documentId: string): T | undefined {
+  getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T | undefined {
     return documentId !== void 0
       ?
       JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T

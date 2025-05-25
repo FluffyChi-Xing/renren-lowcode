@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {$message} from "@/componsables/element-plus";
-import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 
 import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.vue";
@@ -50,7 +49,7 @@ function takeScreenPhoto() {
 
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
-    key: 'JSON',
+    key: 'Schema Json',
     value: () => $event.emit('showSchema'),
     index: 'Document'
   },

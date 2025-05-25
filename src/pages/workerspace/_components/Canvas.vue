@@ -334,7 +334,7 @@ function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  mySchemaStore.currentElement = await $engine.arrangement.getSchema() as MaterialDocumentModel;
+  mySchemaStore.currentElement = new MaterialDocumentModel(engineInstance.arrangement.getDocument());
 }
 
 
@@ -434,7 +434,7 @@ function stepZIndexUp(): Promise<string> {
                   // 组装 css
                   materialZIndex.value = zIndex.toString();
                   // 同步到 schema
-                  $engine.renderer.updateMaterialCSSAttribute(material.id, materialZIndex).catch(err => {
+                  engineInstance.renderer.updateCompCSSAttr(material.id, materialZIndex).catch(err => {
                     console.error(err);
                     reject(err);
                   });
@@ -487,7 +487,7 @@ function stepZIndexDown(): Promise<string> {
                 // 组装 css
                 materialZIndex.value = zIndex.toString();
                 // 同步到 schema
-                $engine.renderer.updateMaterialCSSAttribute(material.id, materialZIndex).catch(err => {
+                engineInstance.renderer.updateCompCSSAttr(material.id, materialZIndex).catch(err => {
                   console.error(err);
                   reject(err);
                 });
@@ -692,7 +692,7 @@ function updateMaterialData(): Promise<string> {
 function checkGridBackgroundColor(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
+      const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engineInstance.arrangement.getDocument());
       if (document !== void 0) {
         if (!$util.renren.isEmpty(document)) {
           if (document.prop && document.prop.items) {
