@@ -16,7 +16,6 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import positionTemplate from './material-position-template.json';
 import CoreEngine from "@/renren-engine";
 import $event from "@/componsables/utils/EventBusUtil";
-import {$engine} from "@/renren-engine/engine";
 
 
 withDefaults(defineProps<{
@@ -27,7 +26,7 @@ withDefaults(defineProps<{
 
 
 
-
+// 创建引擎实例
 const engineInstance = new CoreEngine();
 const indexedDB = new LocalforageDB();
 const editor = ref();
@@ -232,13 +231,13 @@ const throttleDragEventHandler = throttle(
           materialPosition.left.value = `${position.x}`;
           materialPosition.top.value = `${position.y}`;
           // 注册物料到 materialContainer & schema
-          material = await $engine.renderer.createCSSAttributes(
+          material = engineInstance.renderer.createCSSAttr(
             material,
             [
               materialPosition.left,
               materialPosition.top,
               materialPosition.positions
-            ]);
+            ]) as T;
           // 生成 唯一标识
           material.id = $util.nano.generateUUID();
           materialContainer.value.push(material);

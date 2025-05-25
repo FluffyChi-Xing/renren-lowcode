@@ -8,6 +8,7 @@ import {ElButton, ElEmpty, ElImage, ElLink, ElTag, ElText} from "element-plus";
 import Arrangement, {type IArrangement} from "@/renren-engine/modules/arrangement";
 import {$util} from "@/componsables/utils";
 import { throttle, debounce } from "lodash-es";
+import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 
 export interface IRenderer<T> {
@@ -16,11 +17,11 @@ export interface IRenderer<T> {
 
   createComponent(type:string, props: Record<string, any>, children?: any): T;
 
-  createMaterialEl(el: MaterialInterface.IMaterial): Promise<T>;
+  createMaterialEl(el: RenrenMaterialModel | undefined): Promise<T>;
 
   insertCSSAttr(attr: MaterialInterface.IProp[], type: string): Promise<T>;
 
-  createCSSAttr(props: RenrenInterface.KeyValueIndexType<string, string>[]): MaterialInterface.IProp[];
+  createCSSAttr(item: RenrenMaterialModel, attr: RenrenInterface.KeyValueIndexType<string, string>[]): RenrenMaterialModel;
 
   updateCompCSSAttr<K extends MaterialInterface.IMaterial, P extends RenrenInterface.KeyValueIndexType<string, string>>(index: string, attr: P | P[]): Promise<K>;
 
@@ -63,8 +64,35 @@ class Renderer <T extends Component> implements IRenderer<T>{
     return Promise.resolve("");
   }
 
-  createCSSAttr(props: RenrenInterface.KeyValueIndexType<string, string>[]): MaterialInterface.IProp[] {
-    return [];
+
+  /**
+   * @description 将CSS属性绑定在物料上
+   * @param item
+   * @param attr
+   */
+  createCSSAttr(item: RenrenMaterialModel, attr: RenrenInterface.KeyValueIndexType<string, string>[]): RenrenMaterialModel {
+    if (Array.isArray(attr) && attr.length > 0) {
+      attr.forEach(a => {
+        let pro: MaterialInterface.IProp = {
+          code: "",
+          items: null,
+          key: a.key,
+          maps: undefined,
+          owner: null,
+          parent: undefined,
+          type: a.index,
+          value: a.value,
+        };
+        if (item.props?.items) {
+          if (item.props.items?.length > 0) {
+            item.props.items.push(pro);
+          }
+        }
+      });
+      return item;
+    } else {
+      return item;
+    }
   }
 
 
@@ -98,9 +126,24 @@ class Renderer <T extends Component> implements IRenderer<T>{
     return throttleCreateInstance() as T;
   }
 
-  createMaterialEl(el: MaterialInterface.IMaterial): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
 
+  /**
+   * @description 根据物料模型创建物料实例
+   * @param el
+   */
+  createMaterialEl(el: RenrenMaterialModel | undefined): Promise<T> {
+    return new Promise<T>(async (resolve, reject) => {
+      try {
+        if (el !== void 0 && el?.isNode) {
+          if (Array.isArray(el.props?.items) && el.props.items.length > 0) {
+            const component = await this.insertCSSAttr(el.props.items, el.props?.type) as T;
+            resolve(component);
+          }
+        }
+      } catch (e) {
+        console.error('创建物料实例失败', e);
+        reject('创建物料实例失败');
+      }
     });
   }
 

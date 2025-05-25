@@ -7,8 +7,8 @@ import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
 import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 import {mySchemaStore} from "@/stores/schema";
-import {$engine} from "@/renren-engine/engine";
 import {$util} from "@/componsables/utils";
+import CoreEngine from "@/renren-engine";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -20,6 +20,8 @@ const emits = defineEmits(['create', 'move']);
 
 const comp = shallowRef();
 const materialNode = shallowRef();
+// 创建引擎实例
+const engineInstance = new CoreEngine();
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 const styleObj = ref<Record<string, string>>({
   position: 'absolute',
@@ -67,7 +69,7 @@ function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       comp.value = undefined;
-      comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel).catch(err => {
+      comp.value = await engineInstance.renderer.createMaterialEl(props.item).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -154,7 +156,7 @@ function syncPositionChange() {
 
 onMounted(async () => {
   if (item.value) {
-    comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel);
+    comp.value = await engineInstance.renderer.createMaterialEl(props.item as RenrenMaterialModel);
     // 初始化 styleObj
     syncPositionChange();
   }
