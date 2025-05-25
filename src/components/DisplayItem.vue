@@ -21,6 +21,16 @@ const emits = defineEmits(['create', 'move']);
 const comp = shallowRef();
 const materialNode = shallowRef();
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
+const styleObj = ref<Record<string, string>>({
+  position: 'absolute',
+  left: '0px',
+  top: '0px'
+});
+export type moveDataTransfer = {
+  event: DragEvent;
+  dom: HTMLElement;
+};
+
 
 
 /**
@@ -30,7 +40,13 @@ const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 async function materialMoveHandler(e: DragEvent) {
   e.preventDefault();
   if (e) {
-    emits('move', e);
+    if (materialNode.value !== void 0) {
+      let config: moveDataTransfer = {
+        event: e,
+        dom: materialNode.value?.$el
+      };
+      emits('move', config);
+    }
   }
 }
 
@@ -121,17 +137,36 @@ async function previewAnimationHandler() {
 }
 
 
+/**
+ * @description 用于处理组件的位置同步
+ * @warn 之前是通过重建组件进行位置同步，但是因为位置可能频繁的变化导致严重的性能问题，因此位置同步直接改为修改实例的style对应属性
+ */
+function syncPositionChange() {
+  if (props.item && props.item.props?.items) {
+    props.item.props.items.forEach(item => {
+      if (item.key === 'style' && ['position', 'left', 'top'].includes(item.type)) {
+        styleObj.value[item.type] = item.type === 'position' ? item.value : `${item.value}px`;
+      }
+    });
+  }
+}
+
+
 onMounted(async () => {
   if (item.value) {
     comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel);
+    // 初始化 styleObj
+    syncPositionChange();
   }
 })
 
 
 watch(() => props.item, async (newValue) => {
   if (newValue) {
-    item.value = newValue;
-    comp.value = await $engine.renderer.createMaterialElement(props.item as RenrenMaterialModel);
+    await nextTick();
+    setTimeout(() => {
+      syncPositionChange();
+    }, 0);
   } else {
     comp.value = undefined;
   }
@@ -165,7 +200,9 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
     :is="comp"
     draggable="true"
     ref="materialNode"
-    @dragend="materialMoveHandler($event)"
+    class="cursor-move"
+    :style="styleObj"
+    @drag="materialMoveHandler($event)"
     @dragover="dragoverHandler($event)"
   />
 </template>

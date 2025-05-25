@@ -41,13 +41,24 @@ function getCSSAttributesInString(styleProp: string, css: MaterialInterface.IPro
  * @param children
  */
 const throttleCreateVueComponent = throttle(
-  function createVueComponent<T extends Component>(type: SupportedComponentType, props: Record<string, any>, children?: any): T {
+  function createVueComponent<T extends Component>(
+    type: SupportedComponentType,
+    props: Record<string, any>,
+    children?: any
+  ): T {
     const resolvedType = componentMap[type] || type;
-    const reactiveProps = shallowReactive(props); // 浅层响应式
+    const reactiveProps = shallowReactive(props);
+
+    // 确保插槽内容是函数
+    const slotContent = children || reactiveProps.text;
+    const defaultSlot = typeof slotContent === 'function' ? slotContent : () => slotContent;
+
     return defineComponent({
       render() {
-        return h(resolvedType, reactiveProps, children || reactiveProps.text);
-      }
+        return h(resolvedType, reactiveProps, {
+          default: defaultSlot, // 传递默认插槽作为函数
+        });
+      },
     }) as T;
   },
   16

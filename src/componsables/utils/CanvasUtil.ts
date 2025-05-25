@@ -67,9 +67,11 @@ function checkCursorPosition<T extends RenrenInterface.XAndYType<number, number>
       const containerX = react.x;
       const containerY = react.y;
       result = {
-        x: Math.max(0, Math.abs(event.clientX - containerX)),
-        y: Math.max(0, Math.abs(event.clientY - containerY))
+        x: Math.round(event.clientX - containerX),
+        y: Math.round(event.clientY - containerY)
       } as T;
+
+
       return result;
     } else {
       return result;

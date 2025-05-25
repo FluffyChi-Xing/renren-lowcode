@@ -4,6 +4,7 @@ import HighLightLang from "@/components/HighLightLang.vue";
 import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
+import { Editor } from '@guolao/vue-monaco-editor';
 const schema2string = ref<string>('');
 const isShow = ref<boolean>(false);
 
@@ -47,9 +48,10 @@ $event.on('showSchema', () => {
     <template #default>
       <div class="w-full h-full flex flex-col">
         <!-- highlight-block -->
-        <HighLightLang
-          :code="schema2string"
-          lang="json"
+        <Editor
+          v-model:value="schema2string"
+          language="json"
+          theme="vs-dark"
         />
       </div>
     </template>

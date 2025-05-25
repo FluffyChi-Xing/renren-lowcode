@@ -7,7 +7,7 @@ import Context from "@/components/Context.vue";
 import SelectArea from "@/components/SelectArea.vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
-import DisplayItem from "@/components/DisplayItem.vue";
+import DisplayItem, {type moveDataTransfer} from "@/components/DisplayItem.vue";
 import {mySchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
 import {$util} from "@/componsables/utils";
@@ -261,7 +261,8 @@ const throttleDragEventHandler = throttle(
  * @param event
  */
 const throttledMaterialMousemoveHandler = throttle(
-  async function materialMousemoveHandler<T extends RenrenMaterialModel>(item: T, event?: DragEvent) {
+  async function materialMousemoveHandler<T extends RenrenMaterialModel>(item: T, config: moveDataTransfer) {
+    const { event, dom } = config;
     event?.preventDefault();
     event?.stopPropagation();
 
@@ -269,12 +270,21 @@ const throttledMaterialMousemoveHandler = throttle(
       // 获取物料拖动位置
       let position = { x: 0, y: 0 };
       if (editor.value) {
-        position = await $util.canvas.getCursorPosition(event, editor.value, 500);
+        position = await $util.canvas.getCursorPosition(event, editor.value);
+      }
+      let offset = {
+        x: 0,
+        y: 1
+      }
+      // 通过元素的实例长宽计算偏移量
+      if (dom !== void 0) {
+        offset.x = (dom as HTMLElement)?.getBoundingClientRect().width / 2 || 0;
+        offset.y = (dom as HTMLElement)?.getBoundingClientRect().height / 2 || 0;
       }
       // 使用 requestAnimationFrame 更新样式
       requestAnimationFrame(async () => {
-        materialPosition.left.value = `${position.x}`;
-        materialPosition.top.value = `${position.y}`;
+        materialPosition.left.value = `${position.x - offset.x}`;
+        materialPosition.top.value = `${position.y - offset.y}`;
 
         // 更新 schema
         const node = await engineInstance.arrangement.moveComponent(item,
@@ -301,7 +311,7 @@ const throttledMaterialMousemoveHandler = throttle(
     // 通知 物料编辑框 进行更新
     $event.emit('updateShape');
   },
-  100
+  16
 );
 
 
@@ -826,7 +836,7 @@ watch(() => mySchemaStore.elementInProcess, (newVal, oldVal) => {
  * @description 页面挂载时，保持物料容器数据持久化
  */
 onMounted(async () => {
-  await keepMaterialAlive();
+  keepMaterialAlive();
   await checkGridBackgroundColor().catch(err => {
     $message({
       type: 'warning',
