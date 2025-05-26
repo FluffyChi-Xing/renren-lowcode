@@ -19,6 +19,10 @@ interface IHotkeyCallbackConfig {
   combo?: string;
 }
 
+type KeyMap = {
+  [key: number]: string
+}
+
 interface IHotkeyCallbacks {
   [key: string]: IHotkeyCallbackConfig[];
 }
@@ -46,6 +50,8 @@ interface IHotkeys {
   keyEventHandler(event: KeyboardEvent): void;
 
   bindMultiple(combinations: string[], callback: callbackType, action?: string): void;
+
+  characterFromEvent(event: KeyboardEvent): string;
 }
 
 
@@ -57,13 +63,16 @@ class Hotkey implements IHotkeys {
 
   private resetTimer: number = 0;
 
-  private isActive: boolean = false;
+  private isActive: boolean = true;
 
   private callbacks: IHotkeyCallbacks = {};
 
   private directMap: HotkeyDirectMap = {};
 
+  private ignoreNextKeyup: boolean | string = false;
+
   constructor(readonly viewName: string = 'global') {
+    // 初始化的时候默认将热键绑定在全局窗口上
     this.mount(window);
   }
 
@@ -93,21 +102,17 @@ class Hotkey implements IHotkeys {
     if (config instanceof Window) {
       const { document } = config;
       const handleKeyEvent = this.keyEventHandler.bind(this);
-      document.addEventListener('keypress', handleKeyEvent, false);
       document.addEventListener('keyup', handleKeyEvent, false);
       document.addEventListener('keydown', handleKeyEvent, false);
       return () => {
-        document.removeEventListener('keypress', handleKeyEvent, false);
         document.removeEventListener('keyup', handleKeyEvent, false);
         document.removeEventListener('keydown', handleKeyEvent, false);
       };
     } else {
       const handleKeyEvent = this.keyEventHandler.bind(this);
-      config.addEventListener('keypress', handleKeyEvent, false);
       config.addEventListener('keyup', handleKeyEvent, false);
       config.addEventListener('keydown', handleKeyEvent, false);
       return () => {
-        config.removeEventListener('keypress', handleKeyEvent, false);
         config.removeEventListener('keyup', handleKeyEvent, false);
         config.removeEventListener('keydown', handleKeyEvent, false);
       };
@@ -121,10 +126,50 @@ class Hotkey implements IHotkeys {
   }
 
   keyEventHandler(event: KeyboardEvent): void {
+    if (!this.isActive) {
+      return;
+    }
+    // 获取事件对应的组合键
+    const character = this.characterFromEvent(event);
+    if (!character) {
+      return;
+    }
+
+    // 检查需要忽略的按键
+    if (event.type === 'keyup' && this.ignoreNextKeyup === character) {
+      this.ignoreNextKeyup = false;
+      return;
+    }
+
+    // 否则进行下一步的处理
+    // this.handleKey(character, eventModifiers(event), event);
   }
 
   bindMultiple(combinations: string[], callback: callbackType, action?: string): void {
   }
+
+
+  /**
+   * @description 获取事件对应的组合键
+   * @param event
+   */
+  characterFromEvent(event: KeyboardEvent): string {
+    const keyCode: string = event.key;
+
+    // keypress 事件已弃用
+    // if (event.type === 'keypress') {
+    //   let character: string = keyCode;
+    //
+    //   // 如果不是 shift 键，则将字符转为小写
+    //   if (!event.shiftKey) {
+    //     character = character.toLowerCase();
+    //   }
+    //   return character;
+    // }
+    // 转换成小写
+    return keyCode.toLowerCase();
+  }
+
 
   private bindSingle(
     combination: string,

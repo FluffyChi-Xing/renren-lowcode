@@ -63,7 +63,8 @@ const materialPosition = reactive<positionType>(
 );
 // 邮件菜单列表
 const contextMenuList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(DEFAULT_CONTEXT_MENU_LIST);
-
+// 暂存组件
+const tempComponent = ref<RenrenMaterialModel>();
 
 /**
  * @description 获取鼠标当前坐标
@@ -403,6 +404,52 @@ async function pasteMaterial() {
   }
 }
 
+
+/**
+ * @description 热键复制物料事件
+ * @param item
+ */
+function hotkeyCopy(item: RenrenMaterialModel | undefined): void {
+  if (item !== void 0) {
+    // 将组件暂存
+    console.log('insert temp component');
+    tempComponent.value = item;
+  }
+}
+
+
+/**
+ * @description 热键粘贴物料
+ */
+function hotkeyPaste(event: KeyboardEvent): void {
+  if (!tempComponent.value) {
+    return;
+  }
+  let character: string = event.key.toLowerCase();
+  if (character !== 'v') {
+    return;
+  }
+  // 重新赋值id(相当于创建新的物料)
+  let newComponent: RenrenMaterialModel = $util.renren.deepClone(tempComponent.value);
+  newComponent.id = $util.nano.generateUUID();
+  // 处理组件的 position(x轴方向)
+  let positionX: MaterialInterface.IProp | undefined;
+  if (Array.isArray(newComponent.props?.items) && newComponent.props.items.length > 0) {
+    positionX = newComponent.props.items.find((item: MaterialInterface.IProp) => item.type === 'left');
+    if (positionX !== void 0) {
+      // 偏移 10 px
+      const currentValue = parseFloat(positionX.value); // 转成数字
+      if (!isNaN(currentValue)) {
+        // TODO: 后续改为偏移到本身的 width 加上 static offset
+        positionX.value = `${Math.round(currentValue + 60)}`; // 偏移 60 px 从视觉上错开粘贴后的组件
+      }
+      // 将组件添加到容器中
+      materialContainer.value.push(newComponent);
+      // 同步到 schema 中
+      engineInstance.arrangement.addComponent(newComponent);
+    }
+  }
+}
 /**
  *  物料层级控制 -start
  */
@@ -897,6 +944,7 @@ $event.on('clearContext', () => {
         draggable="false"
         :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
         class="flex items-center justify-center relative"
+        @keydown.ctrl="hotkeyPaste"
       >
         <!-- 网格线 -->
         <Grid
@@ -932,6 +980,7 @@ $event.on('clearContext', () => {
           :key="index"
           :item="item"
           @move="throttledMaterialMousemoveHandler(item, $event)"
+          @copy="hotkeyCopy"
         />
       </div>
     </el-scrollbar>

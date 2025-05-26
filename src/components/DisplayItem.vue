@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   item: undefined
 });
-const emits = defineEmits(['create', 'move']);
+const emits = defineEmits(['create', 'move', 'copy', 'paste']);
 
 
 const comp = shallowRef();
@@ -154,6 +154,25 @@ function syncPositionChange() {
 }
 
 
+/**
+ * @description 处理复制事件
+ */
+function copyComponent(event: KeyboardEvent): void {
+  if (materialNode.value) {
+    if (!event) {
+      return;
+    }
+
+    // 判断触发的是否为 ctrl + c
+    let character: string = event.key.toLowerCase();
+    if (character !== 'c') {
+      return;
+    }
+    emits('copy', props.item);
+  }
+}
+
+
 onMounted(async () => {
   if (item.value) {
     comp.value = await engineInstance.renderer.createMaterialEl(props.item as RenrenMaterialModel);
@@ -203,9 +222,11 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
     draggable="true"
     ref="materialNode"
     class="cursor-move"
+    :tabindex="0"
     :style="styleObj"
     @drag="materialMoveHandler($event)"
     @dragover="dragoverHandler($event)"
+    @keydown.ctrl="copyComponent($event)"
   />
 </template>
 
