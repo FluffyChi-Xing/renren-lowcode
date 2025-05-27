@@ -7,8 +7,8 @@ import {type Component, defineComponent, h, shallowReactive} from "vue";
 import {ElButton, ElEmpty, ElImage, ElLink, ElTag, ElText} from "element-plus";
 import Arrangement, {type IArrangement} from "@/renren-engine/modules/arrangement";
 import {$util} from "@/componsables/utils";
-import { throttle, debounce } from "lodash-es";
-import type {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {throttle} from "lodash-es";
+import  {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 
 export interface IRenderer<T> {
@@ -30,6 +30,8 @@ export interface IRenderer<T> {
   queryCompCSSList(itemId: string): MaterialInterface.IProp[];
 
   componentEventBind<E extends RenrenInterface.IEvent>(index: string, event: E): Promise<string>;
+
+  previewPage<T extends Component>(key?: string): Promise<T[]>;
 }
 
 
@@ -291,6 +293,47 @@ class Renderer <T extends Component> implements IRenderer<T>{
       } catch (e) {
         console.error('更新页面css属性失败', e);
         reject('更新页面css属性失败');
+      }
+    });
+  }
+
+
+  /**
+   * @description 预览页面
+   * @param key 页面主键
+   */
+  previewPage<T extends Component>(key?: string): Promise<T[]> {
+    return new Promise<T[]>((resolve, reject) => {
+      try {
+        // 获取当前页面的全部节点
+        let materials: MaterialInterface.IMaterial[] = this.arrangement.getAllElementNodes(key);
+        let components: T[] = [];
+        if (Array.isArray(materials) && materials.length > 0) {
+          materials.forEach(item => {
+            if (Array.isArray(item.props?.items) && item.props.items.length > 0) {
+              let compProps: Record<string, any> = {};
+              let textSlot: string = '';
+              let style: string = '';
+              item.props.items.forEach(itm => {
+                if (itm.key !== 'style' && itm.key !== 'text') {
+                  compProps[itm.key] = itm.value;
+                } else {
+                  // 拼接样式
+                  style = style.concat(`${itm.type}: ${itm.value}${$util.arr.propAttributesSuffixOptions.get(itm.type)};`)
+                }
+              });
+              textSlot = item.props.items.find(itm => itm.key === 'text')?.value;
+              compProps['style'] = style;
+              console.log('component props', compProps);
+              const newElement: Component = this.createComponent(item.props?.type, compProps, textSlot);
+              components.push(newElement as T);
+            }
+          });
+        }
+        resolve(components);
+      } catch (e) {
+        console.error('预览页面失败', e);
+        reject('预览页面失败');
       }
     });
   }

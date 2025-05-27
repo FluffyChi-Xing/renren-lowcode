@@ -56,9 +56,10 @@ function settingItemHandler(): Promise<string> {
 
 <template>
   <div
+    :tabindex="0"
     @mouseenter="showFunctionalBanner"
     @mouseleave="() => isShow = false"
-    class="w-full h-8 grid text-black cursor-pointer grid-cols-2 gap-2 items-center px-4 mb-1 hover:bg-blue-200 hover:text-blue-500"
+    class="w-full h-8 grid text-black focus:bg-blue-500 focus:text-white cursor-pointer grid-cols-2 gap-2 items-center px-4 mb-1 hover:bg-blue-200 hover:text-blue-500"
   >
     <div
       :class="props.type === 'material' ? 'pl-4' : ''"

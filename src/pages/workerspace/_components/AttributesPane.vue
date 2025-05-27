@@ -2,8 +2,8 @@
  * @description 物料属性匹配面板
  * @author FluffyChi-Xing
  */
-import {useSchemaStore} from "@/stores/schema";
-import {ref, h, watch} from 'vue';
+import {mySchemaStore} from "@/stores/schema";
+import {ref, h, watch, onMounted} from 'vue';
 import type { Component } from 'vue';
 import {ElEmpty} from "element-plus";
 import DocumentAttributesPane from "@/pages/workerspace/_components/Attributes/DocumentAttributesPane.vue";
@@ -14,9 +14,8 @@ import $event from "@/componsables/utils/EventBusUtil";
 import attributeOptions from './attributesOption.json';
 
 
-
-const schemaStore = useSchemaStore();
 const currentTabIndex = ref<string>('1');
+const isShow = ref<boolean>(false);
 const tabPaneList = ref<RenrenInterface.keyValueType<string>[]>(JSON.parse(JSON.stringify(attributeOptions)));
 const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as Component);
 
@@ -25,7 +24,7 @@ const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as 
  * @description 判断是否是一个文档节点
  */
 function isDocumentModel(): boolean {
-  const item: any = schemaStore.currentElement;
+  const item: any = mySchemaStore.currentElement;
   if (item !== void 0) {
     if (item?.type === 'document') {
       return item.rootNode;
@@ -65,6 +64,18 @@ $event.on('clearCanvas', () => {
   // 当清空画布事件发生后，对属性面板进行重置
   currentTabIndex.value = '1';
 });
+
+
+onMounted(() => {
+  isShow.value = mySchemaStore.currentElement !== void 0;
+});
+
+
+watch(() => mySchemaStore.currentElement, () => {
+  isShow.value = mySchemaStore.currentElement !== void 0;
+}, {
+  deep: true
+})
 </script>
 
 <template>
@@ -72,7 +83,7 @@ $event.on('clearCanvas', () => {
     <div class="w-full h-full flex flex-col">
       <!-- 空页面 -->
       <div
-        v-if="!schemaStore.currentElement"
+        v-if="!isShow"
         class="w-full h-auto flex items-center mt-10 justify-center text-black"
       >
         请在左侧画布中选中节点

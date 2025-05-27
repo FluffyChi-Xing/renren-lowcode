@@ -498,6 +498,16 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
    */
   getAllElementNodes<T extends MaterialInterface.IDocument>(key?: string): MaterialInterface.IMaterial[] {
     let targetDocument: T | undefined;
+    // 先从状态管理中获取
+    if (this.state.components.size > 0) {
+      let result: MaterialInterface.IMaterial[] = [];
+      if (key == void 0) {
+        Object.values(this.state.components).forEach(item => {
+          result.push(item);
+        });
+      }
+      return result;
+    }
     if (key !== void 0) {
       targetDocument = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}') as T;
       return targetDocument.nodes || [];

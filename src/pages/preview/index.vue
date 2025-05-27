@@ -3,9 +3,11 @@ import {type Component, ref, reactive, onMounted} from 'vue';
 import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
+import CoreEngine from "@/renren-engine";
 
 
 /** ========= 预览页初始化-start ========= **/
+const engineInstance = new CoreEngine();
 const canvasConfiguration = reactive<CanvasInterface.canvasConfig>({
   config: {}
 });
@@ -25,7 +27,7 @@ async function initCanvas(key?: string) {
 
 
 async function pagePreviewRender() {
-  await $engine.renderer.previewRenderingPage()
+  await engineInstance.renderer.previewPage()
     .then(res => {
       pageComponents.value = res as Component[];
       console.log(res);

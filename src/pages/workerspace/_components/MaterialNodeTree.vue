@@ -9,6 +9,7 @@ import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
+import {mySchemaStore} from "@/stores/schema";
 
 
 
@@ -17,7 +18,7 @@ import {$util} from "@/componsables/utils";
 const materialNodeTreeList = ref<MaterialTreeModel[]>([]);
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
-const currentNode = ref<MaterialTreeModel | undefined>(undefined);
+// const currentNode = ref<MaterialTreeModel | undefined>(undefined);
 
 
 /**
