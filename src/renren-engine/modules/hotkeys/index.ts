@@ -33,7 +33,7 @@ interface HotkeyDirectMap {
 }
 
 
-interface IHotkeys {
+export interface IHotkeys {
 
   activate(flag: boolean): void;
 
@@ -181,3 +181,6 @@ class Hotkey implements IHotkeys {
 
   }
 }
+
+
+export default Hotkey;

@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import $event from "@/componsables/utils/EventBusUtil";
-import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import {onMounted, ref} from 'vue';
-import {$engine} from "@/renren-engine/engine";
-import {$message} from "@/componsables/element-plus";
 import {$util} from "@/componsables/utils";
 import tableHeader from './attribute-table-header-style.json';
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import CoreEngine from "@/renren-engine";
+import {mySchemaStore} from "@/stores/schema";
 
 
 
 
-const schemaStore = useSchemaStore();
+const engine = new CoreEngine();
 const animationList = ref<RenrenInterface.keyValueType<string>[]>([]);
 
 /**
@@ -27,8 +26,8 @@ function addAnimation2MaterialHandler() {
  * @description 处理物料动画预览事件
  */
 function previewMaterialAnimationHandler() {
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
+  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+    const material = mySchemaStore.currentElement as RenrenMaterialModel;
     $event.emit(`previewAnimation:${material.id}`);
   }
 }
@@ -38,8 +37,8 @@ function previewMaterialAnimationHandler() {
  * @description 添加动画效果信息到列表中
  */
 function addAnimationInfo2List() {
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
+  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+    const material = mySchemaStore.currentElement as RenrenMaterialModel;
     if (material !== void 0) {
       if (material.animation && material.animation.length > 0) {
         material.animation.forEach(item => {
@@ -59,36 +58,30 @@ function removeAnimationBinding(key?: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 清空 schema 对应组件的 animation 属性
-      const schema: RenrenMaterialModel | MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
-      await $util.renren.isDocument(schema, async () => {
-        if (schema.nodes && schema.nodes.length > 0) {
-          const material = schema.nodes.find(item => item.id === (schemaStore.currentElement as RenrenMaterialModel)?.id);
-          if (material !== void 0 && material.animation) {
-            if (material.animation.length > 0) {
-              material.animation = [];
-              // 更新 schema
-              await $engine.arrangement.updateSchema(schema as MaterialDocumentModel);
-            }
+      let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+      if (Array.isArray(document?.nodes) && document.nodes.length > 0) {
+        const material = document.nodes.find(item => item.id === (mySchemaStore.currentElement as MaterialInterface.IMaterial)?.id);
+        if (material !== void 0 && material.animation) {
+          if (material.animation.length > 0) {
+            material.animation = [];
+            // 更新 schema
+            engine.arrangement.updateDocument(document);
           }
         }
-      });
+      }
       // 清空 schemaStore.currentElement.animation
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
-        const material = schemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        const material = mySchemaStore.currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           material.animation = [];
-          schemaStore.currentElement = material;
+          mySchemaStore.currentElement = material;
         }
       }
       // 清空 animationList
       animationList.value = [];
-      $message({
-        type: 'info',
-        message: '移除动画效果'
-      });
       resolve('删除动画效果成功');
     } catch (e) {
-      console.log('删除动画效果失败', e);
+      console.error('删除动画效果失败', e);
       reject('删除动画效果失败');
     }
   });

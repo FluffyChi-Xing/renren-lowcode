@@ -5,6 +5,7 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {SCHEMA_PROJECT_STORAGE_ID, SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
+import documentSchema from './page-schema.json';
 
 
 
@@ -90,6 +91,9 @@ export interface IArrangement<T> {
 
   // 编辑页面
   editDocument(documentId: string): MaterialInterface.IDocument | undefined;
+
+  // 初始化页面
+  initDocument(key?: string, name?: string): Promise<string>;
 
   // 删除页面
   removeDocument(documentId: string): Promise<string>;
@@ -277,6 +281,7 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
             }
           });
           this.updateDocument(targetDocument, key);
+          // TODO: need update state too
           resolve('更新物料成功');
         }
       } catch (e) {
@@ -376,8 +381,8 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
           });
           localStorage.setItem(SCHEMA_STORAGE_ID + name, JSON.stringify(schema));
         } else {
-          db.insert(SCHEMA_STORAGE_ID, schema).catch(_ => {
-            console.error('创建页面失败', _);
+          db.insert(SCHEMA_STORAGE_ID, schema).catch(err => {
+            console.error('创建页面失败', err);
           });
           localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(schema));
         }
@@ -387,6 +392,37 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
       console.error('创建页面失败', e);
     }
   }
+
+
+  /**
+   * @description 初始化页面
+   * @param key
+   * @param name
+   */
+  initDocument(key?: string, name?: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      try {
+        // 获取页面
+        let document: MaterialInterface.IDocument | undefined = this.getDocument(key);
+        // 存在 bug 无法成功创建页面初始化
+        if (document === void 0) {
+          let createParams: createDocument = {
+            name: name || '',
+            schema: documentSchema as unknown as MaterialInterface.IDocument,
+            path: key || ''
+          };
+          console.log('create document');
+          this.createDocument(createParams);
+          resolve('页面初始化成功');
+        }
+      } catch (e) {
+        console.error('页面初始化失败', e);
+        reject('页面初始化失败');
+      }
+    });
+  }
+
+
 
   /**
    * @description 清空页面 等同于重构前的 clearMaterialNodes api

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import {MaterialDocumentModel, MaterialTreeModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {$engine} from "@/renren-engine/engine";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
@@ -9,7 +8,8 @@ import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
-import {mySchemaStore} from "@/stores/schema";
+import CoreEngine from "@/renren-engine";
+import {$engine} from "@/renren-engine/engine";
 
 
 
@@ -18,7 +18,7 @@ import {mySchemaStore} from "@/stores/schema";
 const materialNodeTreeList = ref<MaterialTreeModel[]>([]);
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
-// const currentNode = ref<MaterialTreeModel | undefined>(undefined);
+const engine = new CoreEngine();
 
 
 /**
@@ -123,7 +123,8 @@ async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): 
 
 onMounted(async () => {
   // 获取 schema
-  const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
+  let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+  const schema: MaterialDocumentModel = new MaterialDocumentModel(document);
   // 初始化物料节点
   await initMaterialNodeTree(schema).catch(err => {
     $message({
@@ -140,7 +141,8 @@ onMounted(async () => {
 function refreshTree(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
+      let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+      const schema: MaterialDocumentModel | void = new MaterialDocumentModel(document);
       if (schema) {
         await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).then(() => {
           resolve('刷新物料节点树成功');
@@ -166,7 +168,8 @@ function clearTreeNode(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 获取 schema
-      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
+      let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+      const schema: MaterialDocumentModel | void = new MaterialDocumentModel(document);
       // 去除除了 document 节点外的其他所有节点
       materialNodeTreeList.value = materialNodeTreeList.value.filter(node => node.name === schema?.fileName);
       resolve('清空节点成功');
@@ -183,7 +186,8 @@ function clearTreeNode(): Promise<string> {
  */
 async function settingDocumentHandler() {
   showDocEditor.value = true;
-  const documentNode: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
+  let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+  const documentNode: MaterialDocumentModel = new MaterialDocumentModel(document);
   if (documentNode !== void 0) {
     if (!$util.renren.isEmpty(documentNode)) {
       documentNodeName.value = documentNode.fileName ?? '未知页面';
