@@ -5,6 +5,7 @@ import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/
 import {useSchemaStore} from "@/stores/schema";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$engine} from "@/renren-engine/engine";
+import CoreEngine from "@/renren-engine";
 
 
 const props = withDefaults(defineProps<{
@@ -19,6 +20,7 @@ const props = withDefaults(defineProps<{
 
 
 const schemaStore = useSchemaStore();
+const engineInstance = new CoreEngine();
 const line$Refs = ref<Record<string, HTMLElement | null>>({});
 const componentList = ref<RenrenMaterialModel[]>(props.componentData);
 /** ===== 对齐标线-start ===== **/
@@ -73,7 +75,7 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
       if (currentElement && currentElement.type === 'material') {
         (currentElement as RenrenMaterialModel).props?.items?.forEach(async (item) => {
           // 获取当前选中组件的样式列表
-          currentElementStyleList = await $engine.renderer.queryMaterialCSSAttributesList(currentElement as RenrenMaterialModel);
+          currentElementStyleList = await engineInstance.renderer.getComponentCSSAttr((currentElement as RenrenMaterialModel)?.id);
           if (item.type === 'width') {
             currentElementHalfWidth = item.value / 2;
           } else if (item.type === 'height') {
@@ -91,7 +93,7 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
       if (Array.isArray(components) && components.length > 0) {
         components.forEach(async (comp) => {
           if (comp === currentElement) return;
-          const compStyleList: MaterialInterface.IProp[] | void = await $engine.renderer.queryMaterialCSSAttributesList(comp).catch(err => {
+          const compStyleList: MaterialInterface.IProp[] | void = await engineInstance.renderer.getComponentCSSAttr((currentElement as RenrenMaterialModel)?.id).catch(err => {
             console.error(err as string);
           });
           const compHalfWidth: number = compStyleList?.find(item => item.type === 'width')?.value / 2 || 0;

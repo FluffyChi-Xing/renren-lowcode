@@ -19,7 +19,7 @@ const pageComponents = ref<Component[]>([]);
  * @param key
  */
 async function initCanvas(key?: string) {
-  await $engine.renderer.getSchemaConfiguration(key)
+  await engineInstance.renderer.getDocumentProps(key)
     .then(res => {
       canvasConfiguration.config = res?.config;
     });

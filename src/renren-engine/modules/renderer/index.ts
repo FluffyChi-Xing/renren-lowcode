@@ -8,7 +8,7 @@ import {ElButton, ElEmpty, ElImage, ElLink, ElTag, ElText} from "element-plus";
 import Arrangement, {type IArrangement} from "@/renren-engine/modules/arrangement";
 import {$util} from "@/componsables/utils";
 import {throttle} from "lodash-es";
-import  {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 
 export interface IRenderer<T> {
@@ -32,6 +32,10 @@ export interface IRenderer<T> {
   componentEventBind<E extends RenrenInterface.IEvent>(index: string, event: E): Promise<string>;
 
   previewPage<T extends Component>(key?: string): Promise<T[]>;
+
+  getDocumentProps<T extends CanvasInterface.canvasConfig>(key?: string): Promise<T>;
+
+  getComponentCSSAttr<T extends MaterialInterface.IProp>(index: string): Promise<T[]>;
 }
 
 
@@ -278,15 +282,33 @@ class Renderer <T extends Component> implements IRenderer<T>{
         let document: MaterialInterface.IDocument | undefined = this.arrangement.getDocument(index);
         if (document !== void 0) {
           if (prop !== void 0) {
+            // 创建属性
+            let newProp: MaterialInterface.IProp = {
+              code: "",
+              items: null,
+              key: prop.key,
+              maps: undefined,
+              owner: null,
+              parent: undefined,
+              type: prop.index,
+              value: prop.value
+            };
             if (Array.isArray(document?.prop?.items) && document?.prop.items.length > 0) {
-              document.prop.items.forEach(item => {
+              // 如果页面上存在 style 属性，并且存在同样的 style 属性，直接覆盖其值进行更新
+              document.prop.items.find(item => {
                 if (item?.key === 'style') {
-
-                } else {
-                  // 如果 document 的 prop.items 属性中不存在 style 属性，则直接插入 prop
+                  if (item.type === prop.index) {
+                    item.value = prop.value;
+                  }
                 }
               });
+            } else {
+              if (Array.isArray(document.prop?.items)) {
+                document.prop.items.push(newProp);
+              }
             }
+            // 更新页面
+            this.arrangement.updateDocument(document);
             resolve('success');
           }
         }
@@ -337,6 +359,69 @@ class Renderer <T extends Component> implements IRenderer<T>{
       }
     });
   }
+
+
+  /**
+   * @description 获取页面自身的 props 属性
+   * @param key
+   */
+  getDocumentProps<T extends CanvasInterface.canvasConfig>(key?: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      try {
+        // 获取 current page
+        let currentPage: MaterialInterface.IDocument | undefined = this.arrangement.getDocument(key);
+        let props: T = {
+          config: {}
+        } as T;
+        if (currentPage !== void 0) {
+          if ($util.renren.isEmpty(currentPage)) {
+            reject('当前页面不存在');
+          }
+          if (Array.isArray(currentPage.prop?.items) && currentPage.prop.items.length > 0) {
+            currentPage.prop.items.forEach((item: MaterialInterface.IProp) => {
+              props.config[item.type] = item.value;
+            });
+          }
+          resolve(props);
+        } else {
+          reject('当前页面不存在');
+        }
+      } catch (e) {
+        console.error('获取页面 props 属性失败', e);
+        reject('获取页面 props 属性失败');
+      }
+    });
+  }
+
+
+  /**
+   * @description 根据Id获取组件的 css 属性
+   * @param index
+   */
+  getComponentCSSAttr<T extends MaterialInterface.IProp>(index: string): Promise<T[]> {
+    return new Promise<T[]>((resolve, reject) => {
+      try {
+        // 获取id对应的组件
+        let component: MaterialInterface.IMaterial | undefined = this.arrangement.getComponent(index);
+        let result: T[] = [];
+        if (component !== void 0) {
+          if (Array.isArray(component.props?.items) && component.props.items.length > 0) {
+            component.props.items.forEach((item: MaterialInterface.IProp) => {
+              if (item.key === 'style') {
+                result.push(item as T);
+              }
+            });
+          }
+          resolve(result);
+        }
+      } catch (e) {
+        console.error('根据Id获取组件的 css 样式失败', e);
+        reject('根据Id获取组件的 css 样式失败');
+      }
+    });
+  }
+
+
 }
 
 
