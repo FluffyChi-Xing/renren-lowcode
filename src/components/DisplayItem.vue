@@ -198,6 +198,7 @@ watch(() => props.item, async (newValue) => {
  * @description 处理组件更新事件
  */
 $event.on(`updateMaterial:${props.item?.id}`, () => {
+  syncPositionChange();
   updateMaterialHandler().catch(err => {
     $message({
       type: 'warning',

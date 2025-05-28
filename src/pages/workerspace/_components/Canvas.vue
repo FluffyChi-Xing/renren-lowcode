@@ -638,6 +638,8 @@ function deleteCurrentMaterial(): Promise<string> {
         });
         // 更新 materialContainer
         materialContainer.value = materialContainer.value.filter(item => item.id !== material.id);
+        // 通知 material tree component to delete the node
+        $event.emit('deleteNode');
         resolve('删除物料成功');
       }
     } catch (e) {
