@@ -404,7 +404,7 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
       try {
         // 获取页面
         let document: MaterialInterface.IDocument | undefined = this.getDocument(key);
-        // 存在 bug 无法成功创建页面初始化
+        // TODO: 存在 bug 无法成功创建页面初始化
         if (document === void 0) {
           let createParams: createDocument = {
             name: name || '',
@@ -415,6 +415,12 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
           this.createDocument(createParams);
           resolve('页面初始化成功');
         }
+        // let createParams: createDocument = {
+        //   name: name || '',
+        //   schema: documentSchema as unknown as MaterialInterface.IDocument,
+        //   path: key || ''
+        // };
+        // localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
       } catch (e) {
         console.error('页面初始化失败', e);
         reject('页面初始化失败');

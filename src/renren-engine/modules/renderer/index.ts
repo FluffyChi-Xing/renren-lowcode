@@ -36,6 +36,8 @@ export interface IRenderer<T> {
   getDocumentProps<T extends CanvasInterface.canvasConfig>(key?: string): Promise<T>;
 
   getComponentCSSAttr<T extends MaterialInterface.IProp>(index: string): Promise<T[]>;
+
+  updateDocumentProps(props: MaterialInterface.IProp[], key?: string): Promise<string>;
 }
 
 
@@ -422,6 +424,36 @@ class Renderer <T extends Component> implements IRenderer<T>{
   }
 
 
+  /**
+   * @description 更新页面的 css 属性
+   * @param props
+   * @param key
+   */
+  updateDocumentProps<T extends MaterialInterface.IDocument>(props: MaterialInterface.IProp[], key?: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      try {
+        // get current document node
+        let document: T | undefined;
+        document = this.arrangement.getDocument(key) as T;
+        if (document !== void 0) {
+          if (Array.isArray(document.prop?.items) && document.prop.items.length > 0) {
+            document.prop.items.forEach((node: MaterialInterface.IProp, index) => {
+              if (node.key === props[index].key) {
+                node.value = props[index].value;
+              } else {
+                return node;
+              }
+            });
+            this.arrangement.updateDocument(document, key);
+            resolve('success');
+          }
+        }
+      } catch (e) {
+        console.error('更新页面css属性失败', e);
+        reject('更新页面css属性失败');
+      }
+    });
+  }
 }
 
 

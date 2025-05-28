@@ -58,42 +58,6 @@ export function updateSchema(schema: MaterialDocumentModel, key?: string): Promi
 }
 
 
-/**
- * @description 更新文档的属性节点
- * @param props
- */
-export function updateDocumentPropNode(props: MaterialInterface.IProp[]): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    try {
-      let item: MaterialDocumentModel | undefined = await getSchema();
-      if (item !== void 0 && props.length > 0) {
-        if (!$util.renren.isEmpty(item)) {
-          if (item?.prop && item?.prop.items) {
-            if (item.prop.items.length > 0) {
-              const nodes = item.prop.items ?? [];
-              nodes.forEach((node, index) => {
-                if (node.key === props[index].key) {
-                  node.value = props[index].value;
-                }
-              });
-              item.prop.items = nodes;
-              // 保存更新后的 schema
-              await updateSchema(item).then(() => {
-                resolve('更新 schema 成功');
-              }).catch(err => {
-                reject(err as string);
-              });
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.error('更新文档属性失败', e);
-      reject('更新文档属性失败');
-    }
-  });
-}
-
 
 /**
  * @description 向物料节点插入动画效果
