@@ -7,9 +7,9 @@ import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {fileSuffix2languageMap} from "@/renren-engine/componsables/constants/EngineConstants";
 import $event from "@/componsables/utils/EventBusUtil";
-import {$engine} from "@/renren-engine/engine";
 import * as mockData from '../mock/index';
 import { ROUTER_CONTEXT } from "@/plugin/plugin-code-generator/common/constant";
+import CoreEngine from "@/renren-engine";
 
 
 const props = withDefaults(defineProps<{
@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<{
 
 
 
+const engine = new CoreEngine();
 const fileInnerContext = ref<string>();
 const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>([]);
 const currentNode = ref<WorkerSpaceInterface.IFileTree>();
@@ -277,7 +278,7 @@ watch(() => props.sources, () => {
 
 $event.on('exportCode', async () => {
   if (generateFileStructure.value !== void 0) {
-    await $engine.exportCode.saveFile(
+    await engine.exportModule.saveFile(
       generateFileStructure.value,
       (generateFileStructure.value[0])?.label.name as string,
     ).catch(_ => {

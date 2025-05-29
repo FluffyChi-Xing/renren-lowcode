@@ -4,7 +4,6 @@
  */
 import * as arrangement from '@/renren-engine/modules/arrangement/arrangement';
 import * as codeGenerator from '@/renren-engine/modules/code-generator/code-generator';
-import * as exportCode from '@/renren-engine/modules/export/engine-export';
 
 
 /**
@@ -13,5 +12,4 @@ import * as exportCode from '@/renren-engine/modules/export/engine-export';
 export const $engine = {
   arrangement,
   codeGenerator,
-  exportCode,
 }
