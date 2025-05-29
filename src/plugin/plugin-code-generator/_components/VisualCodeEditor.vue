@@ -30,6 +30,7 @@ const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>([]);
 const currentNode = ref<WorkerSpaceInterface.IFileTree>();
 const treeItemRefs = ref<Record<string, HTMLElement>>({});
 const currentLan = ref<string>('html');
+const defaultIndex = ref<string[]>([]);
 
 const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
   // 默认 pinia store 文件
@@ -93,7 +94,7 @@ async function itemHighLight(key: string) {
 
     // 给当前节点添加 is-active 类
     const currentEl = treeItemRefs.value[key];
-    if (currentEl) {
+    if (currentEl !== void 0) {
       currentEl.classList.add('is-active');
     }
   }
@@ -223,29 +224,33 @@ function initFileTree() {
   initFileContext();
   if (generateFileStructure.value !== void 0) {
     // 创建页面文件
+    // TODO: 当前的 props.sources 中可能存在 key === undefined 的节点，导致渲染异常
     if (props.sources) {
       props.sources.forEach(async (value, key) => {
-        let name: string = key?.concat('.vue');
-        let file: WorkerSpaceInterface.IFileTree = {
-          children: [],
-          id: "",
-          label: {
-            icon: "",
-            name: "",
-            path: "",
-            data: ""
+        if (key !== void 0) {
+          let name: string = key?.concat('.vue');
+          let file: WorkerSpaceInterface.IFileTree = {
+            children: [],
+            id: "",
+            label: {
+              icon: "",
+              name: "",
+              path: "",
+              data: ""
+            }
+          };
+          // 初始化新的页面 file tree item
+          file.id = generateUUID();
+          file.label = {
+            icon: "Vue",
+            name: name,
+            path: key,
+            data: value
           }
-        };
-        // 初始化新的页面 file tree item
-        file.id = generateUUID();
-        file.label = {
-          icon: "Vue",
-          name: name,
-          path: key,
-          data: value
+          insertNewFile(generateFileStructure.value[0], file);
+          insertRouteConfig(generateFileStructure.value, file);
+          defaultIndex.value.push(key.concat('.vue') as string)
         }
-        insertNewFile(generateFileStructure.value[0], file);
-        insertRouteConfig(generateFileStructure.value, file);
       });
     }
   }
@@ -262,7 +267,7 @@ function clearDataBinding() {
 
 
 
-onMounted(() => {
+onMounted(async () => {
   generateFileStructure.value = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(mockData.structure);
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();

@@ -91,6 +91,9 @@ export interface IArrangement<T> {
   // 编辑页面
   editDocument(documentId: string): MaterialInterface.IDocument | undefined;
 
+  // 编辑页面标题
+  editDocumentName(newName: string, oldName?: string): Promise<string>;
+
   // 初始化页面
   initDocument(key?: string, name?: string): Promise<string>;
 
@@ -455,6 +458,38 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   editDocument(documentId: string): MaterialInterface.IDocument | undefined {
     return undefined;
   }
+
+
+  /**
+   * @description 编辑页面名称
+   * @param newName
+   * @param oldName
+   */
+  editDocumentName(newName: string, oldName?: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      try {
+        let document: MaterialInterface.IDocument | undefined;
+        if (oldName !== void 0) {
+          document = this.getDocument(oldName);
+        } else {
+          document = this.getDocument();
+        }
+        if (document !== void 0) {
+          document!.fileName = newName as string;
+          if (oldName !== void 0) {
+            this.updateDocument(document, oldName)
+          } else {
+            this.updateDocument(document);
+          }
+          resolve('success');
+        }
+      } catch (e) {
+        console.error('页面更名失败', e);
+        reject('页面更名失败');
+      }
+    });
+  }
+
 
   /**
    * @description 获取当前页面信息 等同于重构前的 getSchema api

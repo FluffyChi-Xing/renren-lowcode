@@ -147,7 +147,7 @@ async function settingDocumentHandler() {
 function editDocumentNameHandler() {
   if (documentNodeName.value) {
     showDocEditor.value = false;
-    $engine.arrangement.editDocumentTitle(documentNodeName.value).then(async () => {
+    engine.arrangement.editDocumentName(documentNodeName.value).then(async () => {
       // 更新 tree list 中 document node 的名称
       let documentNode: MaterialTreeModel | undefined = componentList.value[0];
       if (documentNode !== void 0 && documentNode?.name) {
