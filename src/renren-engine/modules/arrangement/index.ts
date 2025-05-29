@@ -8,7 +8,6 @@ import {SCHEMA_PROJECT_STORAGE_ID, SCHEMA_STORAGE_ID} from "@/componsables/const
 import documentSchema from './page-schema.json';
 
 
-
 /**
  * @description 基本状态类型
  */
@@ -100,6 +99,9 @@ export interface IArrangement<T> {
 
   // 更新页面
   updateDocument(item: MaterialInterface.IDocument, name?: string): void;
+
+  // 获取所有页面节点
+  getAllDocuments<K extends MaterialInterface.IDocument>(): Promise<K[]>;
 
   // 删除项目
   removeProject(projectId: string): Promise<string>;
@@ -217,7 +219,9 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   getComponent<T extends MaterialInterface.IMaterial>(itemId: string, key?: string): T | undefined {
     // 先从状态管理中获取
     let component: T | undefined = this.state.components.get(itemId) as unknown as T;
-    if (component === void 0) {
+    if (component !== void 0) {
+      return component;
+    } else {
       // 否则查询本地缓存
       let targetDocument: MaterialInterface.IDocument | undefined;
       if (key) {
@@ -230,8 +234,8 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
           component = targetDocument.nodes.filter(item => item.id === itemId)[0] as T;
         }
       }
+      return component;
     }
-    return component;
   }
 
 
@@ -281,7 +285,7 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
             }
           });
           this.updateDocument(targetDocument, key);
-          // TODO: need update state too
+          this.state.components?.set(item.id, item as T);
           resolve('更新物料成功');
         }
       } catch (e) {
@@ -443,6 +447,7 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
     if (targetDocument !== void 0) {
       targetDocument.nodes = [];
       this.updateDocument(targetDocument, key);
+      this.state.components.clear();
     }
     return Promise.resolve('清空页面成功');
   }
@@ -533,6 +538,22 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
       localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(item));
     }
   }
+
+
+  /**
+   * @description 获取全部页面节点
+   */
+  getAllDocuments<K extends MaterialInterface.IDocument>(): Promise<K[]> {
+    let result: K[] = [];
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(SCHEMA_STORAGE_ID)) {
+        result.push(JSON.parse(localStorage.getItem(key) || '{}') as K);
+      }
+    });
+    return Promise.resolve(result);
+  }
+
+
 
   /**
    * @description 获取当前页面的全部物料节点 对应重构前的 queryNodeList api

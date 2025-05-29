@@ -11,7 +11,12 @@ import type {MaterialInterface} from "@/componsables/interface/MaterialInterface
 import prettier from 'prettier/standalone';
 import htmlParser from 'prettier/plugins/html';
 import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
+import CoreEngine from "@/renren-engine";
 
+
+
+
+const engine = new CoreEngine();
 /**
  * @description 从当前页面节点中提取基本元素 nodes, prop, event, animation
  * @param documentId
@@ -19,7 +24,8 @@ import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 function extractPageBaseElement<T extends EngineTypes.BaseElement>(documentId?: string | undefined): Promise<T> {
   return new Promise<T>(async (resolve, reject) => {
     try {
-      const schema: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema(documentId);
+      let doc: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument(documentId);
+      const schema: MaterialDocumentModel | undefined = new MaterialDocumentModel(doc);
       let result: EngineTypes.BaseElement = {
         animation: [],
         events: [],
@@ -360,7 +366,7 @@ export function getAllCodeTemplates<T extends templateRespDto>(): Promise<T> {
       };
       let keys: string[] = [];
       // 获取本地持久化的全部 document 节点
-      let documents: MaterialDocumentModel[] | undefined = await $engine.arrangement.queryAllDocuments();
+      let documents: MaterialDocumentModel[] | undefined = await engine.arrangement.getAllDocuments();
       if (documents !== void 0 && documents.length > 0) {
         for (const item of documents) {
           // 生成页面节点对应的源代码

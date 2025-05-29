@@ -64,38 +64,38 @@ export function updateSchema(schema: MaterialDocumentModel, key?: string): Promi
  * @param key 物料id
  * @param animation 动画效果(RenrenInterface.keyValueType<string>)
  */
-export function insertAnimation2Material(key: string, animation: RenrenInterface.keyValueType<string>): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    try {
-      const schema: MaterialDocumentModel | undefined = await getSchema();
-      if (schema !== void 0) {
-        if (!$util.renren.isEmpty(schema)) {
-          const nodes: MaterialInterface.IMaterial[] | undefined = schema?.nodes;
-          if (nodes !== void 0 && nodes?.length > 0) {
-            let material: MaterialInterface.IMaterial | undefined = nodes?.find(node => node.id === key);
-            if (material !== void 0 && material?.animation) {
-              if (material?.animation.length > 0) {
-                reject('每个节点只能插入一个动画');
-              } else {
-                material?.animation.push(animation);
-                // 保存更新后的 schema
-                await updateSchema(schema).catch(err => {
-                  reject(`更新 schema 失败: ${err}`);
-                });
-                resolve('插入动画成功');
-              }
-            } else {
-              reject('没有找到匹配的节点');
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.error('插入动画失败', e);
-      reject('插入动画失败');
-    }
-  });
-}
+// export function insertAnimation2Material(key: string, animation: RenrenInterface.keyValueType<string>): Promise<string> {
+//   return new Promise<string>(async (resolve, reject) => {
+//     try {
+//       const schema: MaterialDocumentModel | undefined = await getSchema();
+//       if (schema !== void 0) {
+//         if (!$util.renren.isEmpty(schema)) {
+//           const nodes: MaterialInterface.IMaterial[] | undefined = schema?.nodes;
+//           if (nodes !== void 0 && nodes?.length > 0) {
+//             let material: MaterialInterface.IMaterial | undefined = nodes?.find(node => node.id === key);
+//             if (material !== void 0 && material?.animation) {
+//               if (material?.animation.length > 0) {
+//                 reject('每个节点只能插入一个动画');
+//               } else {
+//                 material?.animation.push(animation);
+//                 // 保存更新后的 schema
+//                 await updateSchema(schema).catch(err => {
+//                   reject(`更新 schema 失败: ${err}`);
+//                 });
+//                 resolve('插入动画成功');
+//               }
+//             } else {
+//               reject('没有找到匹配的节点');
+//             }
+//           }
+//         }
+//       }
+//     } catch (e) {
+//       console.error('插入动画失败', e);
+//       reject('插入动画失败');
+//     }
+//   });
+// }
 
 
 /**
@@ -145,20 +145,20 @@ export function editDocumentTitle(newTitle: string, originalTitle?: string): Pro
 /**
  * @description 获取本地持久化的全部页面节点
  */
-export function queryAllDocuments<T extends MaterialDocumentModel>(): Promise<T[]> {
-  return new Promise<T[]>((resolve, reject) => {
-    try {
-      let result: T[] = [];
-      Object.keys(localStorage).forEach(item => {
-        if (item.startsWith(SCHEMA_STORAGE_ID)) {
-          result.push(JSON.parse(localStorage.getItem(item) as string) as T);
-        }
-      });
-      resolve(result);
-    } catch (e) {
-      console.error('查询所有文档失败', e);
-      reject('查询所有文档失败');
-    }
-  });
-}
+// export function queryAllDocuments<T extends MaterialDocumentModel>(): Promise<T[]> {
+//   return new Promise<T[]>((resolve, reject) => {
+//     try {
+//       let result: T[] = [];
+//       Object.keys(localStorage).forEach(item => {
+//         if (item.startsWith(SCHEMA_STORAGE_ID)) {
+//           result.push(JSON.parse(localStorage.getItem(item) as string) as T);
+//         }
+//       });
+//       resolve(result);
+//     } catch (e) {
+//       console.error('查询所有文档失败', e);
+//       reject('查询所有文档失败');
+//     }
+//   });
+// }
 

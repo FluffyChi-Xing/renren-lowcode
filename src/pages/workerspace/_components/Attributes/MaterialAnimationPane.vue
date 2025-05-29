@@ -57,16 +57,13 @@ function addAnimationInfo2List() {
 function removeAnimationBinding(key?: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      // 清空 schema 对应组件的 animation 属性
-      let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
-      if (Array.isArray(document?.nodes) && document.nodes.length > 0) {
-        const material = document.nodes.find(item => item.id === (mySchemaStore.currentElement as MaterialInterface.IMaterial)?.id);
-        if (material !== void 0 && material.animation) {
-          if (material.animation.length > 0) {
-            material.animation = [];
-            // 更新 schema
-            engine.arrangement.updateDocument(document);
-          }
+      // 清空对应组件的 animation 属性
+      let component: MaterialInterface.IMaterial | undefined;
+      component = engine.arrangement.getComponent((mySchemaStore.currentElement as RenrenMaterialModel)?.id);
+      if (component !== void 0) {
+        if (Array.isArray(component.animation) && component.animation.length >= 0) {
+          component.animation = [];
+          await engine.arrangement.updateComponent(component);
         }
       }
       // 清空 schemaStore.currentElement.animation
@@ -133,7 +130,7 @@ onMounted(() => {
         >
           <template #default="{ row }">
             <div class="w-full h-auto flex items-center justify-center">
-              <el-button @click="removeAnimationBinding(row.key)" size="small" type="text">删除动画</el-button>
+              <el-button @click="removeAnimationBinding" size="small" type="text">删除动画</el-button>
             </div>
           </template>
         </el-table-column>

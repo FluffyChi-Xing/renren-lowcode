@@ -8,12 +8,14 @@ import {mySchemaStore} from "@/stores/schema";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
 import {$util} from "@/componsables/utils";
+import CoreEngine from "@/renren-engine";
 
 
 
 
 
 const isShow = ref<boolean>(false);
+const engine = new CoreEngine();
 /**
  * @description 处理动画绑定事件
  * @param item
@@ -35,7 +37,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promis
           mySchemaStore.currentElement = material;
         }
         // 将动画保存在 schema 中
-        await $engine.arrangement.insertAnimation2Material(material.id, item).catch(err => {
+        await engine.renderer.insertAnimation(material.id, item).catch(err => {
           reject(err as string);
         });
         resolve('保存动画成功');

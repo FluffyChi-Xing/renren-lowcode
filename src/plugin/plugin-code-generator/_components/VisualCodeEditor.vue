@@ -104,9 +104,9 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
   // 清除所有节点的 is-active 类
   await itemHighLight(node.label?.name);
   // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
-  let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+  let suffix: string = node.label?.name.split('.').pop() as string;
+  // 处理 .ico 文件预览
   if (treeItemRefs.value) {
-
     if (suffix === 'ico') {
       $message({
         type: 'warning',
@@ -114,27 +114,27 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
       });
       return;
     }
-    if (props.sources) {
-      // 处理自定义页面对应的预览逻辑
-      let name: string = node?.label.name.split('.').slice(0, -1).join('.');
-      if (!props.sources.has(name)) {
-        // 处理对应的代码预览
-        let code: RenrenInterface.keyValueType<string>;
-        if (node.label.path !== 'indexTs') {
-          code = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
-        } else {
-          code = {
-            key: 'router',
-            value: node.label.data as string
-          }
-        }
-        if (code !== void 0) {
-          fileInnerContext.value = code.value;
-          currentLan.value = suffix;
-        }
+    // 如果当前点击 node 不是一个页面
+    if (suffix !== 'vue') {
+      // 处理 router folder 下的 index.ts 预览
+      if (node?.label.path !== 'indexTs') {
+        currentLan.value = fileSuffix2languageMap.get(suffix) as string;
+        fileInnerContext.value = (defaultFileMap.get(node?.label.path) as RenrenInterface.keyValueType<string>)?.value as string;
       } else {
-        fileInnerContext.value = props.sources.get(name) as string;
-        currentLan.value = suffix;
+        // 处理其他静态文件预览
+        currentLan.value = fileSuffix2languageMap.get('ts') as string;
+        fileInnerContext.value = node?.label.data as string;
+      }
+    } else {
+      // 处理 App.vue 文件预览
+      if (node?.label.path !== 'AppVue') {
+        let name: string = node?.label.name.split('.').slice(0, -1).join('.') as string;
+        currentLan.value = 'html';
+        fileInnerContext.value = props.sources?.get(name) as string;
+      } else {
+        // 处理通常页面预览
+        currentLan.value = 'html';
+        fileInnerContext.value = node?.label.data as string;
       }
     }
   }
@@ -225,7 +225,7 @@ function initFileTree() {
     // 创建页面文件
     if (props.sources) {
       props.sources.forEach(async (value, key) => {
-        let name: string = key.concat('.vue');
+        let name: string = key?.concat('.vue');
         let file: WorkerSpaceInterface.IFileTree = {
           children: [],
           id: "",

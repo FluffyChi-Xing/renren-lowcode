@@ -38,6 +38,8 @@ export interface IRenderer<T> {
   getComponentCSSAttr<T extends MaterialInterface.IProp>(index: string): Promise<T[]>;
 
   updateDocumentProps(props: MaterialInterface.IProp[], key?: string): Promise<string>;
+
+  insertAnimation(index: string, animation: RenrenInterface.keyValueType<string>, key?: string): Promise<string>;
 }
 
 
@@ -451,6 +453,36 @@ class Renderer <T extends Component> implements IRenderer<T>{
       } catch (e) {
         console.error('更新页面css属性失败', e);
         reject('更新页面css属性失败');
+      }
+    });
+  }
+
+
+  /**
+   * @description 向 component 节点插入 animation 属性
+   * @param index
+   * @param animation
+   * @param key optional
+   */
+  insertAnimation(index: string, animation: RenrenInterface.keyValueType<string>, key?:string): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        let component: MaterialInterface.IMaterial | undefined;
+        component = this.arrangement.getComponent(index, key);
+        if (component !== void 0) {
+          if (Array.isArray(component?.animation)) {
+            if (component.animation.length >= 1) {
+              reject('每个物料仅支持一个动画效果');
+            } else {
+              component.animation.push(animation);
+              await this.arrangement.updateComponent(component, key);
+              resolve('添加动画成功');
+            }
+          }
+        }
+      } catch (e) {
+        console.error('向 component 节点插入 animation 属性失败', e);
+        reject('添加动画失败');
       }
     });
   }
