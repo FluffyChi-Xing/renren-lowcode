@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import {MaterialDocumentModel, MaterialTreeModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {$engine} from "@/renren-engine/engine";
+import {MaterialDocumentModel, MaterialTreeModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
@@ -9,153 +8,105 @@ import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
 
-const materialNodeTreeList = ref<MaterialTreeModel[]>([]);
+const componentList = ref<MaterialTreeModel[]>([]);
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
-const currentNode = ref<MaterialTreeModel | undefined>(undefined);
-
-
-/**
- * @description 创建项目根节点
- * @param schema
- */
-function createDocumentNode(schema: MaterialDocumentModel): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      // 先检查 materialNodeTreeList 中是否已经存在 document 节点
-      // 如果存在则直接返回
-      if (!materialNodeTreeList.value?.some(node => node.name === schema.fileName)) {
-        const nodeSchema: MaterialInterface.MaterialTreeType = {
-          children: [],
-          icon: "Document",
-          index: '',
-          name: schema.fileName ? schema.fileName : '',
-          parentId: undefined,
-          type: 'document'
-        };
-        materialNodeTreeList.value?.push(new MaterialTreeModel(nodeSchema));
-        resolve('插入 document 节点成功');
-      }
-    } catch (e) {
-      console.error('插入 document 节点失败', e);
-      reject('插入 document 节点失败');
-    }
-  });
-}
+const engine = container.resolve<IEngine>('engine');
+// tree item index table
+const componentIndexMap = ref<Map<string, MaterialTreeModel>>(
+  new Map()
+);
 
 
 
-
-/**
- * @description 插入物料到节点树中
- * @param nodes
- */
-function insertMaterialNode(nodes: RenrenMaterialModel[] | undefined): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      if (nodes !== void 0 && nodes?.length > 0) {
-        nodes?.forEach((node: RenrenMaterialModel) => {
-          const existingNode: MaterialInterface.MaterialTreeType | undefined = materialNodeTreeList.value?.find(item => item.index.toString() === node.id);
-          if (existingNode === void 0) {
-            let params: MaterialInterface.MaterialTreeType = {
-              children: [],
-              icon: node.icon ? node.icon : 'Menu',
-              index: node.id ? node.id : '',
-              name: node.title ? node.title : '未命名',
-              parentId: node.parent ? node.parent : undefined,
-              type: 'material'
-            };
-            materialNodeTreeList.value?.push(new MaterialTreeModel(params));
-          }
-        });
-        resolve('插入物料节点成功');
-      }
-    } catch (e) {
-      console.error('插入物料节点失败', e);
-      reject('插入物料节点失败');
-    }
-  });
-}
 // TODO: 适配撤销&反做事件
 
-/**
- * @description 初始化物料节点树
- */
-async function initMaterialNodeTree(schema: MaterialDocumentModel | undefined): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
-    try {
-      if (schema) {
-        if (!$util.renren.isEmpty(schema)) {
-          // 同步 document 节点
-          await createDocumentNode(schema).catch(err => reject(err));
-
-          if (schema?.nodes) {
-            // 将 schema.nodes 转换为 Map，便于查找
-            const newNodeMap = new Map<string, RenrenMaterialModel>();
-            schema.nodes.forEach(node => newNodeMap.set(node.title, new RenrenMaterialModel(node)));
-
-            // 删除不存在的节点
-            materialNodeTreeList.value = materialNodeTreeList.value.filter(node =>
-              node.name === schema.fileName || newNodeMap.has(node.name)
-            );
-
-            // 插入或更新节点
-            await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).catch(err => reject(err));
-          }
-          resolve('初始化物料节点树成功');
-        } else {
-          reject('未找到物料文档');
-        }
-      }
-    } catch (e) {
-      console.error('初始化物料节点树失败', e);
-      reject('初始化物料节点树失败');
-    }
-  });
-}
-
-
-onMounted(async () => {
-  // 获取 schema
-  const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
-  // 初始化物料节点
-  await initMaterialNodeTree(schema).catch(err => {
-    $message({
-      type: 'warning',
-      message: err
-    });
-  });
-});
-
 
 /**
- * @description 刷新物料节点树
+ * @description 初始化节点树 仅在 onMounted 的时候触发
  */
-function refreshTree(): Promise<string> {
-  return new Promise<string>(async (resolve, reject) => {
+function initTreeList(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     try {
-      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
-      if (schema) {
-        await insertMaterialNode(schema.nodes as RenrenMaterialModel[]).then(() => {
-          resolve('刷新物料节点树成功');
-        }).catch(err => {
-          $message({
-            type: 'warning',
-            message: err
-          });
+      // init componentList
+      componentList.value = [];
+      componentIndexMap.value = new Map<string, MaterialTreeModel>();
+      // get currentDocument
+      let document: MaterialInterface.IDocument | undefined;
+      document = engine.arrangement.getDocument();
+      if (document !== void 0) {
+        let newNode: MaterialTreeModel = new MaterialTreeModel({
+          children: [],
+          icon: "Document",
+          index: document?.fileName || 'index',
+          name: document?.fileName || 'index',
+          parentId: undefined,
+          type: "root"
         });
+        // insert root node
+        componentList.value.push(newNode);
+        componentIndexMap.value.set(newNode.index as string, newNode);
+        // insert children nodes
+        if (Array.isArray(document?.nodes) && document.nodes.length > 0) {
+          document.nodes.forEach((item: MaterialInterface.IMaterial) => {
+            newNode = new MaterialTreeModel({
+              children: [],
+              icon: item.icon || 'Close',
+              index: item?.id || 'unknown',
+              name: item?.title || 'title',
+              parentId: undefined,
+              type: "node"
+            });
+            componentList.value.push(newNode);
+            if (componentIndexMap.value !== void 0) {
+              componentIndexMap.value.set(newNode.index as string, newNode);
+            }
+          });
+        }
+        resolve('初始化大纲树成功');
       }
     } catch (e) {
-      console.error('刷新物料节点树失败', e);
-      reject('刷新物料节点树失败');
+      console.error('初始化大纲树失败', e);
+      reject('初始化大纲树失败');
     }
   });
 }
+
+
+/**
+ * @description 刷新节点树
+ */
+function refresh() {
+  let components: MaterialInterface.IMaterial[];
+  components = engine.arrangement.getAllElementNodes();
+  if (Array.isArray(components) && components.length > 0) {
+    if (componentIndexMap.value.size > 0) {
+      components.forEach(item => {
+        if (!componentIndexMap.value.has(item.id)) {
+          let newNode: MaterialTreeModel = new MaterialTreeModel({
+            children: [],
+            icon: item.icon || 'Close',
+            index: item?.id || 'unknown',
+            name: item?.title || 'title',
+            parentId: undefined,
+            type: "node"
+          });
+          componentList.value.push(newNode);
+          componentIndexMap.value.set(newNode.index as string, newNode);
+        }
+      });
+    }
+  }
+}
+
+
 
 
 /**
@@ -164,10 +115,8 @@ function refreshTree(): Promise<string> {
 function clearTreeNode(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      // 获取 schema
-      const schema: MaterialDocumentModel | void = await $engine.arrangement.getSchema();
-      // 去除除了 document 节点外的其他所有节点
-      materialNodeTreeList.value = materialNodeTreeList.value.filter(node => node.name === schema?.fileName);
+      componentList.value = componentList.value.filter(item => item.type === 'root');
+      componentIndexMap.value.clear();
       resolve('清空节点成功');
     } catch (e) {
       console.error('清空节点失败', e);
@@ -182,7 +131,8 @@ function clearTreeNode(): Promise<string> {
  */
 async function settingDocumentHandler() {
   showDocEditor.value = true;
-  const documentNode: MaterialDocumentModel | undefined = await $engine.arrangement.getSchema();
+  let document: MaterialInterface.IDocument | undefined = engine.arrangement.getDocument();
+  const documentNode: MaterialDocumentModel = new MaterialDocumentModel(document);
   if (documentNode !== void 0) {
     if (!$util.renren.isEmpty(documentNode)) {
       documentNodeName.value = documentNode.fileName ?? '未知页面';
@@ -197,12 +147,12 @@ async function settingDocumentHandler() {
 function editDocumentNameHandler() {
   if (documentNodeName.value) {
     showDocEditor.value = false;
-    $engine.arrangement.editDocumentTitle(documentNodeName.value).then(async () => {
+    engine.arrangement.editDocumentName(documentNodeName.value).then(async () => {
       // 更新 tree list 中 document node 的名称
-      let documentNode: MaterialTreeModel | undefined = materialNodeTreeList.value[0];
+      let documentNode: MaterialTreeModel | undefined = componentList.value[0];
       if (documentNode !== void 0 && documentNode?.name) {
         documentNode.name = documentNodeName.value ? documentNodeName.value : '未知节点';
-        materialNodeTreeList.value[0] = documentNode;
+        componentList.value[0] = documentNode;
       }
       $message({
         type: 'info',
@@ -217,17 +167,11 @@ function editDocumentNameHandler() {
   }
 }
 
-
 /**
  * @description 处理物料插入事件
  */
 $event.on('insert', async () => {
-  await refreshTree().catch(err => {
-    $message({
-      type: 'warning',
-      message: err as string
-    });
-  });
+  refresh();
 });
 
 
@@ -236,6 +180,26 @@ $event.on('insert', async () => {
  */
 $event.on('clearCanvas', () => {
   clearTreeNode().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+});
+
+
+$event.on('deleteNode', async () => {
+  await initTreeList().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
+});
+
+
+onMounted(async () => {
+  await initTreeList().catch(err => {
     $message({
       type: 'warning',
       message: err as string
@@ -259,7 +223,7 @@ $event.on('clearCanvas', () => {
          placement="right"
        >
          <el-icon
-           @click="refreshTree"
+           @click="refresh"
            size="15"
            class="cursor-pointer"
          >
@@ -268,7 +232,7 @@ $event.on('clearCanvas', () => {
        </el-tooltip>
      </div>
      <NodeTreeItem
-       v-for="(item, index) in materialNodeTreeList"
+       v-for="(item, index) in componentList"
        :key="index"
        :name="item.name"
        :icon="item.icon"

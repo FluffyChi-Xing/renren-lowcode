@@ -4,15 +4,17 @@ import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
-import {$engine} from "@/renren-engine/engine";
 import { debounce } from "lodash-es";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
 import {myCanvasStore} from "@/stores/canvas";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 /** ===== 文档节点属性绑定-start =====**/
 const documentAttribute = ref<MaterialInterface.IProp[]>([]);
+const engine = container.resolve<IEngine>('engine');
 
 // TODO: 将数据同步到 schema 中
 /**
@@ -44,10 +46,10 @@ function initDocumentAttributeData(): Promise<string> {
  * @description 处理画布颜色更新事件
  * @param color
  */
-function documentColorChangeHandler(color: string) {
+async function documentColorChangeHandler(color: string) {
   if (color) {
     myCanvasStore.canvasColor = color;
-    $engine.arrangement.updateDocumentPropNode(documentAttribute.value).catch(err => {
+    await engine.renderer.updateDocumentProps(documentAttribute.value).catch(err => {
       $message({
         type: 'warning',
         message: err as string
@@ -69,7 +71,7 @@ const inputChangeDebounceHandler = debounce(() => {
       }
     });
     // 由于输入框事件可能频繁触发，这里使用 debounce 节流处理
-    $engine.arrangement.updateDocumentPropNode(documentAttribute.value).catch(err => {
+    engine.renderer.updateDocumentProps(documentAttribute.value).catch(err => {
       $message({
         type: 'warning',
         message: err as string

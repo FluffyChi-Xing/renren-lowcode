@@ -4,7 +4,6 @@ import {eventNameValueMap, eventTypeList} from "@/componsables/utils/EventAttrUt
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {$util} from "@/componsables/utils";
@@ -68,7 +67,7 @@ function eventBindingHandler(item: RenrenInterface.IEvent) {
       // 保存到 schema
       // 保存到 store
       Promise.all([
-        $engine.renderer.insertEvent2Material(material.id, event),
+        // $engine.renderer.insertEvent2Material(material.id, event),
         insertEvent2Store(event),
       ]).then(() => {
         // 发布时间绑定处理事件

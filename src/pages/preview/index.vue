@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {type Component, ref, reactive, onMounted} from 'vue';
-import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 /** ========= 预览页初始化-start ========= **/
+const engineInstance = container.resolve<IEngine>('engine');
 const canvasConfiguration = reactive<CanvasInterface.canvasConfig>({
   config: {}
 });
@@ -17,7 +19,7 @@ const pageComponents = ref<Component[]>([]);
  * @param key
  */
 async function initCanvas(key?: string) {
-  await $engine.renderer.getSchemaConfiguration(key)
+  await engineInstance.renderer.getDocumentProps(key)
     .then(res => {
       canvasConfiguration.config = res?.config;
     });
@@ -25,7 +27,7 @@ async function initCanvas(key?: string) {
 
 
 async function pagePreviewRender() {
-  await $engine.renderer.previewRenderingPage()
+  await engineInstance.renderer.previewPage()
     .then(res => {
       pageComponents.value = res as Component[];
       console.log(res);

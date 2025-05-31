@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {$message} from "@/componsables/element-plus";
-import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
-import {useSchemaStore} from "@/stores/schema";
 import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.vue";
+import {mySchemaStore} from "@/stores/schema";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
-
-const schemaStore = useSchemaStore();
+const engineInstance = container.resolve<IEngine>('engine');
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
-  await $engine.arrangement.clearMaterialNodes().then(() => {
+  await engineInstance.arrangement.clear().then(() => {
     $event.emit('clearCanvas');
-    schemaStore.currentElement = undefined;
+    mySchemaStore.currentElement = undefined;
     $message({
       type: 'info',
       message: '清空画布成功'
@@ -49,7 +49,7 @@ function takeScreenPhoto() {
 
 const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>([
   {
-    key: 'JSON',
+    key: 'Schema Json',
     value: () => $event.emit('showSchema'),
     index: 'Document'
   },

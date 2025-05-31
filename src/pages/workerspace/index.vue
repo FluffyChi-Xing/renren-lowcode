@@ -13,12 +13,14 @@ import '@/assets/animation.css';
 import ViewSchemaDrawer from "@/pages/workerspace/_components/drawer/ViewSchemaDrawer.vue";
 import AddAnimationDrawer from "@/pages/workerspace/_components/drawer/AddAnimationDrawer.vue";
 import AddEventDrawer from "@/pages/workerspace/_components/drawer/AddEventDrawer.vue";
-import {$engine} from "@/renren-engine/engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
 const isMaterialCollapse = ref<boolean>(false);
+const engine = container.resolve<IEngine>('engine');
 const isEditConfigCollapse = ref<boolean>(false);
 /**
  * @description 处理物料栏折叠事件
@@ -38,7 +40,7 @@ function editorConfigCollapseHandler(index: boolean) {
  * @description 初始化 schema
  */
 onMounted(async () => {
-  await $engine.arrangement.initSchema().catch((err: string) => {
+  await engine.arrangement.initDocument().catch((err: string) => {
     $message({
       type: 'warning',
       message: err,

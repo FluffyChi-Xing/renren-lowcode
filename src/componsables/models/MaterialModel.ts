@@ -5,7 +5,6 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {RenrenModel} from "@/componsables/models/RenrenModel";
 import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
-import {$engine} from "@/renren-engine/engine";
 
 
 /**
@@ -301,6 +300,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
   sections: MaterialInterface.IMaterial[] | undefined;
   prop: MaterialInterface.IProps | null = null;
   type: string = 'document';
+  path: string = '/somepath';
 
 
   constructor(params?: MaterialInterface.IDocument) {
@@ -314,6 +314,7 @@ export class MaterialDocumentModel extends RenrenModel implements MaterialInterf
       this.rootNode = params.rootNode;
       this.sections = params.sections ? params.sections.map(section => new RenrenMaterialModel(section)) : [];
       this.prop = params.prop ? params.prop : null;
+      this.path = params.path;
     }
   }
 }
@@ -391,22 +392,23 @@ export class MaterialProjectModel extends RenrenModel implements MaterialInterfa
             activated: false,
             sections: undefined,
             prop: params.prop,
+            path: ''
           };
           const documentModel: MaterialDocumentModel = new MaterialDocumentModel({...documentParams});
           // 检查是否存在同名页面
           const storageId: string = SCHEMA_STORAGE_ID + params?.fileName;
-          const doc = await $engine.arrangement.getSchema(storageId);
-          if (!doc) {
-            // 保存文档节点
-            await $engine.arrangement.saveSchemaToJson(documentModel, params.fileName).catch(err => {
-              reject(err);
-            });
-            // 保存文档节点到项目保存文档节点到项目
-            await $engine.arrangement.saveDocument2Project(params.projectName, documentParams).catch(err => {
-              reject(err);
-            });
-            resolve('创建文档成功');
-          }
+          // const doc = await $engine.arrangement.getSchema(storageId);
+          // if (!doc) {
+          //   // 保存文档节点
+          //   await $engine.arrangement.saveSchemaToJson(documentModel, params.fileName).catch(err => {
+          //     reject(err);
+          //   });
+          //   // 保存文档节点到项目保存文档节点到项目
+          //   await $engine.arrangement.saveDocument2Project(params.projectName, documentParams).catch(err => {
+          //     reject(err);
+          //   });
+          //   resolve('创建文档成功');
+          // }
         } else {
           reject('参数错误');
         }
@@ -426,12 +428,12 @@ export class MaterialProjectModel extends RenrenModel implements MaterialInterfa
     return new Promise<string>(async (resolve, reject) => {
       try {
         // 删除本地缓存的文档节点
-        await $engine.arrangement.removeSchema(SCHEMA_STORAGE_ID + documentName).catch(err => {
-          reject(err);
-        });
-        await $engine.arrangement.removeDocumentFromProject(documentName, this.projectName).catch(err => {
-          reject(err);
-        })
+        // await $engine.arrangement.removeSchema(SCHEMA_STORAGE_ID + documentName).catch(err => {
+        //   reject(err);
+        // });
+        // await $engine.arrangement.removeDocumentFromProject(documentName, this.projectName).catch(err => {
+        //   reject(err);
+        // })
         // 移除项目内的文档节点
         resolve('删除文档成功');
       } catch (e) {

@@ -7,9 +7,10 @@ import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {fileSuffix2languageMap} from "@/renren-engine/componsables/constants/EngineConstants";
 import $event from "@/componsables/utils/EventBusUtil";
-import {$engine} from "@/renren-engine/engine";
 import * as mockData from '../mock/index';
 import { ROUTER_CONTEXT } from "@/plugin/plugin-code-generator/common/constant";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 const props = withDefaults(defineProps<{
@@ -24,11 +25,13 @@ const props = withDefaults(defineProps<{
 
 
 
+const engine = container.resolve<IEngine>('engine');
 const fileInnerContext = ref<string>();
 const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>([]);
 const currentNode = ref<WorkerSpaceInterface.IFileTree>();
 const treeItemRefs = ref<Record<string, HTMLElement>>({});
 const currentLan = ref<string>('html');
+const defaultIndex = ref<string[]>([]);
 
 const defaultFileMap: Map<string, unknown> = new Map<string, unknown>([
   // 默认 pinia store 文件
@@ -92,7 +95,7 @@ async function itemHighLight(key: string) {
 
     // 给当前节点添加 is-active 类
     const currentEl = treeItemRefs.value[key];
-    if (currentEl) {
+    if (currentEl !== void 0) {
       currentEl.classList.add('is-active');
     }
   }
@@ -103,9 +106,9 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
   // 清除所有节点的 is-active 类
   await itemHighLight(node.label?.name);
   // 获取文件 name 中 . 后的文件后缀名，判断当前预览文件的语言
-  let suffix: string = fileSuffix2languageMap.get(node.label?.name.split('.').pop() as string) as string;
+  let suffix: string = node.label?.name.split('.').pop() as string;
+  // 处理 .ico 文件预览
   if (treeItemRefs.value) {
-
     if (suffix === 'ico') {
       $message({
         type: 'warning',
@@ -113,27 +116,27 @@ async function checkSourceCode(node: WorkerSpaceInterface.IFileTree) {
       });
       return;
     }
-    if (props.sources) {
-      // 处理自定义页面对应的预览逻辑
-      let name: string = node?.label.name.split('.').slice(0, -1).join('.');
-      if (!props.sources.has(name)) {
-        // 处理对应的代码预览
-        let code: RenrenInterface.keyValueType<string>;
-        if (node.label.path !== 'indexTs') {
-          code = defaultFileMap.get(node.label?.path) as RenrenInterface.keyValueType<string>;
-        } else {
-          code = {
-            key: 'router',
-            value: node.label.data as string
-          }
-        }
-        if (code !== void 0) {
-          fileInnerContext.value = code.value;
-          currentLan.value = suffix;
-        }
+    // 如果当前点击 node 不是一个页面
+    if (suffix !== 'vue') {
+      // 处理 router folder 下的 index.ts 预览
+      if (node?.label.path !== 'indexTs') {
+        currentLan.value = fileSuffix2languageMap.get(suffix) as string;
+        fileInnerContext.value = (defaultFileMap.get(node?.label.path) as RenrenInterface.keyValueType<string>)?.value as string;
       } else {
-        fileInnerContext.value = props.sources.get(name) as string;
-        currentLan.value = suffix;
+        // 处理其他静态文件预览
+        currentLan.value = fileSuffix2languageMap.get('ts') as string;
+        fileInnerContext.value = node?.label.data as string;
+      }
+    } else {
+      // 处理 App.vue 文件预览
+      if (node?.label.path !== 'AppVue') {
+        let name: string = node?.label.name.split('.').slice(0, -1).join('.') as string;
+        currentLan.value = 'html';
+        fileInnerContext.value = props.sources?.get(name) as string;
+      } else {
+        // 处理通常页面预览
+        currentLan.value = 'html';
+        fileInnerContext.value = node?.label.data as string;
       }
     }
   }
@@ -222,29 +225,33 @@ function initFileTree() {
   initFileContext();
   if (generateFileStructure.value !== void 0) {
     // 创建页面文件
+    // TODO: 当前的 props.sources 中可能存在 key === undefined 的节点，导致渲染异常
     if (props.sources) {
       props.sources.forEach(async (value, key) => {
-        let name: string = key.concat('.vue');
-        let file: WorkerSpaceInterface.IFileTree = {
-          children: [],
-          id: "",
-          label: {
-            icon: "",
-            name: "",
-            path: "",
-            data: ""
+        if (key !== void 0) {
+          let name: string = key?.concat('.vue');
+          let file: WorkerSpaceInterface.IFileTree = {
+            children: [],
+            id: "",
+            label: {
+              icon: "",
+              name: "",
+              path: "",
+              data: ""
+            }
+          };
+          // 初始化新的页面 file tree item
+          file.id = generateUUID();
+          file.label = {
+            icon: "Vue",
+            name: name,
+            path: key,
+            data: value
           }
-        };
-        // 初始化新的页面 file tree item
-        file.id = generateUUID();
-        file.label = {
-          icon: "Vue",
-          name: name,
-          path: key,
-          data: value
+          insertNewFile(generateFileStructure.value[0], file);
+          insertRouteConfig(generateFileStructure.value, file);
+          defaultIndex.value.push(key.concat('.vue') as string)
         }
-        insertNewFile(generateFileStructure.value[0], file);
-        insertRouteConfig(generateFileStructure.value, file);
       });
     }
   }
@@ -261,7 +268,7 @@ function clearDataBinding() {
 
 
 
-onMounted(() => {
+onMounted(async () => {
   generateFileStructure.value = $util.renren.jsonTypeTransfer<WorkerSpaceInterface.IFileTree[]>(mockData.structure);
   // TODO: 后期需要对接接口，从后端请求同属于该项目下的其他页面列表
   initFileTree();
@@ -277,7 +284,7 @@ watch(() => props.sources, () => {
 
 $event.on('exportCode', async () => {
   if (generateFileStructure.value !== void 0) {
-    await $engine.exportCode.saveFile(
+    await engine.exportModule.saveFile(
       generateFileStructure.value,
       (generateFileStructure.value[0])?.label.name as string,
     ).catch(_ => {

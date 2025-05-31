@@ -5,14 +5,16 @@ import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesOptionsMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import { throttle } from "lodash-es";
-import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 /** ===== 物料节点属性绑定-start =====**/
+const engine = container.resolve<IEngine>('engine');
 const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 
 /**
@@ -62,7 +64,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
           if (props.length > 0 && item.props) {
             item.props.items = props;
             // 更新 schema & schemaStore
-            await $engine.arrangement.updateMaterialNodeById(item as MaterialInterface.IMaterial).catch(err => {
+            await engine.arrangement.updateComponent(item as MaterialInterface.IMaterial).catch(err => {
               $message({
                 type: 'warning',
                 message: err as string

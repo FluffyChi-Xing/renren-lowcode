@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import VisualCodeEditor from "@/plugin/plugin-code-generator/_components/VisualCodeEditor.vue";
-import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {useRoute} from "vue-router";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 /** ========== 源码导出-start ========== **/
+const engine = container.resolve<IEngine>('engine');
 const exportFlag = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const currentIndex = ref<string>('0');
@@ -19,7 +21,7 @@ const sourceCodesKeys = ref<string[]>([]);
 async function exportSourceCode() {
   exportFlag.value = true;
   isLoading.value = true;
-  await $engine.codeGenerator.getAllCodeTemplates().then(res =>{
+  await engine.codeGenerator.getAllCodeTemplates().then(res =>{
     sourceCodes.value = res?.templates;
     sourceCodesKeys.value = res.keys;
   }).catch(err => {

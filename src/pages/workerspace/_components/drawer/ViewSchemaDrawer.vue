@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import HighLightLang from "@/components/HighLightLang.vue";
-import {$engine} from "@/renren-engine/engine";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
+import { Editor } from '@guolao/vue-monaco-editor';
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 const schema2string = ref<string>('');
 const isShow = ref<boolean>(false);
 
 
 
+const engine = container.resolve<IEngine>('engine');
 /**
  * @description 处理高亮 schema 事件
  */
 async function showSchemaHandler() {
   isShow.value = !isShow.value;
-  const schema = await $engine.arrangement.getSchema();
+  const schema = engine.arrangement.getDocument();
   if (!$util.renren.isEmpty(schema)) {
     schema2string.value = JSON.stringify(schema, null, 2);
   }
@@ -47,9 +49,10 @@ $event.on('showSchema', () => {
     <template #default>
       <div class="w-full h-full flex flex-col">
         <!-- highlight-block -->
-        <HighLightLang
-          :code="schema2string"
-          lang="json"
+        <Editor
+          v-model:value="schema2string"
+          language="json"
+          theme="vs-dark"
         />
       </div>
     </template>
