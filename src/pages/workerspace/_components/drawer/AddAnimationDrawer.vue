@@ -2,20 +2,20 @@
 import { ref } from 'vue';
 import $event from "@/componsables/utils/EventBusUtil";
 import AnimationTabPane from "@/pages/workerspace/_components/Attributes/_components/AnimationTabPane.vue";
-import { $engine } from "@/renren-engine/engine";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {mySchemaStore} from "@/stores/schema";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
 import {$util} from "@/componsables/utils";
-import CoreEngine from "@/renren-engine";
+import {type IEngine} from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
 
 
 
 
 
 const isShow = ref<boolean>(false);
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 /**
  * @description 处理动画绑定事件
  * @param item

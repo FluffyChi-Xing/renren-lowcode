@@ -14,8 +14,9 @@ import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import positionTemplate from './material-position-template.json';
-import CoreEngine from "@/renren-engine";
 import $event from "@/componsables/utils/EventBusUtil";
+import { container } from '@/renren-engine/__init__';
+import type {IEngine} from "@/renren-engine";
 
 
 withDefaults(defineProps<{
@@ -27,7 +28,7 @@ withDefaults(defineProps<{
 
 
 // 创建引擎实例
-const engineInstance = new CoreEngine();
+const engine = container.resolve<IEngine>('engine')
 const indexedDB = new LocalforageDB();
 const editor = ref();
 const emits = defineEmits(['paste']);
@@ -232,7 +233,7 @@ const throttleDragEventHandler = throttle(
           materialPosition.left.value = `${position.x}`;
           materialPosition.top.value = `${position.y}`;
           // 注册物料到 materialContainer & schema
-          material = engineInstance.renderer.createCSSAttr(
+          material = engine.renderer.createCSSAttr(
             material,
             [
               materialPosition.left,
@@ -325,7 +326,7 @@ async function moveComponentHandler(
     materialPosition.top.value = `${position.y - offset.y}`;
 
     // 更新 schema
-    const node = await engineInstance.arrangement.moveComponent(item,
+    const node = await engine.arrangement.moveComponent(item,
       [
         materialPosition.left,
         materialPosition.top,
@@ -353,7 +354,7 @@ async function moveComponentHandler(
  * @description 保持物料容器数据持久化
  */
 function keepMaterialAlive() {
-  const nodes: RenrenMaterialModel[] = engineInstance.arrangement.getAllElementNodes() as RenrenMaterialModel[];
+  const nodes: RenrenMaterialModel[] = engine.arrangement.getAllElementNodes() as RenrenMaterialModel[];
   if (Array.isArray(nodes) && nodes.length > 0) {
     materialContainer.value = nodes;
   }
@@ -367,7 +368,7 @@ function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  mySchemaStore.currentElement = new MaterialDocumentModel(engineInstance.arrangement.getDocument());
+  mySchemaStore.currentElement = new MaterialDocumentModel(engine.arrangement.getDocument());
 }
 
 
@@ -401,7 +402,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 
 async function saveComponent(item: RenrenMaterialModel | undefined) {
   if (item !== void 0) {
-    await engineInstance.arrangement.addComponent(item).then(() => {
+    await engine.arrangement.addComponent(item).then(() => {
       // 使用 eventBus 触发插入事件
       $event.emit('insert');
       indexedDB.insert(NEW_ELEMENT, item);
@@ -478,7 +479,7 @@ function hotkeyPaste(event: KeyboardEvent): void {
       // 将组件添加到容器中
       materialContainer.value.push(newComponent);
       // 同步到 schema 中
-      engineInstance.arrangement.addComponent(newComponent);
+      engine.arrangement.addComponent(newComponent);
     }
   }
 }
@@ -545,7 +546,7 @@ function changeCompZIndex(material: RenrenMaterialModel, zIndex: number | undefi
           // 组装 css
           materialZIndex.value = zIndex.toString();
           // 同步到 schema
-          engineInstance.renderer.updateCompCSSAttr(material.id, materialZIndex).catch(err => {
+          engine.renderer.updateCompCSSAttr(material.id, materialZIndex).catch(err => {
             console.error(err);
             reject(err);
           });
@@ -632,7 +633,7 @@ function deleteCurrentMaterial(): Promise<string> {
         // 清空 schemaStore 中的 currentElement
         mySchemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
-        engineInstance.arrangement.removeComponent(material.id).catch(err => {
+        engine.arrangement.removeComponent(material.id).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -769,7 +770,7 @@ function updateMaterialData(): Promise<string> {
 function checkGridBackgroundColor(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engineInstance.arrangement.getDocument());
+      const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engine.arrangement.getDocument());
       if (!$util.renren.isEmpty(document)) {
         if (Array.isArray(document.prop?.items) && document.prop.items.length > 0) {
           myCanvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;

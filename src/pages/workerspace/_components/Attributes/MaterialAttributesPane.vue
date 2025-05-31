@@ -8,12 +8,13 @@ import { throttle } from "lodash-es";
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 /** ===== 物料节点属性绑定-start =====**/
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 
 /**

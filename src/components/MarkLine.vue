@@ -2,10 +2,10 @@
 import {ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {useSchemaStore} from "@/stores/schema";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import {$engine} from "@/renren-engine/engine";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
+import {mySchemaStore} from "@/stores/schema";
 
 
 const props = withDefaults(defineProps<{
@@ -19,8 +19,7 @@ const props = withDefaults(defineProps<{
 
 
 
-const schemaStore = useSchemaStore();
-const engineInstance = new CoreEngine();
+const engineInstance = container.resolve<IEngine>('engine');
 const line$Refs = ref<Record<string, HTMLElement | null>>({});
 const componentList = ref<RenrenMaterialModel[]>(props.componentData);
 /** ===== 对齐标线-start ===== **/
@@ -67,7 +66,7 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       const components: RenrenMaterialModel[] | [] = props.componentData;
-      const currentElement: RenrenMaterialModel | MaterialDocumentModel | void = schemaStore.currentElement;
+      const currentElement: RenrenMaterialModel | MaterialDocumentModel | void = mySchemaStore.currentElement;
       let currentElementHalfWidth: number = 0;
       let currentElementHalfHeight: number = 0;
       let currentElementStyleList: MaterialInterface.IProp[] | undefined = undefined;

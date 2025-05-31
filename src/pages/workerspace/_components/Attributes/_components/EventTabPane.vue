@@ -4,7 +4,6 @@ import {eventNameValueMap, eventTypeList} from "@/componsables/utils/EventAttrUt
 import $event from "@/componsables/utils/EventBusUtil";
 import {useSchemaStore} from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
-import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
 import {$util} from "@/componsables/utils";

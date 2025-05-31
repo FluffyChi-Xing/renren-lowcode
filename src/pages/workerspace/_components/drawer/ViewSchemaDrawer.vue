@@ -3,13 +3,14 @@ import { ref } from 'vue';
 import $event from "@/componsables/utils/EventBusUtil";
 import {$util} from "@/componsables/utils";
 import { Editor } from '@guolao/vue-monaco-editor';
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 const schema2string = ref<string>('');
 const isShow = ref<boolean>(false);
 
 
 
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 /**
  * @description 处理高亮 schema 事件
  */

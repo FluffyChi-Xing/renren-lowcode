@@ -9,7 +9,8 @@ import {fileSuffix2languageMap} from "@/renren-engine/componsables/constants/Eng
 import $event from "@/componsables/utils/EventBusUtil";
 import * as mockData from '../mock/index';
 import { ROUTER_CONTEXT } from "@/plugin/plugin-code-generator/common/constant";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 const props = withDefaults(defineProps<{
@@ -24,7 +25,7 @@ const props = withDefaults(defineProps<{
 
 
 
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 const fileInnerContext = ref<string>();
 const generateFileStructure = ref<WorkerSpaceInterface.IFileTree[]>([]);
 const currentNode = ref<WorkerSpaceInterface.IFileTree>();

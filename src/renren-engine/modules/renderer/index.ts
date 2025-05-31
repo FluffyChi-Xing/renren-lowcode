@@ -5,10 +5,11 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {type Component, defineComponent, h, shallowReactive} from "vue";
 import {ElButton, ElEmpty, ElImage, ElLink, ElTag, ElText} from "element-plus";
-import Arrangement, {type IArrangement} from "@/renren-engine/modules/arrangement";
+import {type IArrangement} from "@/renren-engine/modules/arrangement";
 import {$util} from "@/componsables/utils";
 import {throttle} from "lodash-es";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {container} from "@/renren-engine/__init__";
 
 
 export interface IRenderer<T> {
@@ -50,7 +51,7 @@ type SupportedComponentType = 'el-button';
  */
 class Renderer <T extends Component> implements IRenderer<T>{
 
-  private arrangement: IArrangement<MaterialInterface.IMaterial> = new Arrangement().getInstance;
+  private arrangement: IArrangement<MaterialInterface.IMaterial> = container.resolve<IArrangement<MaterialInterface.IMaterial>>('arrangement');
 
   private componentMap: Map<string, Component> = new Map<string, Component>([
     ['el-button', ElButton],

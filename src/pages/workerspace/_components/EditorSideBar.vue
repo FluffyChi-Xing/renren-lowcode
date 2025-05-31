@@ -2,15 +2,15 @@
 import { ref } from 'vue';
 import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
-
 import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.vue";
 import {mySchemaStore} from "@/stores/schema";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
-const engineInstance = new CoreEngine();
+const engineInstance = container.resolve<IEngine>('engine');
 /**
  * @description 清空画布
  */

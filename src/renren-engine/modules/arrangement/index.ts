@@ -34,7 +34,7 @@ type createDocument = {
   schema: MaterialInterface.IDocument;
 }
 
-export interface IArrangement<T> {
+export interface IArrangement<T extends MaterialInterface.IMaterial> {
 
 
   // 引擎初始化

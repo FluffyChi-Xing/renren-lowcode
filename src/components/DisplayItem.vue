@@ -8,7 +8,8 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 import {mySchemaStore} from "@/stores/schema";
 import {$util} from "@/componsables/utils";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -21,7 +22,7 @@ const emits = defineEmits(['create', 'move', 'copy', 'paste']);
 const comp = shallowRef();
 const materialNode = shallowRef();
 // 创建引擎实例
-const engineInstance = new CoreEngine();
+const engineInstance = container.resolve<IEngine>('engine');
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 const styleObj = ref<Record<string, string>>({
   position: 'absolute',

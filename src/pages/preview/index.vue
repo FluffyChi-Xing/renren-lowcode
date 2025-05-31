@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {type Component, ref, reactive, onMounted} from 'vue';
-import {$engine} from "@/renren-engine/engine";
 import {$message} from "@/componsables/element-plus";
 import '@/assets/animation.css';
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 /** ========= 预览页初始化-start ========= **/
-const engineInstance = new CoreEngine();
+const engineInstance = container.resolve<IEngine>('engine');
 const canvasConfiguration = reactive<CanvasInterface.canvasConfig>({
   config: {}
 });

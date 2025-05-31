@@ -13,13 +13,14 @@ import '@/assets/animation.css';
 import ViewSchemaDrawer from "@/pages/workerspace/_components/drawer/ViewSchemaDrawer.vue";
 import AddAnimationDrawer from "@/pages/workerspace/_components/drawer/AddAnimationDrawer.vue";
 import AddEventDrawer from "@/pages/workerspace/_components/drawer/AddEventDrawer.vue";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
 const isMaterialCollapse = ref<boolean>(false);
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 const isEditConfigCollapse = ref<boolean>(false);
 /**
  * @description 处理物料栏折叠事件

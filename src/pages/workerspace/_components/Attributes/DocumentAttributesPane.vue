@@ -4,17 +4,17 @@ import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
-import {$engine} from "@/renren-engine/engine";
 import { debounce } from "lodash-es";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
 import {myCanvasStore} from "@/stores/canvas";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 /** ===== 文档节点属性绑定-start =====**/
 const documentAttribute = ref<MaterialInterface.IProp[]>([]);
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 
 // TODO: 将数据同步到 schema 中
 /**

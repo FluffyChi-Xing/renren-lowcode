@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import {MaterialDocumentModel, MaterialTreeModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel, MaterialTreeModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import NodeTreeItem from "@/pages/workerspace/_components/NodeTree/NodeTreeItem.vue";
@@ -8,8 +8,8 @@ import {Refresh} from "@element-plus/icons-vue";
 import $event from "@/componsables/utils/EventBusUtil";
 import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
-import CoreEngine from "@/renren-engine";
-import {$engine} from "@/renren-engine/engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
@@ -18,7 +18,7 @@ import {$engine} from "@/renren-engine/engine";
 const componentList = ref<MaterialTreeModel[]>([]);
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 // tree item index table
 const componentIndexMap = ref<Map<string, MaterialTreeModel>>(
   new Map()

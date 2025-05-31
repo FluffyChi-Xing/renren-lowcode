@@ -8,9 +8,9 @@ import {
   MAX_CANVAS_WIDTH,
   MIN_CANVAS_WIDTH
 } from "@/componsables/constants/CanvasConstant";
-import {$engine} from "@/renren-engine/engine";
 import {myCanvasStore} from "@/stores/canvas";
-import CoreEngine from "@/renren-engine";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 const props = withDefaults(defineProps<{
   canvasWidth?: number; // 画布宽度
   deviceType?: 'phone' | 'pad' | 'desktop'; // 设备类型
@@ -27,7 +27,7 @@ const deviceTypes = ref<RenrenInterface.keyValueType<string>[]>(DEVICE_TYPES)
 const minWidth = ref<number>(MIN_CANVAS_WIDTH);
 const maxWidth = ref<number>(MAX_CANVAS_WIDTH)
 const deviceSizeList = ref<number[]>(DEFAULT_SIZE_LIST);
-const engineInstance = new CoreEngine();
+const engineInstance = container.resolve<IEngine>('engine');
 
 
 /**

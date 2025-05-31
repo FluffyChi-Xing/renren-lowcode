@@ -5,13 +5,14 @@ import {onMounted, ref} from 'vue';
 import {$util} from "@/componsables/utils";
 import tableHeader from './attribute-table-header-style.json';
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
-import CoreEngine from "@/renren-engine";
 import {mySchemaStore} from "@/stores/schema";
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
 
 
 
 
-const engine = new CoreEngine();
+const engine = container.resolve<IEngine>('engine');
 const animationList = ref<RenrenInterface.keyValueType<string>[]>([]);
 
 /**
