@@ -9,6 +9,7 @@ import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {$util} from "@/componsables/utils";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -178,6 +179,10 @@ onMounted(async () => {
     comp.value = await engineInstance.renderer.createMaterialEl(props.item as RenrenMaterialModel);
     // 初始化 styleObj
     syncPositionChange();
+    await nextTick(() => {
+      // TODO: 在组件渲染完成后 (nextTick) 将组件目前的 width 和 height 保存到 schema 中
+      const { width, height } = $util.canvas.getElementSize(materialNode.value?.$el);
+    });
   }
 })
 
