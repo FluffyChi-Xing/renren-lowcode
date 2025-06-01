@@ -44,6 +44,22 @@ export class RenrenModel {
     }
     return this;
   }
+
+
+  /**
+   * @description 判断当前节点是否是 material 类型
+   */
+  isMaterial(): boolean {
+    return this.type === 'material';
+  }
+
+
+  /**
+   * @description 判断当前节点是否为 document 类型
+   */
+  isDocument(): boolean {
+    return this.type === 'document';
+  }
 }
 
 

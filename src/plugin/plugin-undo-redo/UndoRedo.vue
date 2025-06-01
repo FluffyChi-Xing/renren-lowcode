@@ -4,7 +4,6 @@ import {Stack} from "@/componsables/models/RenrenModel";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
 import { debounce } from "lodash-es";
-import {$util} from "@/componsables/utils";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {ELEMENT_IN_PROCESSING, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
 
@@ -63,7 +62,7 @@ function resetEvent<T extends RenrenMaterialModel>(): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     try {
       let head: RenrenMaterialModel | undefined = resetStack.pop();
-      if ($util.renren.isElementAMaterialModelType(head)) {
+      if (head?.isMaterial()) {
         // revert stack push stack-head
         revertStack.push(head);
         // sync to store
@@ -99,7 +98,7 @@ function revertEvent<T extends RenrenMaterialModel>(): Promise<T> {
     try {
       // revert stack pop stack-head
       let head: RenrenMaterialModel | undefined = revertStack.pop();
-      if ($util.renren.isElementAMaterialModelType(head)) {
+      if (head?.isMaterial()) {
         // reset stack push stack-head
         resetStack.push(head);
         // sync to store

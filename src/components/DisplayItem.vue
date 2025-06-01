@@ -7,7 +7,6 @@ import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
 import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 import {mySchemaStore} from "@/stores/schema";
-import {$util} from "@/componsables/utils";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
 
@@ -92,7 +91,7 @@ function runAnimationOnMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (materialNode.value !== void 0) {
-        if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        if (mySchemaStore.currentElement?.isMaterial()) {
           const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
           if (material.animation !== void 0) {
             // 获取 DOM 元素（处理组件实例的情况）

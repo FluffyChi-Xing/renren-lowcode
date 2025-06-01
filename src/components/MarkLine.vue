@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @description 组件对齐标线组件
+ * @author FluffyChi-Xing
+ */
 import {ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
