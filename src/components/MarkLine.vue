@@ -21,6 +21,16 @@ const props = withDefaults(defineProps<{
 });
 
 
+type currentElPosition = {
+  width: string;
+  height: string;
+  left: string;
+  top: string;
+}
+
+
+
+
 
 
 const engine = container.resolve<IEngine>('engine');
@@ -28,13 +38,15 @@ const lineRefs = ref<Record<string, HTMLElement | null>>({});
 const componentList = ref<MaterialInterface.IMaterial[]>([]);
 // 开始计算标线的阈值为当 当前元素距离其他元素的距离为当前元素的 width 时开始计算
 /** ===== 对齐标线-start ===== **/
-const line = ref<string[]>(['xt', 'xm', 'yl', 'ym']);
-const lineStatus: Map<string, boolean> = new Map<string, boolean>([
+const line = ref<string[]>(['xt', 'xm', 'xb', 'yl', 'ym', 'yr']);
+const lineStatus = ref<Map<string, boolean>>(new Map<string, boolean>([
   ['xt', false], // x-top
   ['xm', false], // x-middle
   ['yl', false], // y-left
   ['ym', false], // y-middle
-]);
+  ['yr', false], // y-right
+  ['xb', false], // x-bottom
+]));
 
 
 /**
@@ -44,7 +56,7 @@ function hideLine(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       Object.keys(lineStatus).forEach(item => {
-        lineStatus.set(item, false);
+        lineStatus.value.set(item, false);
       });
       resolve('success');
     } catch (e) {
@@ -76,31 +88,113 @@ function isNear(curValue: number, targetValue: number): boolean {
 }
 
 
-function showLine<T extends MaterialInterface.IMaterial>(isDownward?: boolean, isRightward?: boolean): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      // 当前页面的所有元素节点
-      const components: T[] = componentList.value as T[];
-      let curElement: MaterialInterface.IMaterial | undefined;
-      let curElementWidth: string = '0';
-      let curElementHeight: string = '0';
-      curElement = engine.arrangement.getComponent(mySchemaStore.currentElementId);
-      if (curElement !== void 0) {
-        // TODO: 计算当前元素的宽高属性
-        curElementWidth = $util.canvas.getCompTargetProp(curElement, 'width')?.value || '0';
-        curElementHeight = $util.canvas.getCompTargetProp(curElement, 'height')?.value || '0';
-        console.log('当前元素宽高', curElementWidth, curElementHeight);
+
+
+/**
+ * @description 计算周围元素与当前元素之间的距离关系
+ * @param config
+ * @param item
+ */
+function checkAroundPosition(config: currentElPosition, item: MaterialInterface.IMaterial) {
+  const { width, height, left, top } = config;
+  let conditions: Record<string, MarkLineInterface.ILineConfig[]> = {
+    top: [],
+    left: []
+  };
+  let compWidth: number = 0;
+  let compHeight: number = 0;
+  let compLeft: number = 0;
+  let compTop: number = 0;
+  if (item !== void 0) {
+    // 跳过元素本身
+    if (item?.id === mySchemaStore.currentElementId) return conditions;
+    compWidth = Number($util.canvas.getCompTargetProp(item, 'width')?.value) || 0;
+    compHeight = Number($util.canvas.getCompTargetProp(item, 'height')?.value) || 0;
+    compLeft = Number($util.canvas.getCompTargetProp(item, 'left')?.value) || 0;
+    compTop = Number($util.canvas.getCompTargetProp(item, 'top')?.value) || 0;
+  }
+  if (lineRefs.value !== void 0) {
+    conditions['top'] = [
+      {
+        dragShift: compTop,
+        isNearly: isNear(Number(top), compTop),
+        line: "xt",
+        lineNode: lineRefs.value['xt'] as HTMLElement,
+        lineShift: compTop
+      },
+      {
+        dragShift: compTop + compHeight,
+        isNearly: isNear(Number(top), compTop + compHeight),
+        line: "xb",
+        lineNode: lineRefs.value['xb'] as HTMLElement,
+        lineShift: compTop + compHeight
+      },
+    ];
+    conditions['left'] = [
+      // y-left
+      {
+        dragShift: compLeft,
+        isNearly: isNear(Number(left), compLeft),
+        line: "yl",
+        lineNode: lineRefs.value['yl'] as HTMLElement,
+        lineShift: compLeft
+      },
+      // y-right
+      {
+        dragShift: compLeft + compWidth,
+        isNearly: isNear(Number(left), compLeft + compWidth),
+        line: "yr",
+        lineNode: lineRefs.value['yr'] as HTMLElement,
+        lineShift: compLeft + compWidth
       }
-      // 先将 lineStatus 初始化为 false
-      hideLine().catch(err => {
-        reject(err as string);
-      });
-      // 检查周围元素与当前元素的位置关系，判断是否应该显示标线
-    } catch (e) {
-      console.error('显示标线失败', e);
-      reject('显示标线失败');
-    }
+    ];
+  }
+  Object.keys(conditions).forEach(index => {
+    conditions[index].forEach(item => {
+      if (lineRefs.value !== void 0) {
+        // 清除样式
+        if (item.line.startsWith('x')) {
+          (lineRefs.value[item.line] as HTMLElement).style.top  = item.lineShift + 'px';
+        } else {
+          (lineRefs.value[item.line] as HTMLElement).style.left  = item.lineShift + 'px';
+        }
+      }
+      lineStatus.value.set(item.line, item.isNearly);
+    });
   });
+}
+
+
+/**
+ * @description 显示标线
+ */
+function showLine<T extends MaterialInterface.IMaterial>(): void {
+  let curElement: MaterialInterface.IMaterial | undefined;
+  let curElementWidth: string = '0';
+  let curElementHeight: string = '0';
+  let curElementLeft: string = '0';
+  let curElementTop: string = '0';
+  curElement = engine.arrangement.getComponent(mySchemaStore.currentElementId);
+  if (curElement !== void 0) {
+    curElementWidth = $util.canvas.getCompTargetProp(curElement, 'width')?.value || '0';
+    curElementHeight = $util.canvas.getCompTargetProp(curElement, 'height')?.value || '0';
+    curElementTop  = $util.canvas.getCompTargetProp(curElement, 'top')?.value || '0';
+    curElementLeft  = $util.canvas.getCompTargetProp(curElement, 'left')?.value || '0';
+  }
+  // 先将 lineStatus 初始化为 false
+  hideLine();
+  let config: currentElPosition = {
+    width: curElementWidth,
+    height: curElementHeight,
+    left: curElementLeft,
+    top: curElementTop
+  };
+  // 检查周围元素与当前元素的位置关系，判断是否应该显示标线
+  if (Array.isArray(componentList.value) && componentList.value.length > 0) {
+    componentList.value.forEach(item => {
+      checkAroundPosition(config, item);
+    });
+  }
 }
 /** ======= 对齐标线-end ===== **/
 
@@ -117,6 +211,16 @@ onMounted(() => {
 $event.on('updateShape', () => {
   showLine();
 });
+
+
+$event.on('clearContext', () => {
+  hideLine();
+});
+
+
+// $event.on('dragover', () => {
+//   hideLine();
+// });
 </script>
 
 <template>
@@ -132,13 +236,13 @@ $event.on('updateShape', () => {
 
 <style scoped>
 .xAxis {
-  width: 100%;
+  width: 100% !important;
   height: 1px;
 }
 
 
 .yAxis {
-  height: 100%;
+  height: 100% !important;
   width: 1px;
 }
 </style>

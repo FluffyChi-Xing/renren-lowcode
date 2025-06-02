@@ -60,6 +60,7 @@ async function materialMoveHandler(e: DragEvent) {
  */
 function dragoverHandler(e: DragEvent) {
   e.preventDefault();
+  $event.emit('dragover');
 }
 
 
