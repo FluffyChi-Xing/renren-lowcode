@@ -17,6 +17,7 @@ import positionTemplate from './material-position-template.json';
 import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
+import MarkLine from "@/components/MarkLine.vue";
 
 
 withDefaults(defineProps<{
@@ -910,6 +911,9 @@ $event.on('clearContext', () => {
           @paste="pasteComp"
         />
         <!-- 对齐标线 -->
+        <MarkLine
+          :diff="5"
+        />
         <!-- 鼠标拖拽区域 -->
         <SelectArea
           v-model:show="isShowArea"

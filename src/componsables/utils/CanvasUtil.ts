@@ -163,3 +163,21 @@ export function getTargetProp<T extends MaterialInterface.IProp>(items: T[] | vo
   }
   return result;
 }
+
+
+/**
+ * @description 获取元素的指定 prop 属性
+ * @param item
+ * @param index
+ */
+export function getCompTargetProp<T extends MaterialInterface.IProp>(item: MaterialInterface.IMaterial, index: string): T | undefined {
+  let materialPropMap: Map<string, T> = new Map<string, T>();
+  if (Array.isArray(item.props?.items) && item.props.items.length > 0) {
+    item.props.items.forEach(prop => {
+      materialPropMap.set(prop.type, prop as unknown as T);
+    });
+  }
+  if (materialPropMap.size > 0) {
+    return materialPropMap.get(index);
+  }
+}

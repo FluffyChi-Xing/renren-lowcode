@@ -180,7 +180,6 @@ onMounted(async () => {
     // 初始化 styleObj
     syncPositionChange();
     await nextTick(() => {
-      // TODO: 在组件渲染完成后 (nextTick) 将组件目前的 width 和 height 保存到 schema 中
       const { width, height } = $util.canvas.getElementSize(materialNode.value?.$el);
       let widthProp: RenrenInterface.keyValueType<string> = {
         key: 'width',

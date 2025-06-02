@@ -26,7 +26,6 @@ function initMaterialAttributeData<T extends MaterialInterface.IMaterial>(): Pro
       material = engine.arrangement.getComponent(mySchemaStore.currentElementId) as T;
       // 清空现有响应式对象
       materialAttribute.value = [];
-      console.log('init material css attributes', material);
       if (Array.isArray(material.props?.items) && material.props.items.length > 0) {
         material.props.items.forEach((item: MaterialInterface.IProp) => {
           materialAttribute.value.push(item);
