@@ -22,7 +22,7 @@ const emits = defineEmits(['create', 'move', 'copy', 'paste']);
 const comp = shallowRef();
 const materialNode = shallowRef();
 // 创建引擎实例
-const engineInstance = container.resolve<IEngine>('engine');
+const engine = container.resolve<IEngine>('engine');
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 const styleObj = ref<Record<string, string>>({
   position: 'absolute',
@@ -70,7 +70,7 @@ function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       comp.value = undefined;
-      comp.value = await engineInstance.renderer.createMaterialEl(props.item).catch(err => {
+      comp.value = await engine.renderer.createMaterialEl(props.item).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -176,12 +176,22 @@ function copyComponent(event: KeyboardEvent): void {
 
 onMounted(async () => {
   if (item.value) {
-    comp.value = await engineInstance.renderer.createMaterialEl(props.item as RenrenMaterialModel);
+    comp.value = await engine.renderer.createMaterialEl(props.item as RenrenMaterialModel);
     // 初始化 styleObj
     syncPositionChange();
     await nextTick(() => {
       // TODO: 在组件渲染完成后 (nextTick) 将组件目前的 width 和 height 保存到 schema 中
       const { width, height } = $util.canvas.getElementSize(materialNode.value?.$el);
+      let widthProp: RenrenInterface.keyValueType<string> = {
+        key: 'width',
+        value: width.toString(),
+      };
+      let heightProp: RenrenInterface.keyValueType<string> = {
+        key: 'height',
+        value: height.toString()
+      };
+      // 更新组件的 width & height 属性
+      engine.renderer?.updateCompCSS(item.value?.id, [widthProp, heightProp]);
     });
   }
 })

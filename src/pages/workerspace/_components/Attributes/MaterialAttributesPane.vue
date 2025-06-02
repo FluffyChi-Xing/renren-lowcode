@@ -6,7 +6,6 @@ import {propAttributesMap, propAttributesOptionsMap, propAttributesTypeMap} from
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import { throttle } from "lodash-es";
 import $event from "@/componsables/utils/EventBusUtil";
-import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
@@ -20,19 +19,19 @@ const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 /**
  * @description 根据当前文档节点的属性初始化响应式对象
  */
-function initMaterialAttributeData(): Promise<string> {
+function initMaterialAttributeData<T extends MaterialInterface.IMaterial>(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-        const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
-        // 清空现有响应式对象
-        materialAttribute.value = [];
-        if (material.props?.items && material.props.items?.length > 0) {
-          material.props.items.forEach((item: MaterialInterface.IProp) => {
-            materialAttribute.value.push(item);
-          });
-          resolve('初始化文档节点响应式属性数据成功');
-        }
+      let material: T | undefined;
+      material = engine.arrangement.getComponent(mySchemaStore.currentElementId) as T;
+      // 清空现有响应式对象
+      materialAttribute.value = [];
+      console.log('init material css attributes', material);
+      if (Array.isArray(material.props?.items) && material.props.items.length > 0) {
+        material.props.items.forEach((item: MaterialInterface.IProp) => {
+          materialAttribute.value.push(item);
+        });
+        resolve('初始化文档节点响应式属性数据成功');
       }
     } catch (e) {
       console.error('初始化文档节点响应式属性数据失败', e);
@@ -158,7 +157,7 @@ onMounted(() => {
 });
 
 
-watch(() => mySchemaStore.currentElement, () => {
+watch(() => mySchemaStore.currentElementId, () => {
   initMaterialAttributeData().catch(err => {
     $message({
       type: 'warning',
@@ -167,6 +166,17 @@ watch(() => mySchemaStore.currentElement, () => {
   });
 }, {
   deep: true
+});
+
+
+
+$event.on('updateShape', () => {
+  initMaterialAttributeData().catch(err => {
+    $message({
+      type: 'warning',
+      message: err as string
+    });
+  });
 });
 </script>
 

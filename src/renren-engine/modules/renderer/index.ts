@@ -5,7 +5,7 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {type Component, defineComponent, h, shallowReactive} from "vue";
 import {ElButton, ElEmpty, ElImage, ElLink, ElTag, ElText} from "element-plus";
-import {type IArrangement} from "@/renren-engine/modules/arrangement";
+import type {IArrangement} from "@/renren-engine/modules/arrangement";
 import {$util} from "@/componsables/utils";
 import {throttle} from "lodash-es";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
@@ -41,6 +41,8 @@ export interface IRenderer<T> {
   updateDocumentProps(props: MaterialInterface.IProp[], key?: string): Promise<string>;
 
   insertAnimation(index: string, animation: RenrenInterface.keyValueType<string>, key?: string): Promise<string>;
+
+  updateCompCSS<P extends RenrenInterface.keyValueType<string>>(index: string, attr: P[]): Promise<string>;
 }
 
 
@@ -484,6 +486,70 @@ class Renderer <T extends Component> implements IRenderer<T>{
       } catch (e) {
         console.error('向 component 节点插入 animation 属性失败', e);
         reject('添加动画失败');
+      }
+    });
+  }
+
+
+  /**
+   * @description 更新指定组件的 css 属性
+   * @param index
+   * @param attr
+   */
+  updateCompCSS<P extends RenrenInterface.keyValueType<string>>(index: string, attr: P[]): Promise<string> {
+    return new Promise<string>(async (resolve, reject) => {
+      try {
+        // 获取组件
+        let component: MaterialInterface.IMaterial | undefined;
+        component = this.arrangement.getComponent(index);
+        let styleMap: Map<string, MaterialInterface.IProp> = new Map<string, MaterialInterface.IProp>();
+        if (component !== void 0) {
+          if (Array.isArray(attr) && attr.length > 0) {
+            // 更新/插入对应属性
+            attr.forEach(item => {
+              if (Array.isArray(component.props?.items) && component.props.items.length > 0) {
+                let style: MaterialInterface.IProp | undefined;
+                style = component.props.items.find(prop => prop.type === item.key);
+                if (style !== void 0) {
+                  styleMap.set(item.key, style);
+                } else {
+                  // 如果找不到该属性，则插入该属性
+                  let newAttr: MaterialInterface.IProp = {
+                    code: "",
+                    items: null,
+                    key: "style",
+                    maps: undefined,
+                    owner: null,
+                    parent: undefined,
+                    type: item.key,
+                    value: item.value
+                  };
+                  // 向 component 节点中插入该属性
+                  component.props.items.push(newAttr);
+                }
+              }
+            });
+            // 更新 component
+            if (Array.isArray(component.props?.items) && component.props.items.length > 0) {
+              component.props.items.forEach(item => {
+                // 检查要更新的 css attr 是否存在
+                if (styleMap.has(item.type)) {
+                  item.value = styleMap.get(item.type)?.value;
+                }
+              });
+            }
+            // 保存 component
+            await this.arrangement.updateComponent(component).then(_ => {
+              resolve('更新组件 css 属性成功');
+            }).catch(err => {
+              console.error('更新 component 失败', err);
+              reject(err);
+            });
+          }
+        }
+      } catch (e) {
+        console.error('更新组件 css 属性失败', e);
+        reject('更新组件 css 属性失败');
       }
     });
   }

@@ -3,7 +3,7 @@
  * @description 组件对齐标线组件
  * @author FluffyChi-Xing
  */
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
@@ -15,10 +15,8 @@ import {$util} from "@/componsables/utils";
 
 const props = withDefaults(defineProps<{
   diff?: number; // 两个元素相聚 diff 的距离时产生吸附效果
-  componentData?: RenrenMaterialModel[] | [];
 }>(), {
   diff: 3,
-  componentData: () => [],
 });
 
 
@@ -26,16 +24,14 @@ const props = withDefaults(defineProps<{
 
 const engine = container.resolve<IEngine>('engine');
 const lineRefs = ref<Record<string, HTMLElement | null>>({});
-const componentList = ref<RenrenMaterialModel[]>(props.componentData);
+const componentList = ref<MaterialInterface.IMaterial[]>([]);
 /** ===== 对齐标线-start ===== **/
-const line = ref<string[]>(['xl', 'xm', 'xr', 'yt', 'ym', 'yb']); // x-left x-middle x-right etc.
+const line = ref<string[]>(['xt', 'xm', 'yl', 'ym']);
 const lineStatus: Map<string, boolean> = new Map<string, boolean>([
-  ['xl', false], // x-left
+  ['xt', false], // x-top
   ['xm', false], // x-middle
-  ['xr', false], // x-right
-  ['yt', false], // y-top
+  ['yl', false], // y-left
   ['ym', false], // y-middle
-  ['yb', false], // y-bottom
 ]);
 
 
@@ -85,25 +81,25 @@ function isNear(curValue: number, targetValue: number): boolean {
  * @param items
  * @param currentElement
  */
-function checkNeighborsPosition(items: RenrenMaterialModel[] | undefined, currentElement: RenrenMaterialModel): Promise<string> {
+function checkNeighborsPosition(items: MaterialInterface.IMaterial[] | undefined, currentElement: RenrenMaterialModel): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (Array.isArray(items) && items.length > 0) {
         items.forEach(async (comp) => {
           // 跳过当前组件
           if (comp?.id === currentElement?.id) return;
+          // 遍历当前页面中的所有非当前节点的元素
           const compStyleList: MaterialInterface.IProp[] | void = await engine.renderer.getComponentCSSAttr((currentElement as RenrenMaterialModel)?.id).catch(err => {
             console.error(err as string);
           });
-          const compHalfWidth: number = compStyleList?.find(item => item.type === 'width')?.value / 2 || 0;
-          const compHalfHeight: number = compStyleList?.find(item => item.type === 'height')?.value / 2 || 0;
-          const top: number = compStyleList?.find(item => item.type === 'top')?.value || 0;
-          const left: number = compStyleList?.find(item => item.type === 'left')?.value || 0;
-          const need2Show = [];
+          const compHalfWidth: number = Number($util.canvas.getTargetProp(compStyleList, 'width')?.value) / 2 || 0;
+          const compHalfHeight: number = Number($util.canvas.getTargetProp(compStyleList, 'height')?.value) / 2 || 0;
+          const top: number = Number($util.canvas.getTargetProp(compStyleList, 'top')?.value) || 0;
+          const left: number = Number($util.canvas.getTargetProp(compStyleList, 'left')?.value) || 0;
           const curElementStyle: Record<string, string> = $util.canvas.getElementStyleRecord(currentElement);
           const conditions: MarkLineInterface.ILineCondition = {
             top: [
-              // x-top 标线可能出现在当前元素向上移动或向下移动时
+              // x-top 标线
               {
                 dragShift: top,
                 isNearly: isNear(Number(curElementStyle['top']), top),
@@ -111,23 +107,35 @@ function checkNeighborsPosition(items: RenrenMaterialModel[] | undefined, curren
                 lineNode: lineRefs.value['xt'] || undefined,
                 lineShift: top
               },
+              // x 轴中线对齐
               {
                 dragShift: top,
-                isNearly: isNear(Number(curElementStyle['bottom']), top),
-                line: 'xt',
-                lineNode: lineRefs.value['xt'] || undefined,
-                lineShift: top
-              },
-              {
-                dragShift: top,
-                isNearly: isNear(Number(curElementStyle['top']), top), // params2 -> currentEl.position params2 -> neighborEl.position
+                isNearly: isNear(Number(curElementStyle['top']) + compHalfHeight, top), // params2 -> currentEl.position params2 -> neighborEl.position
                 line: 'xm', // 中线对齐
                 lineNode: lineRefs.value['xm'] || undefined,
                 lineShift: top + compHalfHeight,
-              }
+              },
             ],
-            left: [],
+            left: [
+              // y 轴 左侧对齐
+              {
+                dragShift: left,
+                isNearly: isNear(Number(curElementStyle['left']), left),
+                line: 'yl',
+                lineNode: lineRefs.value['yl'] || undefined,
+                lineShift: left,
+              },
+              // y 轴中线对齐
+              {
+                dragShift: left,
+                isNearly: isNear(Number(curElementStyle['right']) + compHalfWidth, left),
+                line: 'yl',
+                lineNode: lineRefs.value['yl'] || undefined,
+                lineShift: left,
+              },
+            ],
           };
+          const needShow = [];
         });
       }
     } catch (e) {
@@ -139,10 +147,11 @@ function checkNeighborsPosition(items: RenrenMaterialModel[] | undefined, curren
 
 
 
-function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
+function showLine<T extends MaterialInterface.IMaterial>(isDownward: boolean, isRightward: boolean): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      const components: RenrenMaterialModel[] | [] = props.componentData;
+      // 当前页面的所有元素节点
+      const components: T[] = componentList.value as T[];
       const curElement: RenrenMaterialModel | MaterialDocumentModel | void = mySchemaStore.currentElement;
       let curElementHalfWidth: number = 0;
       let curElementHalfHeight: number = 0;
@@ -179,6 +188,13 @@ function showLine(isDownward: boolean, isRightward: boolean): Promise<string> {
   });
 }
 /** ======= 对齐标线-end ===== **/
+
+
+
+onMounted(() => {
+  // 获取当前页面的所有元素
+  componentList.value = engine.arrangement.getAllElementNodes();
+});
 </script>
 
 <template>

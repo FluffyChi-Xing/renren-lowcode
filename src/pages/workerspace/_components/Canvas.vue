@@ -247,6 +247,7 @@ const throttleDragEventHandler = throttle(
           mySchemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
           // 保存 schema
+          $event.emit('insert');
           await saveComponent(material);
         });
       }
@@ -396,6 +397,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
   mySchemaStore.currentElement = undefined;
   if (item !== void 0) {
     mySchemaStore.currentElement = item as RenrenMaterialModel;
+    mySchemaStore.currentElementId = item.id as string;
   }
 }
 

@@ -149,3 +149,17 @@ export function getElementSize<T extends HTMLElement>(el: T): elementSize {
   }
   return props;
 }
+
+
+/**
+ * @description 获取指定 键 的 prop 属性
+ * @param items
+ * @param index
+ */
+export function getTargetProp<T extends MaterialInterface.IProp>(items: T[] | void, index: string): T {
+  let result: T = {} as T;
+  if (Array.isArray(items) && items.length > 0) {
+    result = items?.find(prop => prop?.type === index) as unknown as T;
+  }
+  return result;
+}
