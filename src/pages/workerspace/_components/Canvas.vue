@@ -301,6 +301,12 @@ const throttledMaterialMousemoveHandler = throttle(
 
 
 
+function displayDragover() {
+  $event.emit('dragover');
+}
+
+
+
 type compPositionType = {
   x: number;
   y: number;
@@ -929,6 +935,7 @@ $event.on('clearContext', () => {
           :item="item"
           @move="throttledMaterialMousemoveHandler(item, $event)"
           @copy="hotkeyCopy"
+          @dragover="displayDragover"
         />
       </div>
     </el-scrollbar>

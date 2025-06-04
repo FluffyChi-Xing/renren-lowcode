@@ -55,16 +55,6 @@ async function materialMoveHandler(e: DragEvent) {
 
 
 /**
- * @description 处理拖动结束事件
- * @param e
- */
-function dragoverHandler(e: DragEvent) {
-  e.preventDefault();
-  $event.emit('dragover');
-}
-
-
-/**
  * @description 处理组件更新事件
  */
 function updateMaterialHandler(): Promise<string> {
@@ -241,7 +231,6 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
     :tabindex="0"
     :style="styleObj"
     @drag="materialMoveHandler($event)"
-    @dragover="dragoverHandler($event)"
     @keydown.ctrl="copyComponent($event)"
   />
 </template>

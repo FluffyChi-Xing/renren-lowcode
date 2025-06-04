@@ -55,9 +55,9 @@ const lineStatus = ref<Map<string, boolean>>(new Map<string, boolean>([
 function hideLine(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      Object.keys(lineStatus).forEach(item => {
-        lineStatus.value.set(item, false);
-      });
+      lineStatus.value.forEach((_, index) => {
+        lineStatus.value.set(index, false);
+      })
       resolve('success');
     } catch (e) {
       console.error('隐藏标线失败', e);
@@ -142,7 +142,7 @@ function checkAroundPosition(config: currentElPosition, item: MaterialInterface.
       // y-right
       {
         dragShift: compLeft + compWidth,
-        isNearly: isNear(Number(left), compLeft + compWidth),
+        isNearly: isNear(Number(left), compLeft + compWidth) || isNear(compLeft + compWidth, Number(left)),
         line: "yr",
         lineNode: lineRefs.value['yr'] as HTMLElement,
         lineShift: compLeft + compWidth
@@ -153,10 +153,12 @@ function checkAroundPosition(config: currentElPosition, item: MaterialInterface.
     conditions[index].forEach(item => {
       if (lineRefs.value !== void 0) {
         // 清除样式
-        if (item.line.startsWith('x')) {
-          (lineRefs.value[item.line] as HTMLElement).style.top  = item.lineShift + 'px';
-        } else {
-          (lineRefs.value[item.line] as HTMLElement).style.left  = item.lineShift + 'px';
+        if (lineRefs.value[item.line] !== void 0) {
+          if (item.line.startsWith('x')) {
+            (lineRefs.value[item.line] as HTMLElement).style!.top  = item?.lineShift + 'px';
+          } else {
+            (lineRefs.value[item.line] as HTMLElement).style!.left  = item?.lineShift + 'px';
+          }
         }
       }
       lineStatus.value.set(item.line, item.isNearly);
@@ -164,11 +166,10 @@ function checkAroundPosition(config: currentElPosition, item: MaterialInterface.
   });
 }
 
-
 /**
  * @description 显示标线
  */
-function showLine<T extends MaterialInterface.IMaterial>(): void {
+function showLine(): void {
   let curElement: MaterialInterface.IMaterial | undefined;
   let curElementWidth: string = '0';
   let curElementHeight: string = '0';
@@ -181,8 +182,6 @@ function showLine<T extends MaterialInterface.IMaterial>(): void {
     curElementTop  = $util.canvas.getCompTargetProp(curElement, 'top')?.value || '0';
     curElementLeft  = $util.canvas.getCompTargetProp(curElement, 'left')?.value || '0';
   }
-  // 先将 lineStatus 初始化为 false
-  hideLine();
   let config: currentElPosition = {
     width: curElementWidth,
     height: curElementHeight,
@@ -190,9 +189,12 @@ function showLine<T extends MaterialInterface.IMaterial>(): void {
     top: curElementTop
   };
   // 检查周围元素与当前元素的位置关系，判断是否应该显示标线
-  if (Array.isArray(componentList.value) && componentList.value.length > 0) {
+  // 要显示标线的前提是目前至少有两个或两个以上的元素
+  if (Array.isArray(componentList.value) && componentList.value.length > 1) {
     componentList.value.forEach(item => {
-      checkAroundPosition(config, item);
+      if (item !== void 0) {
+        checkAroundPosition(config, item);
+      }
     });
   }
 }
@@ -203,24 +205,27 @@ function showLine<T extends MaterialInterface.IMaterial>(): void {
 onMounted(() => {
   // 获取当前页面的所有元素
   componentList.value = engine.arrangement.getAllElementNodes();
+  hideLine();
   showLine();
 });
 
 
 
 $event.on('updateShape', () => {
+  componentList.value = engine.arrangement.getAllElementNodes();
+  hideLine();
   showLine();
 });
 
 
-$event.on('clearContext', () => {
+$event.on('clearCanvas', () => {
   hideLine();
 });
 
 
-// $event.on('dragover', () => {
-//   hideLine();
-// });
+$event.on('dragover', () => {
+  hideLine();
+});
 </script>
 
 <template>
