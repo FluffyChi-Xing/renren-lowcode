@@ -17,6 +17,7 @@ import positionTemplate from './material-position-template.json';
 import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
+import MarkLine from "@/components/MarkLine.vue";
 
 
 withDefaults(defineProps<{
@@ -247,6 +248,7 @@ const throttleDragEventHandler = throttle(
           mySchemaStore.newElement = material as RenrenMaterialModel;
           // 防止误触导致插入空值
           // 保存 schema
+          $event.emit('insert');
           await saveComponent(material);
         });
       }
@@ -296,6 +298,12 @@ const throttledMaterialMousemoveHandler = throttle(
   },
   16
 );
+
+
+
+function displayDragover() {
+  $event.emit('dragover');
+}
 
 
 
@@ -396,6 +404,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
   mySchemaStore.currentElement = undefined;
   if (item !== void 0) {
     mySchemaStore.currentElement = item as RenrenMaterialModel;
+    mySchemaStore.currentElementId = item.id as string;
   }
 }
 
@@ -908,6 +917,9 @@ $event.on('clearContext', () => {
           @paste="pasteComp"
         />
         <!-- 对齐标线 -->
+        <MarkLine
+          :diff="5"
+        />
         <!-- 鼠标拖拽区域 -->
         <SelectArea
           v-model:show="isShowArea"
@@ -923,6 +935,7 @@ $event.on('clearContext', () => {
           :item="item"
           @move="throttledMaterialMousemoveHandler(item, $event)"
           @copy="hotkeyCopy"
+          @dragover="displayDragover"
         />
       </div>
     </el-scrollbar>

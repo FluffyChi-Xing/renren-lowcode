@@ -37,7 +37,6 @@ function initTreeList(): Promise<string> {
     try {
       // init componentList
       componentList.value = [];
-      componentIndexMap.value = new Map<string, MaterialTreeModel>();
       // get currentDocument
       let document: MaterialInterface.IDocument | undefined;
       document = engine.arrangement.getDocument();
@@ -87,22 +86,20 @@ function refresh() {
   let components: MaterialInterface.IMaterial[];
   components = engine.arrangement.getAllElementNodes();
   if (Array.isArray(components) && components.length > 0) {
-    if (componentIndexMap.value.size > 0) {
-      components.forEach(item => {
-        if (!componentIndexMap.value.has(item.id)) {
-          let newNode: MaterialTreeModel = new MaterialTreeModel({
-            children: [],
-            icon: item.icon || 'Close',
-            index: item?.id || 'unknown',
-            name: item?.title || 'title',
-            parentId: undefined,
-            type: "node"
-          });
-          componentList.value.push(newNode);
-          componentIndexMap.value.set(newNode.index as string, newNode);
-        }
-      });
-    }
+    components.forEach(item => {
+      if (!componentIndexMap.value.has(item.id)) {
+        let newNode: MaterialTreeModel = new MaterialTreeModel({
+          children: [],
+          icon: item.icon || 'Close',
+          index: item?.id || 'unknown',
+          name: item?.title || 'title',
+          parentId: undefined,
+          type: "node"
+        });
+        componentList.value.push(newNode);
+        componentIndexMap.value.set(newNode.index as string, newNode);
+      }
+    });
   }
 }
 

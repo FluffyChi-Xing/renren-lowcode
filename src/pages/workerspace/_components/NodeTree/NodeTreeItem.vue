@@ -62,7 +62,7 @@ function settingItemHandler(): Promise<string> {
     class="w-full h-8 grid text-black focus:bg-blue-500 focus:text-white cursor-pointer grid-cols-2 gap-2 items-center px-4 mb-1 hover:bg-blue-200 hover:text-blue-500"
   >
     <div
-      :class="props.type === 'node' ? 'pl-4' : ''"
+      :class="props.type === 'node' ? 'pl-2' : ''"
       class="w-full h-full flex items-center overflow-hidden"
     >
       <!-- icon -->
@@ -75,7 +75,7 @@ function settingItemHandler(): Promise<string> {
         effect="dark"
         :content="name"
       >
-        <div class="w-full h-auto flex items-center whitespace-nowrap">{{ name }}</div>
+        <div class="w-full h-auto flex text-sm items-center whitespace-nowrap">{{ name }}</div>
       </el-tooltip>
     </div>
     <!-- functional banner -->

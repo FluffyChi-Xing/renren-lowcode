@@ -3,7 +3,20 @@
  * @author FluffyChi-Xing
  */
 import { debounce } from "lodash-es";
-import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
+import {$util} from "@/componsables/utils";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import {RenrenModel} from "@/componsables/models/RenrenModel";
+
+
+
+type elementSize = {
+  width: number;
+  height: number;
+}
+
+
+
 
 
 /**
@@ -87,4 +100,84 @@ function checkCursorPosition<T extends RenrenInterface.XAndYType<number, number>
  */
 export function getDataTransformMaterial<T extends RenrenMaterialModel>(event: DragEvent): T {
   return JSON.parse(event.dataTransfer?.getData('material') || '{}') as T;
+}
+
+
+/**
+ * @description 获取元素的样式信息
+ * @param item
+ */
+export function getElementStyleRecord<T extends RenrenModel>(item: T | undefined): Record<string, string> {
+  let style: Record<string, string> = {};
+  if (item !== void 0) {
+    // 判断 item 的类型
+    if (item?.isMaterial()) {
+      let component: RenrenMaterialModel = $util.renren.deepClone<RenrenMaterialModel>(item as unknown as RenrenMaterialModel);
+      if (Array.isArray(component.props?.items) && component.props.items.length > 0) {
+        component.props.items.forEach((prop: MaterialInterface.IProp) => {
+          if (prop?.key === 'style') {
+            style[prop.type] = prop.value;
+          }
+        });
+      }
+    } else {
+      let document: MaterialDocumentModel = $util.renren.deepClone<MaterialDocumentModel>(item as unknown as MaterialDocumentModel);
+      if (Array.isArray(document.prop?.items) && document.prop.items.length > 0) {
+        document.prop.items.forEach((prop: MaterialInterface.IProp) => {
+          if (prop?.key === 'style') {
+            style[prop.type] = prop.value;
+          }
+        });
+      }
+    }
+    return style;
+  } else {
+    return style;
+  }
+}
+
+
+/**
+ * @description 获取元素的尺寸信息
+ * @param el
+ */
+export function getElementSize<T extends HTMLElement>(el: T): elementSize {
+  let props: elementSize = {width: 0, height: 0};
+  if (el !== void 0) {
+    props.width = el?.clientWidth;
+    props.height = el?.clientHeight;
+  }
+  return props;
+}
+
+
+/**
+ * @description 获取指定 键 的 prop 属性
+ * @param items
+ * @param index
+ */
+export function getTargetProp<T extends MaterialInterface.IProp>(items: T[] | void, index: string): T {
+  let result: T = {} as T;
+  if (Array.isArray(items) && items.length > 0) {
+    result = items?.find(prop => prop?.type === index) as unknown as T;
+  }
+  return result;
+}
+
+
+/**
+ * @description 获取元素的指定 prop 属性
+ * @param item
+ * @param index
+ */
+export function getCompTargetProp<T extends MaterialInterface.IProp>(item: MaterialInterface.IMaterial, index: string): T | undefined {
+  let materialPropMap: Map<string, T> = new Map<string, T>();
+  if (Array.isArray(item.props?.items) && item.props.items.length > 0) {
+    item.props.items.forEach(prop => {
+      materialPropMap.set(prop.type, prop as unknown as T);
+    });
+  }
+  if (materialPropMap.size > 0) {
+    return materialPropMap.get(index);
+  }
 }

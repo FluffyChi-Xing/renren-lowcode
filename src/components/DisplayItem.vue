@@ -7,9 +7,9 @@ import {$message} from "@/componsables/element-plus";
 import $event from "@/componsables/utils/EventBusUtil";
 import {animationNameValueMap} from "@/componsables/utils/AnimationUtil";
 import {mySchemaStore} from "@/stores/schema";
-import {$util} from "@/componsables/utils";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {$util} from "@/componsables/utils";
 
 const props = withDefaults(defineProps<{
   item?: RenrenMaterialModel | undefined;
@@ -22,7 +22,7 @@ const emits = defineEmits(['create', 'move', 'copy', 'paste']);
 const comp = shallowRef();
 const materialNode = shallowRef();
 // 创建引擎实例
-const engineInstance = container.resolve<IEngine>('engine');
+const engine = container.resolve<IEngine>('engine');
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 const styleObj = ref<Record<string, string>>({
   position: 'absolute',
@@ -55,22 +55,13 @@ async function materialMoveHandler(e: DragEvent) {
 
 
 /**
- * @description 处理拖动结束事件
- * @param e
- */
-function dragoverHandler(e: DragEvent) {
-  e.preventDefault();
-}
-
-
-/**
  * @description 处理组件更新事件
  */
 function updateMaterialHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       comp.value = undefined;
-      comp.value = await engineInstance.renderer.createMaterialEl(props.item).catch(err => {
+      comp.value = await engine.renderer.createMaterialEl(props.item).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -92,7 +83,7 @@ function runAnimationOnMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (materialNode.value !== void 0) {
-        if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+        if (mySchemaStore.currentElement?.isMaterial()) {
           const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
           if (material.animation !== void 0) {
             // 获取 DOM 元素（处理组件实例的情况）
@@ -176,9 +167,22 @@ function copyComponent(event: KeyboardEvent): void {
 
 onMounted(async () => {
   if (item.value) {
-    comp.value = await engineInstance.renderer.createMaterialEl(props.item as RenrenMaterialModel);
+    comp.value = await engine.renderer.createMaterialEl(props.item as RenrenMaterialModel);
     // 初始化 styleObj
     syncPositionChange();
+    await nextTick(() => {
+      const { width, height } = $util.canvas.getElementSize(materialNode.value?.$el);
+      let widthProp: RenrenInterface.keyValueType<string> = {
+        key: 'width',
+        value: width.toString(),
+      };
+      let heightProp: RenrenInterface.keyValueType<string> = {
+        key: 'height',
+        value: height.toString()
+      };
+      // 更新组件的 width & height 属性
+      engine.renderer?.updateCompCSS(item.value?.id, [widthProp, heightProp]);
+    });
   }
 })
 
@@ -227,7 +231,6 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
     :tabindex="0"
     :style="styleObj"
     @drag="materialMoveHandler($event)"
-    @dragover="dragoverHandler($event)"
     @keydown.ctrl="copyComponent($event)"
   />
 </template>

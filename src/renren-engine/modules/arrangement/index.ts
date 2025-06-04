@@ -126,8 +126,9 @@ export interface IArrangement<T extends MaterialInterface.IMaterial> {
  */
 class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangement<T>{
 
-  private state: IState<T> = {
+  state: IState<T> = {
     components: new Map(),
+    selectedId: void 0,
   };
 
   private eventListeners: Map<string, EventListener[]> = new Map<string, EventListener[]>();
@@ -221,7 +222,8 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
    */
   getComponent<T extends MaterialInterface.IMaterial>(itemId: string, key?: string): T | undefined {
     // 先从状态管理中获取
-    let component: T | undefined = this.state.components.get(itemId) as unknown as T;
+    let component: T | undefined;
+    // component  = this.state.components.get(itemId) as unknown as T
     if (component !== void 0) {
       return component;
     } else {
@@ -270,7 +272,7 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   /**
    * @description 更新指定页面的指定物料节点
    * @param item
-   * @param key
+   * @param key 对应页面的主键
    */
   updateComponent(item: MaterialInterface.IMaterial, key?: string): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
@@ -440,8 +442,8 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   /**
    * @description 清空页面 等同于重构前的 clearMaterialNodes api
    */
-  clear<T extends MaterialInterface.IDocument>(key?: string): Promise<string> {
-    let targetDocument: T | undefined;
+  clear<D extends MaterialInterface.IDocument>(key?: string): Promise<string> {
+    let targetDocument: D | undefined;
     if (key !== void 0) {
       targetDocument = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}');
     } else {
@@ -597,22 +599,21 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   getAllElementNodes<T extends MaterialInterface.IDocument>(key?: string): MaterialInterface.IMaterial[] {
     let targetDocument: T | undefined;
     // 先从状态管理中获取
-    if (this.state.components.size > 0) {
-      let result: MaterialInterface.IMaterial[] = [];
-      if (key == void 0) {
-        Object.values(this.state.components).forEach(item => {
-          result.push(item);
-        });
-      }
-      return result;
-    }
+    // if (this.state.components.size > 0) {
+    //   let result: MaterialInterface.IMaterial[] = [];
+    //   if (key == void 0) {
+    //     Object.values(this.state.components).forEach(item => {
+    //       result.push(item);
+    //     });
+    //   }
+    //   return result;
+    // }
     if (key !== void 0) {
       targetDocument = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + key) || '{}') as T;
-      return targetDocument.nodes || [];
     } else {
       targetDocument = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as T;
-      return targetDocument.nodes || [];
     }
+    return targetDocument.nodes || [];
   }
 
 
