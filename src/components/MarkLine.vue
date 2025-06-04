@@ -5,7 +5,6 @@
  */
 import {onMounted, ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
-import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";

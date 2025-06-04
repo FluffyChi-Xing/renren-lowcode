@@ -60,6 +60,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectArea: typeof import('./src/components/SelectArea.vue')['default']
+    Shape: typeof import('./src/components/Shape.vue')['default']
     Statistic: typeof import('./src/components/Statistic.vue')['default']
     SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
     TheHeader: typeof import('./src/components/TheHeader.vue')['default']
