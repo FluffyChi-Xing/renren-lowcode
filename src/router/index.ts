@@ -112,6 +112,14 @@ const router = createRouter({
             title: '人人低码 | 预览'
           },
           component: () => import('@/pages/preview/index.vue')
+        },
+        {
+          path: '/playground',
+          name: 'playground',
+          meta: {
+            title: '人人低码 | 测试页面'
+          },
+          component: () => import('@/pages/playground/index.vue')
         }
       ]
     },
