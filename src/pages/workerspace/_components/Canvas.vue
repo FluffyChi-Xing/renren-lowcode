@@ -1,3 +1,70 @@
+<template>
+  <div
+    @click="outerGridClickHandler"
+    class="w-full h-full flex flex-col p-4"
+  >
+    <el-scrollbar height="628">
+      <div
+        ref="editor"
+        @click.right="canvasRightClickHandler"
+        @dragover="handleDragover"
+        @drop="throttleDragEventHandler($event)"
+        draggable="false"
+        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
+        class="flex items-center justify-center relative"
+        @keydown.ctrl="hotkeyPaste"
+      >
+        <!-- 网格线 -->
+        <Grid
+          @mousedown.left="mousedownHandler"
+          :height="canvasSize.height"
+          :width="canvasSize.width"
+          :back-color="myCanvasStore.canvasColor"
+          :opacity="myCanvasStore.opacity"
+          :line-height="myCanvasStore.lineHeight"
+          @click="gridClickHandler"
+        />
+        <!-- 右键单选框 -->
+        <Context
+          v-model:show="isShow"
+          :menu-list="contextMenuList"
+          :top="cursorY"
+          :left="cursorX"
+          @click="handleContextClick"
+          @paste="pasteComp"
+        />
+        <!-- 对齐标线 -->
+        <MarkLine
+          :diff="5"
+        />
+        <!-- 鼠标拖拽区域 -->
+        <SelectArea
+          v-model:show="isShowArea"
+          :start="selectAreaStart"
+          :width="areaWidth"
+          :height="areaHeight"
+        />
+        <!-- 物料容器 -->
+        <DisplayItem
+          v-for="(item, index) in materialContainer"
+          :key="index"
+          @click="selectCurrentElement(item, $event);"
+          :item="item"
+          @move="throttledMaterialMousemoveHandler(item, $event)"
+          @copy="hotkeyCopy"
+          @dragover="displayDragover"
+        />
+      </div>
+    </el-scrollbar>
+  </div>
+</template>
+
+<style scoped>
+:deep(.el-scrollbar__view) {
+  height: 100%;
+  width: 100%;
+}
+</style>
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {myCanvasStore} from "@/stores/canvas";
@@ -18,6 +85,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
 import MarkLine from "@/components/MarkLine.vue";
+import Shape from "@/components/Shape.vue";
 
 
 withDefaults(defineProps<{
@@ -824,10 +892,10 @@ $event.on('takePhoto', async () => {
  */
 watch(() => mySchemaStore.elementInProcess, (newVal, oldVal) => {
     // TODO: 重构 撤销/反做 事件处理
-},
+  },
   {
     deep: true
-});
+  });
 
 /**
  * @description 页面挂载时，保持物料容器数据持久化
@@ -881,70 +949,3 @@ $event.on('clearContext', () => {
 });
 </script>
 
-<template>
-  <div
-    @click="outerGridClickHandler"
-    class="w-full h-full flex flex-col p-4"
-  >
-    <el-scrollbar height="628">
-      <div
-        ref="editor"
-        @click.right="canvasRightClickHandler"
-        @dragover="handleDragover"
-        @drop="throttleDragEventHandler($event)"
-        draggable="false"
-        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
-        class="flex items-center justify-center relative"
-        @keydown.ctrl="hotkeyPaste"
-      >
-        <!-- 网格线 -->
-        <Grid
-          @mousedown.left="mousedownHandler"
-          :height="canvasSize.height"
-          :width="canvasSize.width"
-          :back-color="myCanvasStore.canvasColor"
-          :opacity="myCanvasStore.opacity"
-          :line-height="myCanvasStore.lineHeight"
-          @click="gridClickHandler"
-        />
-        <!-- 右键单选框 -->
-        <Context
-          v-model:show="isShow"
-          :menu-list="contextMenuList"
-          :top="cursorY"
-          :left="cursorX"
-          @click="handleContextClick"
-          @paste="pasteComp"
-        />
-        <!-- 对齐标线 -->
-        <MarkLine
-          :diff="5"
-        />
-        <!-- 鼠标拖拽区域 -->
-        <SelectArea
-          v-model:show="isShowArea"
-          :start="selectAreaStart"
-          :width="areaWidth"
-          :height="areaHeight"
-        />
-        <!-- 物料容器 -->
-        <DisplayItem
-          v-for="(item, index) in materialContainer"
-          @click="selectCurrentElement(item, $event);"
-          :key="index"
-          :item="item"
-          @move="throttledMaterialMousemoveHandler(item, $event)"
-          @copy="hotkeyCopy"
-          @dragover="displayDragover"
-        />
-      </div>
-    </el-scrollbar>
-  </div>
-</template>
-
-<style scoped>
-:deep(.el-scrollbar__view) {
-  height: 100%;
-  width: 100%;
-}
-</style>

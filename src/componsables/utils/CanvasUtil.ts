@@ -181,3 +181,23 @@ export function getCompTargetProp<T extends MaterialInterface.IProp>(item: Mater
     return materialPropMap.get(index);
   }
 }
+
+
+/**
+ * @description 物料元素位置变动处理函数
+ * @param component
+ * @param position
+ */
+export function displayPositionChangeHandler(component: RenrenMaterialModel | undefined, position: Record<string, string>): Record<string, string> {
+  if (component !== void 0) {
+    if (Array.isArray(component.props?.items) && component.props.items.length > 0) {
+      component.props.items.forEach(item => {
+        if (item.key === 'style' && ['left', 'top', 'width', 'height'].includes(item.type)) {
+          position[item.type] = item.type === 'position' ? item.value : `${item.value}px`;
+        }
+      });
+      return position;
+    }
+  }
+  return position;
+}

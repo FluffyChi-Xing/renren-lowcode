@@ -101,4 +101,14 @@ declare namespace RenrenInterface {
     component: unknown; // () => import("*.vue");
     meta: IRouteMeta;
   }
+
+
+  /**
+   * @description 物料元素基本位置类型
+   */
+  interface IItemPosition {
+    position: string;
+    left: string;
+    top: string;
+  }
 }

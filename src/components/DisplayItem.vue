@@ -1,3 +1,22 @@
+<template>
+  <!-- 物料编辑框 -->
+  <component
+    :is="comp"
+    draggable="true"
+    ref="materialNode"
+    class="cursor-move"
+    :tabindex="0"
+    :style="styleObj"
+    @drag="materialMoveHandler($event)"
+    @keydown.ctrl="copyComponent($event)"
+  />
+</template>
+
+<style scoped>
+
+</style>
+
+
 <script setup lang="ts">
 import {onMounted, ref, watch, shallowRef} from 'vue';
 import { nextTick } from "vue";
@@ -25,9 +44,10 @@ const materialNode = shallowRef();
 const engine = container.resolve<IEngine>('engine');
 const item = ref<RenrenMaterialModel>(new RenrenMaterialModel(props.item));
 const styleObj = ref<Record<string, string>>({
-  position: 'absolute',
   left: '0px',
-  top: '0px'
+  top: '0px',
+  width: '0px',
+  height: '0px'
 });
 export type moveDataTransfer = {
   event: DragEvent;
@@ -132,21 +152,6 @@ async function previewAnimationHandler() {
 
 
 /**
- * @description 用于处理组件的位置同步
- * @warn 之前是通过重建组件进行位置同步，但是因为位置可能频繁的变化导致严重的性能问题，因此位置同步直接改为修改实例的style对应属性
- */
-function syncPositionChange() {
-  if (props.item && props.item.props?.items) {
-    props.item.props.items.forEach(item => {
-      if (item.key === 'style' && ['position', 'left', 'top'].includes(item.type)) {
-        styleObj.value[item.type] = item.type === 'position' ? item.value : `${item.value}px`;
-      }
-    });
-  }
-}
-
-
-/**
  * @description 处理复制事件
  */
 function copyComponent(event: KeyboardEvent): void {
@@ -169,7 +174,7 @@ onMounted(async () => {
   if (item.value) {
     comp.value = await engine.renderer.createMaterialEl(props.item as RenrenMaterialModel);
     // 初始化 styleObj
-    syncPositionChange();
+    styleObj.value = $util.canvas.displayPositionChangeHandler(props.item, styleObj.value);
     await nextTick(() => {
       const { width, height } = $util.canvas.getElementSize(materialNode.value?.$el);
       let widthProp: RenrenInterface.keyValueType<string> = {
@@ -191,7 +196,7 @@ watch(() => props.item, async (newValue) => {
   if (newValue) {
     await nextTick();
     setTimeout(() => {
-      syncPositionChange();
+      styleObj.value = $util.canvas.displayPositionChangeHandler(props.item, styleObj.value);
     }, 0);
   } else {
     comp.value = undefined;
@@ -203,7 +208,7 @@ watch(() => props.item, async (newValue) => {
  * @description 处理组件更新事件
  */
 $event.on(`updateMaterial:${props.item?.id}`, () => {
-  syncPositionChange();
+  styleObj.value = $util.canvas.displayPositionChangeHandler(props.item, styleObj.value);
   updateMaterialHandler().catch(err => {
     $message({
       type: 'warning',
@@ -220,21 +225,3 @@ $event.on(`previewAnimation:${props.item?.id}`, () => {
   previewAnimationHandler();
 });
 </script>
-
-<template>
-  <!-- 物料编辑框 -->
-  <component
-    :is="comp"
-    draggable="true"
-    ref="materialNode"
-    class="cursor-move"
-    :tabindex="0"
-    :style="styleObj"
-    @drag="materialMoveHandler($event)"
-    @keydown.ctrl="copyComponent($event)"
-  />
-</template>
-
-<style scoped>
-
-</style>
