@@ -200,6 +200,7 @@ onMounted(() => {
             <el-button size="small" @click="() => showHeader = !showHeader" icon="Search" circle plain type="primary" />
             <el-button size="small" @click="refreshPage" icon="Refresh" circle plain type="info" />
             <el-button size="small" icon="Operation" circle plain type="warning" />
+            <el-button plain type="danger" circle size="small" icon="Close" />
           </div>
         </div>
         <!-- table-body -->

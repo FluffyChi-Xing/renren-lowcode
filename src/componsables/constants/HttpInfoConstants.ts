@@ -36,3 +36,5 @@ export const LOGIN_LOG_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/loginLo
 
 
 export const ERROR_LOG_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/error`;
+
+export const DOC_REQUEST_HOST: string = `${HTTP_BASE_REQUEST_HOST}/document`;

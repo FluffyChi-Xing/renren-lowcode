@@ -2,7 +2,7 @@
  * @description 重构物料编排引擎
  * @author FluffyChi-Xing -> feature/refactor-engine
  */
-import  {type MaterialInterface} from "@/componsables/interface/MaterialInterface";
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {SCHEMA_PROJECT_STORAGE_ID, SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
 import documentSchema from './page-schema.json';
