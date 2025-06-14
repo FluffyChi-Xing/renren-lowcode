@@ -85,7 +85,6 @@ import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
 import MarkLine from "@/components/MarkLine.vue";
-import Shape from "@/components/Shape.vue";
 
 
 withDefaults(defineProps<{
