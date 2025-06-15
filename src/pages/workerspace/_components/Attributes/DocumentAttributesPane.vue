@@ -1,3 +1,36 @@
+<template>
+  <!-- 页面属性面板 -->
+  <div class="w-full h-full flex flex-col">
+    <el-form label-width="auto">
+      <el-form-item
+        v-for="(item, index) in documentAttribute"
+        :key="index"
+        :label="propAttributesMap.get(item.type)"
+      >
+        <!-- 如果是 input -->
+        <el-input
+          v-if="propAttributesTypeMap.get(item.type) === 'input'"
+          disabled
+          v-model="documentAttribute[index].value"
+          clearable
+          @change="inputChangeDebounceHandler"
+          @keydown.enter="inputChangeDebounceHandler"
+        />
+        <!-- 如果是 color-picker -->
+        <el-color-picker
+          v-if="propAttributesTypeMap.get(item.type) === 'picker'"
+          v-model="documentAttribute[index].value"
+          @change="documentColorChangeHandler"
+        />
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
+
 <script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
@@ -24,7 +57,7 @@ function initDocumentAttributeData(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       await $util.renren.isDocument(mySchemaStore.currentElement, () => {
-        const document: MaterialDocumentModel = mySchemaStore.currentElement as MaterialDocumentModel;
+        const document: MaterialDocumentModel = engine.arrangement.getDocument(myCanvasStore.currentDocName) as MaterialDocumentModel;
         // 清空现有响应式对象
         documentAttribute.value = [];
         if (document.prop?.items && document.prop.items?.length > 0) {
@@ -49,7 +82,7 @@ function initDocumentAttributeData(): Promise<string> {
 async function documentColorChangeHandler(color: string) {
   if (color) {
     myCanvasStore.canvasColor = color;
-    await engine.renderer.updateDocumentProps(documentAttribute.value).catch(err => {
+    await engine.renderer.updateDocumentProps(documentAttribute.value, myCanvasStore.currentDocName).catch(err => {
       $message({
         type: 'warning',
         message: err as string
@@ -92,35 +125,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<template>
-  <!-- 页面属性面板 -->
-  <div class="w-full h-full flex flex-col">
-    <el-form label-width="auto">
-      <el-form-item
-        v-for="(item, index) in documentAttribute"
-        :key="index"
-        :label="propAttributesMap.get(item.type)"
-      >
-        <!-- 如果是 input -->
-        <el-input
-          v-if="propAttributesTypeMap.get(item.type) === 'input'"
-          v-model="documentAttribute[index].value"
-          clearable
-          @change="inputChangeDebounceHandler"
-          @keydown.enter="inputChangeDebounceHandler"
-        />
-        <!-- 如果是 color-picker -->
-        <el-color-picker
-          v-if="propAttributesTypeMap.get(item.type) === 'picker'"
-          v-model="documentAttribute[index].value"
-          @change="documentColorChangeHandler"
-        />
-      </el-form-item>
-    </el-form>
-  </div>
-</template>
-
-<style scoped>
-
-</style>

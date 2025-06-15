@@ -86,7 +86,7 @@ export interface IArrangement<T extends MaterialInterface.IMaterial> {
   createDocument(params: createDocument): void;
 
   // 获取页面
-  getDocument(documentId?: string): MaterialInterface.IDocument | undefined;
+  getDocument(documentId?: string): MaterialInterface.IDocument;
 
   // 编辑页面
   editDocument(documentId: string): MaterialInterface.IDocument | undefined;
@@ -423,11 +423,12 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
         /** 否则根据是否存在key判断当前项目环境是否为测试环境
          *  在测试环境下不要求页面按照 键:name 的名称进行存储
          */
-        key === void 0
-        ?
-        localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema))
-        :
-        localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(createParams.schema));
+        if (key === void 0) {
+          localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
+        } else {
+          createParams.schema.fileName = key;
+          localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(createParams.schema));
+        }
       } catch (e) {
         console.error('页面初始化失败', e);
         reject('页面初始化失败');
@@ -495,12 +496,14 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
    * @description 获取当前页面信息 等同于重构前的 getSchema api
    * @param documentId
    */
-  getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T | undefined {
-    return documentId !== void 0
-      ?
-      JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T
-      :
-      JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')  as T
+  getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T {
+    let result: T = {} as T;
+    if (documentId === void 0) {
+      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')  as T
+    } else {
+      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T
+    }
+    return result;
   }
 
   /**

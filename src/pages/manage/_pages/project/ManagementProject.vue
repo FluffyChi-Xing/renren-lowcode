@@ -87,7 +87,7 @@
                   >
                     <template #default="{ row }">
                       <div class="w-full h-auto flex items-center justify-center">
-                        <el-button type="primary" size="small" plain>预览</el-button>
+                        <el-button @click="previewDocument(row?.fileName)" type="primary" size="small" plain>预览</el-button>
                       </div>
                     </template>
                   </el-table-column>
@@ -284,10 +284,12 @@ import {$message} from "@/componsables/element-plus";
 import tableHeaderConfig from '@/components/table-header-config.json';
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {myCanvasStore} from "@/stores/canvas";
+import {useRouter} from "vue-router";
 
 
 
-
+const router = useRouter();
 const engine = container.resolve<IEngine>('engine');
 // 项目编辑弹窗标识
 const editFlag = ref<boolean>(false);
@@ -440,8 +442,18 @@ function previewDocument(index?: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (index === void 0) resolve('请选择要预览的页面');
-      // 调用 engine initDocument api,如果本地已经存在对应的缓存，则直接跳转编辑器预览，否则调用后端获取对应的页面数据进行本地缓存
+      // 调用 engine initDocument api,如果本地已经存在对应的缓存，则直接跳转编辑器预览，
+      // TODO: 否则调用后端获取对应的页面数据进行本地缓存
       // 否则如果是新建的页面，则调用 engine initDocument api
+      engine.arrangement.initDocument(index).catch(err => {
+        $message({
+          type: 'warning',
+          message: err as string
+        });
+      });
+      myCanvasStore.currentDocName = index || '';
+      router.push('/workerSpace');
+      resolve('success');
     } catch (e) {
       console.error('预览页面失败', e);
       reject('预览页面失败');

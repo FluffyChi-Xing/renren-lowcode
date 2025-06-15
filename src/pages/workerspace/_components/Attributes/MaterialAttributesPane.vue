@@ -1,3 +1,60 @@
+<template>
+  <div class="w-full h-full flex flex-col">
+    <el-form label-width="auto">
+      <el-form-item
+        v-for="(item, index) in materialAttribute"
+        :key="index"
+        :label="propAttributesMap.get(item.type)"
+      >
+        <!-- 如果是 input -->
+        <el-input
+          v-if="propAttributesTypeMap.get(item.type) === 'input'"
+          v-model="materialAttribute[index].value"
+          clearable
+          :min="item.type === 'z-index' ? 1 : 0"
+          :max="item.type === 'z-index' ? 99 : ''"
+          @change="inputChangeHandler"
+          @keydown.enter="inputChangeHandler"
+        />
+        <!-- 如果是 select -->
+        <el-select
+          v-if="propAttributesTypeMap.get(item.type) === 'select'"
+          v-model="materialAttribute[index].value"
+          clearable
+          :disabled="item.type === 'position'"
+          @change="selectChangeHandler"
+        >
+          <el-option
+            v-for="(itm, index) in getSelectOptionsList(item.type)"
+            :key="index"
+            :label="itm.key"
+            :value="itm.value"
+          />
+        </el-select>
+        <!-- 如果是 switch -->
+        <el-switch
+          v-if="propAttributesTypeMap.get(item.type) === 'switch'"
+          v-model="materialAttribute[index].value"
+          @change="switchChangeHandler"
+        />
+        <!-- 如果是 text-area -->
+        <textarea
+          v-if="propAttributesTypeMap.get(item.type) === 'area'"
+          v-model="materialAttribute[index].value"
+          @change="switchChangeHandler"
+          :rows="4"
+          style="resize: none;background-color: #e4e7ec;padding: 4px;"
+        />
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
+
+
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
@@ -9,6 +66,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {myCanvasStore} from "@/stores/canvas";
 
 
 
@@ -23,7 +81,10 @@ function initMaterialAttributeData<T extends MaterialInterface.IMaterial>(): Pro
   return new Promise<string>((resolve, reject) => {
     try {
       let material: T | undefined;
-      material = engine.arrangement.getComponent(mySchemaStore.currentElementId) as T;
+      material = engine.arrangement.getComponent(
+        mySchemaStore.currentElementId,
+        myCanvasStore.currentDocName
+      ) as T;
       // 清空现有响应式对象
       materialAttribute.value = [];
       if (Array.isArray(material.props?.items) && material.props.items.length > 0) {
@@ -62,7 +123,10 @@ const throttledCSSAttributesUpdateHandler = throttle(
           if (props.length > 0 && item.props) {
             item.props.items = props;
             // 更新 schema & schemaStore
-            await engine.arrangement.updateComponent(item as MaterialInterface.IMaterial).catch(err => {
+            await engine.arrangement.updateComponent(
+              item as MaterialInterface.IMaterial,
+              myCanvasStore.currentDocName
+            ).catch(err => {
               $message({
                 type: 'warning',
                 message: err as string
@@ -178,59 +242,3 @@ $event.on('updateShape', () => {
   });
 });
 </script>
-
-<template>
-  <div class="w-full h-full flex flex-col">
-    <el-form label-width="auto">
-      <el-form-item
-        v-for="(item, index) in materialAttribute"
-        :key="index"
-        :label="propAttributesMap.get(item.type)"
-      >
-        <!-- 如果是 input -->
-        <el-input
-          v-if="propAttributesTypeMap.get(item.type) === 'input'"
-          v-model="materialAttribute[index].value"
-          clearable
-          :min="item.type === 'z-index' ? 1 : 0"
-          :max="item.type === 'z-index' ? 99 : ''"
-          @change="inputChangeHandler"
-          @keydown.enter="inputChangeHandler"
-        />
-        <!-- 如果是 select -->
-        <el-select
-          v-if="propAttributesTypeMap.get(item.type) === 'select'"
-          v-model="materialAttribute[index].value"
-          clearable
-          :disabled="item.type === 'position'"
-          @change="selectChangeHandler"
-        >
-          <el-option
-            v-for="(itm, index) in getSelectOptionsList(item.type)"
-            :key="index"
-            :label="itm.key"
-            :value="itm.value"
-          />
-        </el-select>
-        <!-- 如果是 switch -->
-        <el-switch
-          v-if="propAttributesTypeMap.get(item.type) === 'switch'"
-          v-model="materialAttribute[index].value"
-          @change="switchChangeHandler"
-        />
-        <!-- 如果是 text-area -->
-        <textarea
-          v-if="propAttributesTypeMap.get(item.type) === 'area'"
-          v-model="materialAttribute[index].value"
-          @change="switchChangeHandler"
-          :rows="4"
-          style="resize: none;background-color: #e4e7ec;padding: 4px;"
-        />
-      </el-form-item>
-    </el-form>
-  </div>
-</template>
-
-<style scoped>
-
-</style>

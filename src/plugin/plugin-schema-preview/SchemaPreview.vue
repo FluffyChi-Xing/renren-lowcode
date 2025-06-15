@@ -1,3 +1,13 @@
+<template>
+  <div>
+    <el-button @click="previewPageHandler" type="primary">预览</el-button>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
+
 <script setup lang="ts">
 import {PROJECT_ADDRESS} from "@/componsables/constants/RenrenConstant";
 
@@ -9,13 +19,3 @@ function previewPageHandler() {
   window.open(PROJECT_ADDRESS + '/preview', '_blank');
 }
 </script>
-
-<template>
-  <div>
-    <el-button @click="previewPageHandler" type="primary">预览</el-button>
-  </div>
-</template>
-
-<style scoped>
-
-</style>
