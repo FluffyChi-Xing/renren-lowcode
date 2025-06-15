@@ -147,7 +147,7 @@ function initTreeList(): Promise<string> {
  */
 function refresh() {
   let components: MaterialInterface.IMaterial[];
-  components = engine.arrangement.getAllElementNodes();
+  components = engine.arrangement.getAllElementNodes(canvasStore.currentDocName);
   if (Array.isArray(components) && components.length > 0) {
     components.forEach(item => {
       if (!componentIndexMap.value.has(item.id)) {
