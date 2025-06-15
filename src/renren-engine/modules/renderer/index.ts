@@ -377,6 +377,7 @@ class Renderer <T extends Component> implements IRenderer<T>{
       try {
         // 获取 current page
         let currentPage: MaterialInterface.IDocument | undefined = this.arrangement.getDocument(key);
+        console.log('current page', currentPage);
         let props: T = {
           config: {}
         } as T;

@@ -86,7 +86,7 @@ export interface IArrangement<T extends MaterialInterface.IMaterial> {
   createDocument(params: createDocument): void;
 
   // 获取页面
-  getDocument(documentId?: string): MaterialInterface.IDocument | undefined;
+  getDocument(documentId?: string): MaterialInterface.IDocument;
 
   // 编辑页面
   editDocument(documentId: string): MaterialInterface.IDocument | undefined;
@@ -95,7 +95,7 @@ export interface IArrangement<T extends MaterialInterface.IMaterial> {
   editDocumentName(newName: string, oldName?: string): Promise<string>;
 
   // 初始化页面
-  initDocument(key?: string, name?: string): Promise<string>;
+  initDocument(key?: string): Promise<string>;
 
   // 删除页面
   removeDocument(documentId: string): Promise<string>;
@@ -114,6 +114,9 @@ export interface IArrangement<T extends MaterialInterface.IMaterial> {
 
   // 更新页面属性
   updateDocumentProp(props: MaterialInterface.IProp[], key?: string): Promise<string>;
+
+  // 判断当前页面节点是否为空
+  isEmpty(key?: string): boolean;
 
   get getComponentCount(): number;
 
@@ -406,30 +409,26 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
   /**
    * @description 初始化页面
    * @param key
-   * @param name
    */
-  initDocument(key?: string, name?: string): Promise<string> {
+  initDocument(key?: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
-        // 获取页面
-        let document: MaterialInterface.IDocument | undefined = this.getDocument(key);
-        // TODO: 存在 bug 无法成功创建页面初始化
-        if (document === void 0) {
-          let createParams: createDocument = {
-            name: name || '',
-            schema: documentSchema as unknown as MaterialInterface.IDocument,
-            path: key || ''
-          };
-          console.log('create document');
-          this.createDocument(createParams);
-          resolve('页面初始化成功');
+        // 判断当前需要访问的页面键是否在缓存中存在对应的数据
+        if (!this.isEmpty(key)) resolve('页面已存在');
+        let createParams: createDocument = {
+          name: key || '',
+          schema: documentSchema as unknown as MaterialInterface.IDocument,
+          path: key || ''
+        };
+        /** 否则根据是否存在key判断当前项目环境是否为测试环境
+         *  在测试环境下不要求页面按照 键:name 的名称进行存储
+         */
+        if (key === void 0) {
+          localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
+        } else {
+          createParams.schema.fileName = key;
+          localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(createParams.schema));
         }
-        // let createParams: createDocument = {
-        //   name: name || '',
-        //   schema: documentSchema as unknown as MaterialInterface.IDocument,
-        //   path: key || ''
-        // };
-        // localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
       } catch (e) {
         console.error('页面初始化失败', e);
         reject('页面初始化失败');
@@ -497,12 +496,14 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
    * @description 获取当前页面信息 等同于重构前的 getSchema api
    * @param documentId
    */
-  getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T | undefined {
-    return documentId !== void 0
-      ?
-      JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T
-      :
-      JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')  as T
+  getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T {
+    let result: T = {} as T;
+    if (documentId === void 0) {
+      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')  as T
+    } else {
+      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T
+    }
+    return result;
   }
 
   /**
@@ -614,6 +615,14 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
       targetDocument = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}') as T;
     }
     return targetDocument.nodes || [];
+  }
+
+  isEmpty(key?: string): boolean {
+    const pageSchema: MaterialInterface.IDocument | undefined = this.getDocument(key);
+    if (pageSchema === void 0) return true;
+    let flag: boolean = false;
+    flag = Object.keys(pageSchema).length === 0 && pageSchema.constructor.length === 0;
+    return flag;
   }
 
 

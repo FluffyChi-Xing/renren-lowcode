@@ -1,3 +1,70 @@
+<template>
+  <!-- 物料节点树 -->
+  <div class="w-full h-full flex flex-col">
+   <el-scrollbar height="200">
+     <!-- header -->
+     <div
+       class="w-full h-8 flex items-center justify-between"
+     >
+       <span>物料节点树</span>
+       <el-tooltip
+         effect="dark"
+         content="刷新"
+         placement="right"
+       >
+         <el-icon
+           @click="refresh"
+           size="15"
+           class="cursor-pointer"
+         >
+           <Refresh />
+         </el-icon>
+       </el-tooltip>
+     </div>
+     <NodeTreeItem
+       v-for="(item, index) in componentList"
+       :key="index"
+       :name="item.name"
+       :icon="item.icon"
+       :index="item.index"
+       :type="item.type"
+       :item="item"
+       @edit-document="settingDocumentHandler"
+     />
+   </el-scrollbar>
+  </div>
+  <!-- edit-document -->
+  <BaseDialog
+    v-model:show="showDocEditor"
+    title="编辑页面名称"
+    :footer="true"
+    width="500"
+  >
+    <template #default>
+      <el-form-item label="页面名称" required>
+        <el-input
+          v-model="documentNodeName"
+          clearable
+          placeholder="请输入页面名称"
+          style="width: 240px;"
+        />
+      </el-form-item>
+    </template>
+    <template #footer>
+      <div class="w-full h-auto flex items-center justify-end">
+        <el-button @click="editDocumentNameHandler" type="primary">确认</el-button>
+        <el-button @click="() => showDocEditor = false" type="info">取消</el-button>
+      </div>
+    </template>
+  </BaseDialog>
+</template>
+
+<style scoped>
+:deep(.el-scrollbar__view) {
+  height: 100%;
+}
+</style>
+
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import {MaterialDocumentModel, MaterialTreeModel} from "@/componsables/models/MaterialModel";
@@ -10,9 +77,7 @@ import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-
-
-
+import {myCanvasStore} from "@/stores/canvas";
 
 
 const componentList = ref<MaterialTreeModel[]>([]);
@@ -23,9 +88,6 @@ const engine = container.resolve<IEngine>('engine');
 const componentIndexMap = ref<Map<string, MaterialTreeModel>>(
   new Map()
 );
-
-
-
 // TODO: 适配撤销&反做事件
 
 
@@ -39,7 +101,7 @@ function initTreeList(): Promise<string> {
       componentList.value = [];
       // get currentDocument
       let document: MaterialInterface.IDocument | undefined;
-      document = engine.arrangement.getDocument();
+      document = engine.arrangement.getDocument(myCanvasStore.currentDocName);
       if (document !== void 0) {
         let newNode: MaterialTreeModel = new MaterialTreeModel({
           children: [],
@@ -204,70 +266,3 @@ onMounted(async () => {
   });
 });
 </script>
-
-<template>
-  <!-- 物料节点树 -->
-  <div class="w-full h-full flex flex-col">
-   <el-scrollbar height="200">
-     <!-- header -->
-     <div
-       class="w-full h-8 flex items-center justify-between"
-     >
-       <span>物料节点树</span>
-       <el-tooltip
-         effect="dark"
-         content="刷新"
-         placement="right"
-       >
-         <el-icon
-           @click="refresh"
-           size="15"
-           class="cursor-pointer"
-         >
-           <Refresh />
-         </el-icon>
-       </el-tooltip>
-     </div>
-     <NodeTreeItem
-       v-for="(item, index) in componentList"
-       :key="index"
-       :name="item.name"
-       :icon="item.icon"
-       :index="item.index"
-       :type="item.type"
-       :item="item"
-       @edit-document="settingDocumentHandler"
-     />
-   </el-scrollbar>
-  </div>
-  <!-- edit-document -->
-  <BaseDialog
-    v-model:show="showDocEditor"
-    title="编辑页面名称"
-    :footer="true"
-    width="500"
-  >
-    <template #default>
-      <el-form-item label="页面名称" required>
-        <el-input
-          v-model="documentNodeName"
-          clearable
-          placeholder="请输入页面名称"
-          style="width: 240px;"
-        />
-      </el-form-item>
-    </template>
-    <template #footer>
-      <div class="w-full h-auto flex items-center justify-end">
-        <el-button @click="editDocumentNameHandler" type="primary">确认</el-button>
-        <el-button @click="() => showDocEditor = false" type="info">取消</el-button>
-      </div>
-    </template>
-  </BaseDialog>
-</template>
-
-<style scoped>
-:deep(.el-scrollbar__view) {
-  height: 100%;
-}
-</style>

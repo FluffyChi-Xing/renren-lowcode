@@ -1,32 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-import $event from "@/componsables/utils/EventBusUtil";
-import {$util} from "@/componsables/utils";
-import { Editor } from '@guolao/vue-monaco-editor';
-import {container} from "@/renren-engine/__init__";
-import type {IEngine} from "@/renren-engine";
-const schema2string = ref<string>('');
-const isShow = ref<boolean>(false);
-
-
-
-const engine = container.resolve<IEngine>('engine');
-/**
- * @description 处理高亮 schema 事件
- */
-async function showSchemaHandler() {
-  isShow.value = !isShow.value;
-  const schema = engine.arrangement.getDocument();
-  if (!$util.renren.isEmpty(schema)) {
-    schema2string.value = JSON.stringify(schema, null, 2);
-  }
-}
-
-$event.on('showSchema', () => {
-  showSchemaHandler();
-});
-</script>
-
 <template>
   <el-drawer
     v-model="isShow"
@@ -62,3 +33,34 @@ $event.on('showSchema', () => {
 <style scoped>
 
 </style>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import $event from "@/componsables/utils/EventBusUtil";
+import {$util} from "@/componsables/utils";
+import { Editor } from '@guolao/vue-monaco-editor';
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
+import {myCanvasStore} from "@/stores/canvas";
+import {SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
+const schema2string = ref<string>('');
+const isShow = ref<boolean>(false);
+
+
+
+const engine = container.resolve<IEngine>('engine');
+/**
+ * @description 处理高亮 schema 事件
+ */
+async function showSchemaHandler() {
+  isShow.value = !isShow.value;
+  const schema = engine.arrangement.getDocument(myCanvasStore.currentDocName);
+  if (!$util.renren.isEmpty(schema)) {
+    schema2string.value = JSON.stringify(schema, null, 2);
+  }
+}
+
+$event.on('showSchema', () => {
+  showSchemaHandler();
+});
+</script>

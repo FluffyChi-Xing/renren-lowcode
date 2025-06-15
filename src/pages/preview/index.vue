@@ -1,55 +1,3 @@
-<script setup lang="ts">
-import {type Component, ref, reactive, onMounted} from 'vue';
-import {$message} from "@/componsables/element-plus";
-import '@/assets/animation.css';
-import {container} from "@/renren-engine/__init__";
-import type {IEngine} from "@/renren-engine";
-
-
-/** ========= 预览页初始化-start ========= **/
-const engineInstance = container.resolve<IEngine>('engine');
-const canvasConfiguration = reactive<CanvasInterface.canvasConfig>({
-  config: {}
-});
-const pageComponents = ref<Component[]>([]);
-
-
-/**
- * @description 初始化画布
- * @param key
- */
-async function initCanvas(key?: string) {
-  await engineInstance.renderer.getDocumentProps(key)
-    .then(res => {
-      canvasConfiguration.config = res?.config;
-    });
-}
-
-
-async function pagePreviewRender() {
-  await engineInstance.renderer.previewPage()
-    .then(res => {
-      pageComponents.value = res as Component[];
-      console.log(res);
-    })
-    .catch(_ => {
-      $message({
-        type: 'warning',
-        message: '预览失败'
-      });
-    });
-}
-
-/** =========== 预览页初始化-end ========= **/
-
-
-
-onMounted(async () => {
-  await initCanvas();
-  await pagePreviewRender();
-});
-</script>
-
 <template>
   <div
     :style="{
@@ -68,3 +16,56 @@ onMounted(async () => {
 <style scoped>
 
 </style>
+
+<script setup lang="ts">
+import {type Component, ref, reactive, onMounted} from 'vue';
+import {$message} from "@/componsables/element-plus";
+import '@/assets/animation.css';
+import {container} from "@/renren-engine/__init__";
+import type {IEngine} from "@/renren-engine";
+import {myCanvasStore} from "@/stores/canvas";
+
+
+/** ========= 预览页初始化-start ========= **/
+const engineInstance = container.resolve<IEngine>('engine');
+const canvasConfiguration = reactive<CanvasInterface.canvasConfig>({
+  config: {}
+});
+const pageComponents = ref<Component[]>([]);
+
+
+/**
+ * @description 初始化画布
+ * @param key
+ */
+async function initCanvas(key?: string) {
+  await engineInstance.renderer.getDocumentProps(key)
+    .then(res => {
+      canvasConfiguration.config = res?.config;
+      console.log(res);
+    });
+}
+
+
+async function pagePreviewRender() {
+  await engineInstance.renderer.previewPage(myCanvasStore.currentDocName)
+    .then(res => {
+      pageComponents.value = res as Component[];
+    })
+    .catch(_ => {
+      $message({
+        type: 'warning',
+        message: '预览失败'
+      });
+    });
+}
+
+/** =========== 预览页初始化-end ========= **/
+
+
+
+onMounted(async () => {
+  await initCanvas(myCanvasStore.currentDocName);
+  await pagePreviewRender();
+});
+</script>

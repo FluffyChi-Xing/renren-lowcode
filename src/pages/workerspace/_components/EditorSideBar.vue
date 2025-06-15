@@ -6,6 +6,7 @@ import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {myCanvasStore} from "@/stores/canvas";
 
 
 
@@ -15,7 +16,7 @@ const engineInstance = container.resolve<IEngine>('engine');
  * @description 清空画布
  */
 async function clearCanvas() {
-  await engineInstance.arrangement.clear().then(() => {
+  await engineInstance.arrangement.clear(myCanvasStore.currentDocName).then(() => {
     $event.emit('clearCanvas');
     mySchemaStore.currentElement = undefined;
     $message({

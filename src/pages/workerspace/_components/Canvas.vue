@@ -1,3 +1,71 @@
+<template>
+  <div
+    @click="outerGridClickHandler"
+    class="w-full h-full flex flex-col p-4"
+  >
+    <el-scrollbar height="628">
+      <div
+        ref="editor"
+        @click.right="canvasRightClickHandler"
+        @dragover="handleDragover"
+        @drop="throttleDragEventHandler($event)"
+        draggable="false"
+        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
+        class="flex items-center justify-center relative"
+        @keydown.ctrl="hotkeyPaste"
+      >
+        <!-- 网格线 -->
+        <Grid
+          @mousedown.left="mousedownHandler"
+          :height="canvasSize.height"
+          :width="canvasSize.width"
+          :back-color="myCanvasStore.canvasColor"
+          :opacity="myCanvasStore.opacity"
+          :line-height="myCanvasStore.lineHeight"
+          @click="gridClickHandler"
+        />
+        <!-- 右键单选框 -->
+        <Context
+          v-model:show="isShow"
+          :menu-list="contextMenuList"
+          :top="cursorY"
+          :left="cursorX"
+          @click="handleContextClick"
+          @paste="pasteComp"
+        />
+        <!-- 对齐标线 -->
+        <MarkLine
+          :diff="5"
+        />
+        <!-- 鼠标拖拽区域 -->
+        <SelectArea
+          v-model:show="isShowArea"
+          :start="selectAreaStart"
+          :width="areaWidth"
+          :height="areaHeight"
+        />
+        <!-- 物料容器 -->
+        <DisplayItem
+          v-for="(item, index) in materialContainer"
+          @click="selectCurrentElement(item, $event);"
+          :key="index"
+          :item="item"
+          @move="throttledMaterialMousemoveHandler(item, $event)"
+          @copy="hotkeyCopy"
+          @dragover="displayDragover"
+        />
+      </div>
+    </el-scrollbar>
+  </div>
+</template>
+
+<style scoped>
+:deep(.el-scrollbar__view) {
+  height: 100%;
+  width: 100%;
+}
+</style>
+
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
 import {myCanvasStore} from "@/stores/canvas";
@@ -339,7 +407,9 @@ async function moveComponentHandler(
         materialPosition.left,
         materialPosition.top,
         materialPosition.positions
-      ]).catch(err => {
+      ],
+      myCanvasStore.currentDocName
+    ).catch(err => {
       $message({
         type: 'warning',
         message: err,
@@ -411,7 +481,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 
 async function saveComponent(item: RenrenMaterialModel | undefined) {
   if (item !== void 0) {
-    await engine.arrangement.addComponent(item).then(() => {
+    await engine.arrangement.addComponent(item, myCanvasStore.currentDocName).then(() => {
       // 使用 eventBus 触发插入事件
       $event.emit('insert');
       indexedDB.insert(NEW_ELEMENT, item);
@@ -642,7 +712,7 @@ function deleteCurrentMaterial(): Promise<string> {
         // 清空 schemaStore 中的 currentElement
         mySchemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
-        engine.arrangement.removeComponent(material.id).catch(err => {
+        engine.arrangement.removeComponent(material.id, myCanvasStore.currentDocName).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -779,7 +849,8 @@ function updateMaterialData(): Promise<string> {
 function checkGridBackgroundColor(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engine.arrangement.getDocument());
+      const docIndex: string = myCanvasStore.currentDocName || '';
+      const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engine.arrangement.getDocument(docIndex));
       if (!$util.renren.isEmpty(document)) {
         if (Array.isArray(document.prop?.items) && document.prop.items.length > 0) {
           myCanvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
@@ -824,10 +895,10 @@ $event.on('takePhoto', async () => {
  */
 watch(() => mySchemaStore.elementInProcess, (newVal, oldVal) => {
     // TODO: 重构 撤销/反做 事件处理
-},
+  },
   {
     deep: true
-});
+  });
 
 /**
  * @description 页面挂载时，保持物料容器数据持久化
@@ -880,71 +951,3 @@ $event.on('clearContext', () => {
   isShow.value = false;
 });
 </script>
-
-<template>
-  <div
-    @click="outerGridClickHandler"
-    class="w-full h-full flex flex-col p-4"
-  >
-    <el-scrollbar height="628">
-      <div
-        ref="editor"
-        @click.right="canvasRightClickHandler"
-        @dragover="handleDragover"
-        @drop="throttleDragEventHandler($event)"
-        draggable="false"
-        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
-        class="flex items-center justify-center relative"
-        @keydown.ctrl="hotkeyPaste"
-      >
-        <!-- 网格线 -->
-        <Grid
-          @mousedown.left="mousedownHandler"
-          :height="canvasSize.height"
-          :width="canvasSize.width"
-          :back-color="myCanvasStore.canvasColor"
-          :opacity="myCanvasStore.opacity"
-          :line-height="myCanvasStore.lineHeight"
-          @click="gridClickHandler"
-        />
-        <!-- 右键单选框 -->
-        <Context
-          v-model:show="isShow"
-          :menu-list="contextMenuList"
-          :top="cursorY"
-          :left="cursorX"
-          @click="handleContextClick"
-          @paste="pasteComp"
-        />
-        <!-- 对齐标线 -->
-        <MarkLine
-          :diff="5"
-        />
-        <!-- 鼠标拖拽区域 -->
-        <SelectArea
-          v-model:show="isShowArea"
-          :start="selectAreaStart"
-          :width="areaWidth"
-          :height="areaHeight"
-        />
-        <!-- 物料容器 -->
-        <DisplayItem
-          v-for="(item, index) in materialContainer"
-          @click="selectCurrentElement(item, $event);"
-          :key="index"
-          :item="item"
-          @move="throttledMaterialMousemoveHandler(item, $event)"
-          @copy="hotkeyCopy"
-          @dragover="displayDragover"
-        />
-      </div>
-    </el-scrollbar>
-  </div>
-</template>
-
-<style scoped>
-:deep(.el-scrollbar__view) {
-  height: 100%;
-  width: 100%;
-}
-</style>
