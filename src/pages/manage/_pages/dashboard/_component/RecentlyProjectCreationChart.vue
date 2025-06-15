@@ -1,3 +1,12 @@
+<template>
+  <!-- 最近项目创建情况 -->
+  <div ref="chart" class="w-full h-full flex" />
+</template>
+
+<style scoped>
+
+</style>
+
 <script setup lang="ts">
 import {ref, reactive, onMounted, watch} from 'vue';
 import * as echarts from 'echarts';
@@ -72,12 +81,3 @@ window.addEventListener('resize', () => {
   initChart();
 });
 </script>
-
-<template>
-  <!-- 最近项目创建情况 -->
-  <div ref="chart" class="w-full h-full flex" />
-</template>
-
-<style scoped>
-
-</style>

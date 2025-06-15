@@ -1,37 +1,3 @@
-<script setup lang="ts">
-import {ref} from 'vue';
-import Statistic from "@/components/Statistic.vue";
-import RecentlyProjectCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyProjectCreationChart.vue";
-import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyPageCreationChart.vue";
-import {$util} from "@/componsables/utils";
-import mock from './statistic-mock.json';
-
-
-
-/** ========== 统计卡片初始化-start ==========**/
-const loadingStatistic = ref<boolean>(false);
-const statisticCardList = ref<RenrenInterface.keyValueType<number>[]>(
-  $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<number>[]>(mock)
-);
-/** ========= 统计卡片初始化-end ==========**/
-
-
-
-/** ========== 统计图初始化-start ==========**/
-const timeSegment = ref<string>('0');
-const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
-  {
-    key: '0',
-    value: '最近七天'
-  },
-  {
-    key: '1',
-    value: '最近一个月'
-  }
-]);
-/** ========= 统计图初始化-end ==========**/
-</script>
-
 <template>
   <div class="w-full h-full flex flex-col">
     <div class="w-full h-full flex flex-col pt-4">
@@ -113,3 +79,37 @@ const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
   height: 100%;
 }
 </style>
+
+<script setup lang="ts">
+import {ref} from 'vue';
+import Statistic from "@/components/Statistic.vue";
+import RecentlyProjectCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyProjectCreationChart.vue";
+import RecentlyPageCreationChart from "@/pages/manage/_pages/dashboard/_component/RecentlyPageCreationChart.vue";
+import {$util} from "@/componsables/utils";
+import mock from './statistic-mock.json';
+
+
+
+/** ========== 统计卡片初始化-start ==========**/
+const loadingStatistic = ref<boolean>(false);
+const statisticCardList = ref<RenrenInterface.keyValueType<number>[]>(
+  $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<number>[]>(mock)
+);
+/** ========= 统计卡片初始化-end ==========**/
+
+
+
+/** ========== 统计图初始化-start ==========**/
+const timeSegment = ref<string>('0');
+const timeSegmentOptions = ref<RenrenInterface.keyValueType<string>[]>([
+  {
+    key: '0',
+    value: '最近七天'
+  },
+  {
+    key: '1',
+    value: '最近一个月'
+  }
+]);
+/** ========= 统计图初始化-end ==========**/
+</script>
