@@ -414,20 +414,24 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
     return new Promise<string>((resolve, reject) => {
       try {
         // 判断当前需要访问的页面键是否在缓存中存在对应的数据
-        if (!this.isEmpty(key)) resolve('页面已存在');
-        let createParams: createDocument = {
-          name: key || '',
-          schema: documentSchema as unknown as MaterialInterface.IDocument,
-          path: key || ''
-        };
-        /** 否则根据是否存在key判断当前项目环境是否为测试环境
-         *  在测试环境下不要求页面按照 键:name 的名称进行存储
-         */
-        if (key === void 0) {
-          localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
+        if (!this.isEmpty(key)) {
+          resolve('页面已存在')
         } else {
-          createParams.schema.fileName = key;
-          localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(createParams.schema));
+          let createParams: createDocument = {
+            name: key || '',
+            schema: documentSchema as unknown as MaterialInterface.IDocument,
+            path: key || ''
+          };
+          /** 否则根据是否存在key判断当前项目环境是否为测试环境
+           *  在测试环境下不要求页面按照 键:name 的名称进行存储
+           */
+          if (key === void 0) {
+            localStorage.setItem(SCHEMA_STORAGE_ID, JSON.stringify(createParams.schema));
+          } else {
+            createParams.schema.fileName = key;
+            localStorage.setItem(SCHEMA_STORAGE_ID + key, JSON.stringify(createParams.schema));
+          }
+          resolve('success');
         }
       } catch (e) {
         console.error('页面初始化失败', e);

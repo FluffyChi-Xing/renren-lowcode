@@ -77,10 +77,11 @@ import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {myCanvasStore} from "@/stores/canvas";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 const componentList = ref<MaterialTreeModel[]>([]);
+const canvasStore = useCanvasStore();
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
 const engine = container.resolve<IEngine>('engine');
@@ -101,7 +102,7 @@ function initTreeList(): Promise<string> {
       componentList.value = [];
       // get currentDocument
       let document: MaterialInterface.IDocument | undefined;
-      document = engine.arrangement.getDocument(myCanvasStore.currentDocName);
+      document = engine.arrangement.getDocument(canvasStore.currentDocName);
       if (document !== void 0) {
         let newNode: MaterialTreeModel = new MaterialTreeModel({
           children: [],

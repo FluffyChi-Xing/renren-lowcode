@@ -66,11 +66,12 @@ import $event from "@/componsables/utils/EventBusUtil";
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {myCanvasStore} from "@/stores/canvas";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 
 /** ===== 物料节点属性绑定-start =====**/
+const canvasStore = useCanvasStore();
 const engine = container.resolve<IEngine>('engine');
 const materialAttribute = ref<MaterialInterface.IProp[]>([]);
 
@@ -83,7 +84,7 @@ function initMaterialAttributeData<T extends MaterialInterface.IMaterial>(): Pro
       let material: T | undefined;
       material = engine.arrangement.getComponent(
         mySchemaStore.currentElementId,
-        myCanvasStore.currentDocName
+        canvasStore.currentDocName
       ) as T;
       // 清空现有响应式对象
       materialAttribute.value = [];
@@ -125,7 +126,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
             // 更新 schema & schemaStore
             await engine.arrangement.updateComponent(
               item as MaterialInterface.IMaterial,
-              myCanvasStore.currentDocName
+              canvasStore.currentDocName
             ).catch(err => {
               $message({
                 type: 'warning',

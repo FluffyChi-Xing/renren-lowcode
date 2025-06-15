@@ -28,9 +28,3 @@ export const useCanvasStore = defineStore('canvas', () => {
   };
 });
 
-
-/**
- * @description 导出一个默认的 canvas store 实例
- */
-export const myCanvasStore = useCanvasStore();
-

@@ -40,12 +40,13 @@ import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/Att
 import { debounce } from "lodash-es";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
-import {myCanvasStore} from "@/stores/canvas";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 /** ===== 文档节点属性绑定-start =====**/
+const canvasStore = useCanvasStore();
 const documentAttribute = ref<MaterialInterface.IProp[]>([]);
 const engine = container.resolve<IEngine>('engine');
 
@@ -57,7 +58,7 @@ function initDocumentAttributeData(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       await $util.renren.isDocument(mySchemaStore.currentElement, () => {
-        const document: MaterialDocumentModel = engine.arrangement.getDocument(myCanvasStore.currentDocName) as MaterialDocumentModel;
+        const document: MaterialDocumentModel = engine.arrangement.getDocument(canvasStore.currentDocName) as MaterialDocumentModel;
         // 清空现有响应式对象
         documentAttribute.value = [];
         if (document.prop?.items && document.prop.items?.length > 0) {
@@ -81,8 +82,8 @@ function initDocumentAttributeData(): Promise<string> {
  */
 async function documentColorChangeHandler(color: string) {
   if (color) {
-    myCanvasStore.canvasColor = color;
-    await engine.renderer.updateDocumentProps(documentAttribute.value, myCanvasStore.currentDocName).catch(err => {
+    canvasStore.canvasColor = color;
+    await engine.renderer.updateDocumentProps(documentAttribute.value, canvasStore.currentDocName).catch(err => {
       $message({
         type: 'warning',
         message: err as string
@@ -98,9 +99,9 @@ const inputChangeDebounceHandler = debounce(() => {
   function inputChangeHandler() {
     documentAttribute.value.forEach(style => {
       if (style.type === 'opacity') {
-        myCanvasStore.opacity = style.value || 1;
+        canvasStore.opacity = style.value || 1;
       } else if (style.type === 'line-height') {
-        myCanvasStore.lineHeight = style.value || 16;
+        canvasStore.lineHeight = style.value || 16;
       }
     });
     // 由于输入框事件可能频繁触发，这里使用 debounce 节流处理
