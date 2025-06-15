@@ -1,3 +1,31 @@
+<template>
+  <div class="w-full h-full flex flex-col items-center py-10">
+    <el-tooltip
+      v-for="(item, index) in functionList"
+      :key="index"
+      effect="dark"
+      placement="left"
+      :content="item.key"
+    >
+      <el-button
+        :icon="item.index"
+        circle
+        @click="item.value"
+      />
+    </el-tooltip>
+    <!-- 解锁与锁定 -->
+    <LockUnlock />
+  </div>
+</template>
+
+<style scoped>
+:deep(.el-button) {
+  margin-left: 0;
+  margin-bottom: 16px;
+}
+</style>
+
+
 <script setup lang="ts">
 import { ref } from 'vue';
 import {$message} from "@/componsables/element-plus";
@@ -6,17 +34,18 @@ import LockUnlock from "@/pages/workerspace/_components/EditorConfig/LockUnlock.
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {myCanvasStore} from "@/stores/canvas";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 
 
 const engineInstance = container.resolve<IEngine>('engine');
+const canvasStore = useCanvasStore();
 /**
  * @description 清空画布
  */
 async function clearCanvas() {
-  await engineInstance.arrangement.clear(myCanvasStore.currentDocName).then(() => {
+  await engineInstance.arrangement.clear(canvasStore.currentDocName).then(() => {
     $event.emit('clearCanvas');
     mySchemaStore.currentElement = undefined;
     $message({
@@ -71,30 +100,3 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
   }
 ]);
 </script>
-
-<template>
-  <div class="w-full h-full flex flex-col items-center py-10">
-    <el-tooltip
-      v-for="(item, index) in functionList"
-      :key="index"
-      effect="dark"
-      placement="left"
-      :content="item.key"
-    >
-      <el-button
-        :icon="item.index"
-        circle
-        @click="item.value"
-      />
-    </el-tooltip>
-    <!-- 解锁与锁定 -->
-    <LockUnlock />
-  </div>
-</template>
-
-<style scoped>
-:deep(.el-button) {
-  margin-left: 0;
-  margin-bottom: 16px;
-}
-</style>

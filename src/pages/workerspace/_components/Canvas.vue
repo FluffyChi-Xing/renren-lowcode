@@ -10,7 +10,7 @@
         @dragover="handleDragover"
         @drop="throttleDragEventHandler($event)"
         draggable="false"
-        :style="`height: ${myCanvasStore.height}px;width: ${myCanvasStore.width};`"
+        :style="`height: ${canvasStore.height}px;width: ${canvasStore.width};`"
         class="flex items-center justify-center relative"
         @keydown.ctrl="hotkeyPaste"
       >
@@ -19,9 +19,9 @@
           @mousedown.left="mousedownHandler"
           :height="canvasSize.height"
           :width="canvasSize.width"
-          :back-color="myCanvasStore.canvasColor"
-          :opacity="myCanvasStore.opacity"
-          :line-height="myCanvasStore.lineHeight"
+          :back-color="canvasStore.canvasColor"
+          :opacity="canvasStore.opacity"
+          :line-height="canvasStore.lineHeight"
           @click="gridClickHandler"
         />
         <!-- 右键单选框 -->
@@ -68,7 +68,6 @@
 
 <script setup lang="ts">
 import Grid from "@/components/Grid.vue";
-import {myCanvasStore} from "@/stores/canvas";
 import {throttle} from "lodash-es";
 import {computed, nextTick, onMounted, reactive, ref, watch} from "vue";
 import Context from "@/components/Context.vue";
@@ -86,6 +85,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
 import MarkLine from "@/components/MarkLine.vue";
+import {useCanvasStore} from "@/stores/canvas";
 
 
 withDefaults(defineProps<{
@@ -97,6 +97,7 @@ withDefaults(defineProps<{
 
 
 // 创建引擎实例
+const canvasStore = useCanvasStore();
 const engine = container.resolve<IEngine>('engine')
 const indexedDB = new LocalforageDB();
 const editor = ref();
@@ -109,8 +110,8 @@ const areaWidth = ref<number>(0);
 const areaHeight = ref<number>(0);
 const canvasSize = computed(() => {
   return {
-    width: `${myCanvasStore.width}px`,
-    height: `${myCanvasStore.height}px`,
+    width: `${canvasStore.width}px`,
+    height: `${canvasStore.height}px`,
   }
 });
 type positionType = {
@@ -408,7 +409,7 @@ async function moveComponentHandler(
         materialPosition.top,
         materialPosition.positions
       ],
-      myCanvasStore.currentDocName
+      canvasStore.currentDocName
     ).catch(err => {
       $message({
         type: 'warning',
@@ -432,7 +433,7 @@ async function moveComponentHandler(
  * @description 保持物料容器数据持久化
  */
 function keepMaterialAlive() {
-  const nodes: RenrenMaterialModel[] = engine.arrangement.getAllElementNodes() as RenrenMaterialModel[];
+  const nodes: RenrenMaterialModel[] = engine.arrangement.getAllElementNodes(canvasStore.currentDocName) as RenrenMaterialModel[];
   if (Array.isArray(nodes) && nodes.length > 0) {
     materialContainer.value = nodes;
   }
@@ -481,7 +482,7 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
 
 async function saveComponent(item: RenrenMaterialModel | undefined) {
   if (item !== void 0) {
-    await engine.arrangement.addComponent(item, myCanvasStore.currentDocName).then(() => {
+    await engine.arrangement.addComponent(item, canvasStore.currentDocName).then(() => {
       // 使用 eventBus 触发插入事件
       $event.emit('insert');
       indexedDB.insert(NEW_ELEMENT, item);
@@ -712,7 +713,7 @@ function deleteCurrentMaterial(): Promise<string> {
         // 清空 schemaStore 中的 currentElement
         mySchemaStore.currentElement = undefined;
         // 删除 schema 中对应的 material node
-        engine.arrangement.removeComponent(material.id, myCanvasStore.currentDocName).catch(err => {
+        engine.arrangement.removeComponent(material.id, canvasStore.currentDocName).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -849,11 +850,11 @@ function updateMaterialData(): Promise<string> {
 function checkGridBackgroundColor(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const docIndex: string = myCanvasStore.currentDocName || '';
+      const docIndex: string = canvasStore.currentDocName || '';
       const document: MaterialDocumentModel | undefined = new MaterialDocumentModel(engine.arrangement.getDocument(docIndex));
       if (!$util.renren.isEmpty(document)) {
         if (Array.isArray(document.prop?.items) && document.prop.items.length > 0) {
-          myCanvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
+          canvasStore.canvasColor = document.prop.items.find(item => item.type === 'background-color')?.value;
           resolve('检查网格背景颜色成功');
         }
       }

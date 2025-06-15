@@ -284,12 +284,15 @@ import {$message} from "@/componsables/element-plus";
 import tableHeaderConfig from '@/components/table-header-config.json';
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {myCanvasStore} from "@/stores/canvas";
 import {useRouter} from "vue-router";
+import {useCanvasStore} from "@/stores/canvas";
+import project from './project.json';
+import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 
 
 
 const router = useRouter();
+const canvasStore = useCanvasStore();
 const engine = container.resolve<IEngine>('engine');
 // 项目编辑弹窗标识
 const editFlag = ref<boolean>(false);
@@ -315,6 +318,7 @@ const isLoading = ref<boolean>(false);
 const data = ref<ProjectRespDto.ProjectQueryRespDto[]>([
   projectTemplate as unknown as ProjectRespDto.ProjectQueryRespDto
 ]);
+const projectTemp = ref<MaterialInterface.IProject>();
 const tableColumnList = $util.renren.jsonTypeTransfer<RenrenInterface.keyValueType<string>[]>(tableColumn);
 
 
@@ -451,7 +455,7 @@ function previewDocument(index?: string): Promise<string> {
           message: err as string
         });
       });
-      myCanvasStore.currentDocName = index || '';
+      canvasStore.currentDocName = index || '';
       router.push('/workerSpace');
       resolve('success');
     } catch (e) {

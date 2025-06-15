@@ -23,4 +23,15 @@ declare namespace ProjectReqDto {
 
     data: string;  // json 风格的项目数据
   }
+
+
+  interface CreateProjectReqDto {
+    name: string;
+
+    path: string;
+
+    simulatorHost: string;
+
+    data: string;
+  }
 }

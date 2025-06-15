@@ -1,3 +1,44 @@
+<template>
+  <div class="w-full h-full flex items-center justify-between">
+    <!-- device-type-radios -->
+    <div class="w-auto h-full flex items-center">
+      <el-radio-group disabled v-model="defaultTypes">
+        <el-radio-button
+          v-for="(item, index) in deviceTypes"
+          :key="index"
+          :label="item.value"
+          :value="item.key"
+          @change="sizeChangeHandler"
+        >
+          <el-icon size="20">
+            <component :is="$enum.getIconByValue(item.key as string)" />
+          </el-icon>
+        </el-radio-button>
+      </el-radio-group>
+    </div>
+    <!-- canvas-size-input -->
+    <div class="w-auto h-full flex items-center">
+      <el-input
+        v-model="defaultWidth"
+        clearable
+        :min="minWidth"
+        :max="maxWidth"
+        @keydown.enter="sizeChangeHandler"
+        style="width: 200px;"
+      >
+        <template #append>
+          px
+        </template>
+      </el-input>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+
+</style>
+
+
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import {$enum} from "@/componsables/enum";
@@ -8,9 +49,9 @@ import {
   MAX_CANVAS_WIDTH,
   MIN_CANVAS_WIDTH
 } from "@/componsables/constants/CanvasConstant";
-import {myCanvasStore} from "@/stores/canvas";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
+import {useCanvasStore} from "@/stores/canvas";
 const props = withDefaults(defineProps<{
   canvasWidth?: number; // 画布宽度
   deviceType?: 'phone' | 'pad' | 'desktop'; // 设备类型
@@ -21,6 +62,7 @@ const props = withDefaults(defineProps<{
 
 
 const defaultWidth = ref<number>(props.canvasWidth || 1080);
+const canvasStore = useCanvasStore();
 const defaultTypes = ref<string>(props.deviceType || 'desktop')
 const emits = defineEmits(['update:size']);
 const deviceTypes = ref<RenrenInterface.keyValueType<string>[]>(DEVICE_TYPES)
@@ -81,7 +123,7 @@ async function sizeChangeHandler(index?: any) {
     const document = engineInstance.arrangement.getDocument();
     // 将宽度数据回写到 schema 中
     await syncValueWithType(value).then(() => {
-      myCanvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
+      canvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
     }).catch(err => {
       $message({
         type: 'warning',
@@ -114,46 +156,6 @@ async function sizeChangeHandler(index?: any) {
 
 onMounted(() => {
   // 在首次挂载的时候初始化状态管理中的 width
-  myCanvasStore.width = defaultWidth.value;
+  canvasStore.width = defaultWidth.value;
 });
 </script>
-
-<template>
-  <div class="w-full h-full flex items-center justify-between">
-    <!-- device-type-radios -->
-    <div class="w-auto h-full flex items-center">
-      <el-radio-group disabled v-model="defaultTypes">
-        <el-radio-button
-          v-for="(item, index) in deviceTypes"
-          :key="index"
-          :label="item.value"
-          :value="item.key"
-          @change="sizeChangeHandler"
-        >
-          <el-icon size="20">
-            <component :is="$enum.getIconByValue(item.key as string)" />
-          </el-icon>
-        </el-radio-button>
-      </el-radio-group>
-    </div>
-    <!-- canvas-size-input -->
-    <div class="w-auto h-full flex items-center">
-      <el-input
-        v-model="defaultWidth"
-        clearable
-        :min="minWidth"
-        :max="maxWidth"
-        @keydown.enter="sizeChangeHandler"
-        style="width: 200px;"
-      >
-        <template #append>
-          px
-        </template>
-      </el-input>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-
-</style>
