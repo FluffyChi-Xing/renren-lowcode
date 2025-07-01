@@ -51,7 +51,7 @@ import {
 } from "@/componsables/constants/CanvasConstant";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 const props = withDefaults(defineProps<{
   canvasWidth?: number; // 画布宽度
   deviceType?: 'phone' | 'pad' | 'desktop'; // 设备类型
@@ -63,6 +63,7 @@ const props = withDefaults(defineProps<{
 
 const defaultWidth = ref<number>(props.canvasWidth || 1080);
 const canvasStore = useCanvasStore();
+const { updateCanvasSize } = canvasStore;
 const defaultTypes = ref<string>(props.deviceType || 'desktop')
 const emits = defineEmits(['update:size']);
 const deviceTypes = ref<RenrenInterface.keyValueType<string>[]>(DEVICE_TYPES)
@@ -123,7 +124,9 @@ async function sizeChangeHandler(index?: any) {
     const document = engineInstance.arrangement.getDocument();
     // 将宽度数据回写到 schema 中
     await syncValueWithType(value).then(() => {
-      canvasStore.width = defaultWidth.value; // 将当前画布宽度同步到状态管理中
+      updateCanvasSize({
+        height: defaultWidth.value
+      }); // 将当前画布宽度同步到状态管理中
     }).catch(err => {
       $message({
         type: 'warning',
@@ -156,6 +159,8 @@ async function sizeChangeHandler(index?: any) {
 
 onMounted(() => {
   // 在首次挂载的时候初始化状态管理中的 width
-  canvasStore.width = defaultWidth.value;
+  updateCanvasSize({
+    height: defaultWidth.value,
+  });
 });
 </script>

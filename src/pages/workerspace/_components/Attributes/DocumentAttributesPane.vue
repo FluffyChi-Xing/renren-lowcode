@@ -32,21 +32,22 @@
 </style>
 
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
+import {onMounted, ref} from 'vue';
 import {MaterialDocumentModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {$message} from "@/componsables/element-plus";
 import {propAttributesMap, propAttributesTypeMap} from "@/componsables/utils/AttrUtil";
-import { debounce } from "lodash-es";
+import {debounce} from "lodash-es";
 import {$util} from "@/componsables/utils";
 import {mySchemaStore} from "@/stores/schema";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 
 
 /** ===== 文档节点属性绑定-start =====**/
 const canvasStore = useCanvasStore();
+const { getCurrentDocName } = canvasStore;
 const documentAttribute = ref<MaterialInterface.IProp[]>([]);
 const engine = container.resolve<IEngine>('engine');
 
@@ -58,7 +59,7 @@ function initDocumentAttributeData(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       await $util.renren.isDocument(mySchemaStore.currentElement, () => {
-        const document: MaterialDocumentModel = engine.arrangement.getDocument(canvasStore.currentDocName) as MaterialDocumentModel;
+        const document: MaterialDocumentModel = engine.arrangement.getDocument(getCurrentDocName) as MaterialDocumentModel;
         // 清空现有响应式对象
         documentAttribute.value = [];
         if (document.prop?.items && document.prop.items?.length > 0) {

@@ -6,6 +6,22 @@ import {ref} from "vue";
 import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 
 
+
+type SchemaState = {
+  schema: MaterialDocumentModel | undefined;
+  currentElement: RenrenMaterialModel | MaterialDocumentModel | undefined;
+  initCurrent: (item: RenrenMaterialModel | MaterialDocumentModel | undefined) => void;
+  isAdd: boolean;
+  newElement: RenrenMaterialModel | undefined;
+  elementInProcess: RenrenMaterialModel | undefined;
+  copyMaterial: RenrenMaterialModel | undefined;
+  currentElementId: string;
+};
+
+
+
+
+
 export const useSchemaStore = defineStore('schema', () => {
   const schema = ref<MaterialDocumentModel>();
   const currentElement = ref<RenrenMaterialModel | MaterialDocumentModel | undefined>();

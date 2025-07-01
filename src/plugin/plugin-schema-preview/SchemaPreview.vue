@@ -10,15 +10,16 @@
 
 <script setup lang="ts">
 import {PROJECT_ADDRESS} from "@/componsables/constants/RenrenConstant";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 
 
 
 const canvasStore = useCanvasStore();
+const { getCurrentDocName } = canvasStore;
 /**
  * @description 处理页面预览事件
  */
 function previewPageHandler() {
-  window.open(PROJECT_ADDRESS + `/preview/${canvasStore.currentDocName}`, '_blank');
+  window.open(PROJECT_ADDRESS + `/preview/${getCurrentDocName}`, '_blank');
 }
 </script>

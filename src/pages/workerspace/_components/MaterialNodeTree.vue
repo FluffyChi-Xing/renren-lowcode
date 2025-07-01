@@ -77,11 +77,12 @@ import BaseDialog from "@/components/BaseDialog.vue";
 import {$util} from "@/componsables/utils";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 
 
 const componentList = ref<MaterialTreeModel[]>([]);
 const canvasStore = useCanvasStore();
+const { getCurrentDocName } = canvasStore;
 const showDocEditor = ref<boolean>(false);
 const documentNodeName = ref<string>();
 const engine = container.resolve<IEngine>('engine');
@@ -102,7 +103,7 @@ function initTreeList(): Promise<string> {
       componentList.value = [];
       // get currentDocument
       let document: MaterialInterface.IDocument | undefined;
-      document = engine.arrangement.getDocument(canvasStore.currentDocName);
+      document = engine.arrangement.getDocument(getCurrentDocName);
       if (document !== void 0) {
         let newNode: MaterialTreeModel = new MaterialTreeModel({
           children: [],
@@ -147,7 +148,7 @@ function initTreeList(): Promise<string> {
  */
 function refresh() {
   let components: MaterialInterface.IMaterial[];
-  components = engine.arrangement.getAllElementNodes(canvasStore.currentDocName);
+  components = engine.arrangement.getAllElementNodes(getCurrentDocName);
   if (Array.isArray(components) && components.length > 0) {
     components.forEach(item => {
       if (!componentIndexMap.value.has(item.id)) {

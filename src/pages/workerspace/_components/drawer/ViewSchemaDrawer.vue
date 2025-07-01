@@ -41,7 +41,7 @@ import {$util} from "@/componsables/utils";
 import { Editor } from '@guolao/vue-monaco-editor';
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 const schema2string = ref<string>('');
 const isShow = ref<boolean>(false);
 
@@ -49,12 +49,13 @@ const isShow = ref<boolean>(false);
 
 const engine = container.resolve<IEngine>('engine');
 const canvasStore = useCanvasStore();
+const { getCurrentDocName } = canvasStore;
 /**
  * @description 处理高亮 schema 事件
  */
 async function showSchemaHandler() {
   isShow.value = !isShow.value;
-  const schema = engine.arrangement.getDocument(canvasStore.currentDocName);
+  const schema = engine.arrangement.getDocument(getCurrentDocName);
   if (!$util.renren.isEmpty(schema)) {
     schema2string.value = JSON.stringify(schema, null, 2);
   }

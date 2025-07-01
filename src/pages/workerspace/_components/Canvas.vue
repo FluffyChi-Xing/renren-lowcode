@@ -85,7 +85,7 @@ import $event from "@/componsables/utils/EventBusUtil";
 import { container } from '@/renren-engine/__init__';
 import type {IEngine} from "@/renren-engine";
 import MarkLine from "@/components/MarkLine.vue";
-import {useCanvasStore} from "@/stores/canvas";
+import useCanvasStore from "@/stores/canvas";
 
 
 withDefaults(defineProps<{
@@ -98,6 +98,7 @@ withDefaults(defineProps<{
 
 // 创建引擎实例
 const canvasStore = useCanvasStore();
+const { getHeight, getWidth, getCurrentDocName } = canvasStore;
 const engine = container.resolve<IEngine>('engine')
 const indexedDB = new LocalforageDB();
 const editor = ref();
@@ -110,8 +111,8 @@ const areaWidth = ref<number>(0);
 const areaHeight = ref<number>(0);
 const canvasSize = computed(() => {
   return {
-    width: `${canvasStore.width}px`,
-    height: `${canvasStore.height}px`,
+    width: `${getWidth}px`,
+    height: `${getHeight}px`,
   }
 });
 type positionType = {
@@ -409,7 +410,7 @@ async function moveComponentHandler(
         materialPosition.top,
         materialPosition.positions
       ],
-      canvasStore.currentDocName
+      getCurrentDocName
     ).catch(err => {
       $message({
         type: 'warning',
