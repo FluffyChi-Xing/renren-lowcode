@@ -7,10 +7,11 @@ import {$message} from "@/componsables/element-plus";
 import tableHeaderConfig from '@/components/table-header-config.json';
 import { $util } from "@/componsables/utils";
 import pageSizeOptions from "@/components/pagination-size-options.json";
+import useLoading from "@/componsables/hooks/useLoading";
 
 
 /** ========== 回收站初始化-start ==========**/
-const isLoading = ref<boolean>(false);
+const { isLoading, setLoading } = useLoading();
 const pageNum = ref<number>(0);
 const pageSize = ref<number>(10);
 const sizeOptions: number[] = $util.renren.jsonTypeTransfer<number[]>(pageSizeOptions);
@@ -39,9 +40,9 @@ async function initData() {
 
 
 async function refreshData() {
-  isLoading.value = true;
+  setLoading(true);
   await initData();
-  isLoading.value = false;
+  setLoading(false);
 }
 
 
@@ -49,17 +50,17 @@ async function refreshData() {
 async function pageChange(index: number, size: number) {
   pageNum.value = index;
   pageSize.value = size;
-  isLoading.value = true;
+  setLoading(true)
   await initData();
-  isLoading.value = false;
+  setLoading(false)
 }
 /** ========== 回收站初始化-end ==========**/
 
 
 onMounted(async () => {
-  isLoading.value = true;
+  setLoading(true)
   await initData();
-  isLoading.value = false;
+  setLoading(false)
 });
 </script>
 

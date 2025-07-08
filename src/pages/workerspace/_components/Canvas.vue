@@ -78,14 +78,12 @@ import DisplayItem, {type moveDataTransfer} from "@/components/DisplayItem.vue";
 import {mySchemaStore} from "@/stores/schema";
 import {DEFAULT_CONTEXT_MENU_LIST, NEW_ELEMENT} from "@/componsables/constants/WorkerSpaceConstant";
 import {$util} from "@/componsables/utils";
-import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import positionTemplate from './material-position-template.json';
 import $event from "@/componsables/utils/EventBusUtil";
-import { container } from '@/renren-engine/__init__';
-import type {IEngine} from "@/renren-engine";
 import MarkLine from "@/components/MarkLine.vue";
 import useCanvasStore from "@/stores/canvas";
+import useCanvas from "@/componsables/hooks/useCanvas";
 
 
 withDefaults(defineProps<{
@@ -99,13 +97,21 @@ withDefaults(defineProps<{
 // 创建引擎实例
 const canvasStore = useCanvasStore();
 const { getHeight, getWidth, getCurrentDocName } = canvasStore;
-const engine = container.resolve<IEngine>('engine')
-const indexedDB = new LocalforageDB();
 const editor = ref();
+const {
+  isShow,
+  indexedDB,
+  engine,
+  copyMaterial,
+  pasteMaterial,
+  materialContainer,
+  insertComponent,
+  lockMaterial,
+  unLockMaterial,
+} = useCanvas();
 const emits = defineEmits(['paste']);
 const cursorX = ref<number>(0);
 const cursorY = ref<number>(0);
-const isShow = ref<boolean>(false);
 const isShowArea = ref<boolean>(false);
 const areaWidth = ref<number>(0);
 const areaHeight = ref<number>(0);
@@ -120,7 +126,6 @@ type positionType = {
   top: RenrenInterface.KeyValueIndexType<string, string>;
   positions: RenrenInterface.KeyValueIndexType<string, string>;
 };
-const materialContainer = ref<RenrenMaterialModel[]>([]);
 const selectAreaStart = ref<RenrenInterface.XAndYType<number, number>>({
   x: 0,
   y: 0
@@ -502,23 +507,23 @@ async function saveComponent(item: RenrenMaterialModel | undefined) {
 /**
  * @description 粘贴物料
  */
-async function pasteMaterial() {
-  // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
-  if ($util.renren.isMaterial(mySchemaStore.copyMaterial)) {
-    if (mySchemaStore.getCopyMaterial !== void 0) {
-      let newMaterial: RenrenMaterialModel = $util.renren.deepClone(mySchemaStore.getCopyMaterial) as RenrenMaterialModel;
-      // 重新生成新的 id
-      newMaterial.id = $util.nano.generateUUID();
-      materialContainer.value.push(newMaterial);
-      await saveComponent(newMaterial);
-    }
-  } else {
-    $message({
-      type: 'warning',
-      message: '请先复制要粘贴的组件'
-    });
-  }
-}
+// async function pasteMaterial() {
+//   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
+//   if ($util.renren.isMaterial(mySchemaStore.copyMaterial)) {
+//     if (mySchemaStore.getCopyMaterial !== void 0) {
+//       let newMaterial: RenrenMaterialModel = $util.renren.deepClone(mySchemaStore.getCopyMaterial) as RenrenMaterialModel;
+//       // 重新生成新的 id
+//       newMaterial.id = $util.nano.generateUUID();
+//       materialContainer.value.push(newMaterial);
+//       await saveComponent(newMaterial);
+//     }
+//   } else {
+//     $message({
+//       type: 'warning',
+//       message: '请先复制要粘贴的组件'
+//     });
+//   }
+// }
 
 
 /**
@@ -773,7 +778,7 @@ function initContextMenuItem(): Promise<string> {
         contextMenuList.value = [
           {
             key: '复制',
-            value: copyMaterialHandler,
+            value: copyMaterial,
             index: 'copy'
           },
           {
@@ -788,12 +793,12 @@ function initContextMenuItem(): Promise<string> {
           },
           {
             key: '锁定',
-            value: () => $event.emit('lock'),
+            value: lockMaterial,
             index: 'lock'
           },
           {
             key: '解锁',
-            value: () => $event.emit('unlock'),
+            value: unLockMaterial,
             index: 'unLock'
           },
           {
