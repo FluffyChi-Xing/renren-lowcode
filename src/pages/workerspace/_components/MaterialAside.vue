@@ -2,7 +2,7 @@
 import {ref, shallowRef} from 'vue';
 import {ArrowLeft, ArrowRight} from "@element-plus/icons-vue";
 import DrawerTransition from "@/components/DrawerTransition.vue";
-import {useSchemaStore} from "@/stores/schema";
+import useSchemaStore from "@/stores/schema";
 
 const isCollapse = ref<boolean>(false);
 const schemaStore = useSchemaStore();
@@ -29,7 +29,7 @@ function collapseBanner() {
  */
 function outerCanvasClickHandler(e: MouseEvent) {
   e.stopPropagation();
-  schemaStore.currentElement = undefined;
+  schemaStore.initCurrentElement2undefined();
 }
 </script>
 

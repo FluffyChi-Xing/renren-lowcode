@@ -48,7 +48,7 @@ const { getCurrentDocName } = canvasStore;
 async function clearCanvas() {
   await engineInstance.arrangement.clear(getCurrentDocName).then(() => {
     $event.emit('clearCanvas');
-    mySchemaStore.currentElement = undefined;
+    mySchemaStore.setCurrentElement(undefined);
     $message({
       type: 'info',
       message: '清空画布成功'

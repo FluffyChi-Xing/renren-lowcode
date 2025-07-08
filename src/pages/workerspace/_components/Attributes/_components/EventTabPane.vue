@@ -2,11 +2,10 @@
 import { ref } from "vue";
 import {eventNameValueMap, eventTypeList} from "@/componsables/utils/EventAttrUtil";
 import $event from "@/componsables/utils/EventBusUtil";
-import {useSchemaStore} from "@/stores/schema";
+import useSchemaStore from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$message} from "@/componsables/element-plus";
 import {generateUUID} from "@/componsables/utils/GenerateIDUtil";
-import {$util} from "@/componsables/utils";
 import { Editor } from '@guolao/vue-monaco-editor';
 
 
@@ -26,8 +25,8 @@ const defaultCode: string = 'callback = () => {\n' +
 function insertEvent2Store(event: RenrenInterface.IEvent): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(schemaStore.currentElement)) {
-        const material = schemaStore.currentElement as RenrenMaterialModel;
+      if (schemaStore.isCurrentElementMaterialType()) {
+        const material = schemaStore.getCurrentElement as RenrenMaterialModel;
         if (material && material.events) {
           if (material.events.filter(item => item.name === event.name).length === 0) {
             material.events.push(event);
@@ -49,8 +48,8 @@ function insertEvent2Store(event: RenrenInterface.IEvent): Promise<string> {
  * @param item
  */
 function eventBindingHandler(item: RenrenInterface.IEvent) {
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
+  if (schemaStore.isCurrentElementMaterialType()) {
+    const material = schemaStore.getCurrentElement as RenrenMaterialModel;
     // 获取需要绑定的事件
     const code: string = codes.value[item.name] as string;
     if (code) {
@@ -67,7 +66,6 @@ function eventBindingHandler(item: RenrenInterface.IEvent) {
       // 保存到 schema
       // 保存到 store
       Promise.all([
-        // $engine.renderer.insertEvent2Material(material.id, event),
         insertEvent2Store(event),
       ]).then(() => {
         // 发布时间绑定处理事件

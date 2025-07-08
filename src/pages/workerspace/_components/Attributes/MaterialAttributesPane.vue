@@ -84,7 +84,7 @@ function initMaterialAttributeData<T extends MaterialInterface.IMaterial>(): Pro
     try {
       let material: T | undefined;
       material = engine.arrangement.getComponent(
-        mySchemaStore.currentElementId,
+        mySchemaStore.getCurrentElementId,
         getCurrentDocName
       ) as T;
       // 清空现有响应式对象
@@ -134,7 +134,7 @@ const throttledCSSAttributesUpdateHandler = throttle(
                 message: err as string
               });
             });
-            mySchemaStore.currentElement = item;
+            mySchemaStore.initCurrentElement(item);
             $event.emit(`updateMaterial:${item.id}`);
             resolve('样式更新成功');
           }
@@ -156,7 +156,7 @@ function inputChangeHandler(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 调用样式更新函数
-      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.getCurrentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -177,7 +177,7 @@ function inputChangeHandler(): Promise<string> {
 function selectChangeHandler(): Promise<string> {
   return new Promise<string>(async (reject) => {
     try {
-      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.getCurrentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -197,7 +197,7 @@ function selectChangeHandler(): Promise<string> {
 function switchChangeHandler(): Promise<string> {
   return new Promise<string>(async (reject) => {
     try {
-      await throttledCSSAttributesUpdateHandler(mySchemaStore.currentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
+      await throttledCSSAttributesUpdateHandler(mySchemaStore.getCurrentElement as RenrenMaterialModel,materialAttribute.value).catch(err => {
         $message({
           type: 'warning',
           message: err as string
@@ -222,7 +222,7 @@ onMounted(() => {
 });
 
 
-watch(() => mySchemaStore.currentElementId, () => {
+watch(() => mySchemaStore.getCurrentElementId, () => {
   initMaterialAttributeData().catch(err => {
     $message({
       type: 'warning',

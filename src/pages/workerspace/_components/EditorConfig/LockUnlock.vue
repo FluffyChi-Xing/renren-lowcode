@@ -33,11 +33,12 @@ const functionList = ref<RenrenInterface.KeyValueIndexType<Function, string>[]>(
  * @description 锁定物料节点
  */
 function lockMaterialNode() {
-  $util.renren.isMaterial(mySchemaStore.currentElement, () => {
-    const material = mySchemaStore.currentElement as RenrenMaterialModel;
+  const currentElement: any = mySchemaStore.getCurrentElement;
+  $util.renren.isMaterial(currentElement, () => {
+    const material = currentElement as RenrenMaterialModel;
     if (!material?.isLocked) {
       material.isLocked = true;
-      mySchemaStore.currentElement = material;
+      mySchemaStore.setCurrentElement(material);
       $message({
         type: 'info',
         message: '节点已锁定',
@@ -57,11 +58,12 @@ function lockMaterialNode() {
  * @description 解锁物料节点
  */
 function unLockMaterialNode() {
-  $util.renren.isMaterial(mySchemaStore.currentElement, () => {
-    const material = mySchemaStore.currentElement as RenrenMaterialModel;
+  const currentElement: any = mySchemaStore.getCurrentElement;
+  $util.renren.isMaterial(currentElement, () => {
+    const material = currentElement as RenrenMaterialModel;
     if (material?.isLocked) {
       material.isLocked = false;
-      mySchemaStore.currentElement = material;
+      mySchemaStore.setCurrentElement(material);
       $message({
         type: 'info',
         message: '节点已解锁',

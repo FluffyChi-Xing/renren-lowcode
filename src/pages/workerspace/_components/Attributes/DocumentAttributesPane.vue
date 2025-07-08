@@ -58,7 +58,7 @@ const engine = container.resolve<IEngine>('engine');
 function initDocumentAttributeData(): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      await $util.renren.isDocument(mySchemaStore.currentElement, () => {
+      await $util.renren.isDocument(mySchemaStore.getCurrentElement, () => {
         const document: MaterialDocumentModel = engine.arrangement.getDocument(getCurrentDocName) as MaterialDocumentModel;
         // 清空现有响应式对象
         documentAttribute.value = [];

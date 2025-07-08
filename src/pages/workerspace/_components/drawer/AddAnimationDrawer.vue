@@ -23,9 +23,10 @@ const engine = container.resolve<IEngine>('engine');
 function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
+      const currentElement: any = mySchemaStore.getCurrentElement;
       // 将动画保存到 store 中
-      await $util.renren.isMaterial(mySchemaStore.currentElement, async () => {
-        const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
+      await $util.renren.isMaterial(currentElement, async () => {
+        const material: RenrenMaterialModel = currentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           $message({
             type: 'warning',
@@ -34,7 +35,7 @@ function addAnimationHandler(item: RenrenInterface.keyValueType<string>): Promis
           reject('每个物料只能绑定一种动画');
         } else {
           material.animation?.push(item);
-          mySchemaStore.currentElement = material;
+          mySchemaStore.setCurrentElement(material);
         }
         // 将动画保存在 schema 中
         await engine.renderer.insertAnimation(material.id, item).catch(err => {

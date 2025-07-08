@@ -5,7 +5,6 @@
  */
 import {onMounted, ref} from 'vue';
 import type { ComponentPublicInstance } from 'vue';
-import {MaterialDocumentModel, RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {container} from "@/renren-engine/__init__";
 import type {IEngine} from "@/renren-engine";
@@ -107,7 +106,7 @@ function checkAroundPosition(config: currentElPosition, item: MaterialInterface.
   let compTop: number = 0;
   if (item !== void 0) {
     // 跳过元素本身
-    if (item?.id === mySchemaStore.currentElementId) return conditions;
+    if (mySchemaStore.checkElementId(item.id)) return conditions;
     compWidth = Number($util.canvas.getCompTargetProp(item, 'width')?.value) || 0;
     compHeight = Number($util.canvas.getCompTargetProp(item, 'height')?.value) || 0;
     compLeft = Number($util.canvas.getCompTargetProp(item, 'left')?.value) || 0;
@@ -175,7 +174,7 @@ function showLine(): void {
   let curElementHeight: string = '0';
   let curElementLeft: string = '0';
   let curElementTop: string = '0';
-  curElement = engine.arrangement.getComponent(mySchemaStore.currentElementId);
+  curElement = engine.arrangement.getComponent(mySchemaStore.getCurrentElementId);
   if (curElement !== void 0) {
     curElementWidth = $util.canvas.getCompTargetProp(curElement, 'width')?.value || '0';
     curElementHeight = $util.canvas.getCompTargetProp(curElement, 'height')?.value || '0';

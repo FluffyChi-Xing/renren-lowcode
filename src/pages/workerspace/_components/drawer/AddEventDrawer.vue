@@ -13,8 +13,8 @@ $event.on('bindEvent', () => {
   isShow.value = false;
 });
 
-watch(() => mySchemaStore.currentElement, () => {
-  $event.on(`addEvent:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`, () => {
+watch(() => mySchemaStore.getCurrentElement, () => {
+  $event.on(`addEvent:${(mySchemaStore.getCurrentElement as RenrenMaterialModel)?.id}`, () => {
     isShow.value = true;
   });
 }, {

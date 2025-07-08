@@ -62,8 +62,7 @@ const props = withDefaults(defineProps<{
 
 
 const defaultWidth = ref<number>(props.canvasWidth || 1080);
-const canvasStore = useCanvasStore();
-const { updateCanvasSize } = canvasStore;
+const { updateCanvasSize } = useCanvasStore();
 const defaultTypes = ref<string>(props.deviceType || 'desktop')
 const emits = defineEmits(['update:size']);
 const deviceTypes = ref<RenrenInterface.keyValueType<string>[]>(DEVICE_TYPES)

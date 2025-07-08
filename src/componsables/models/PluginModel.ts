@@ -46,7 +46,7 @@ export class IPlugin implements PluginApiInterface.IPluginPublicApi{
       app.component(plugin.name, plugin.component);
     });
 
-    app.provide<PluginApiInterface.IPluginFuncType>('plugin', {
+    const options: PluginApiInterface.IPluginFuncType = {
       // 通过 $pluginGet 获取组件
       pluginGet: (name: string) => this.get(name),
       // 通过 $pluginAll 获取全部已经注册的组件列表
@@ -57,7 +57,9 @@ export class IPlugin implements PluginApiInterface.IPluginPublicApi{
       pluginDel: (name: string) => this.delete(name),
       // 通过 $pluginPre 获取组件的配置项
       pluginPre: (name: string) => this.getPreference(name),
-    });
+    }
+
+    app.provide<PluginApiInterface.IPluginFuncType>('plugin', options);
     console.log("[Plugin]", "Registered plugin");
   }
 

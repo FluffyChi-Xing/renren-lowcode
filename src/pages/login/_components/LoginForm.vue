@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import useUser from "@/componsables/hooks/userHooks";
 // 登录表单数据
-const loginForm = reactive<UserInfoReqDto.UserLoginFormReqDto>({
+const loginForm = reactive<UserInfoReqDto.UserLoginReqDto>({
   code: "",
   password: "",
-  username: ""
+  username: "",
+  secretKey: ""
 });
+const { login } = useUser();
 </script>
 
 <template>
@@ -39,7 +42,7 @@ const loginForm = reactive<UserInfoReqDto.UserLoginFormReqDto>({
         <div class="w-full h-auto grid grid-cols-2 gap-4">
           <div class="text-blue-500 w-full h-auto flex items-center hover:underline">忘记密码?</div>
           <div class="w-full h-auto flex items-center justify-end">
-            <el-button style="background: black;color: white;">登录</el-button>
+            <el-button @click="login(loginForm)" style="background: black;color: white;">登录</el-button>
           </div>
         </div>
       </el-form-item>

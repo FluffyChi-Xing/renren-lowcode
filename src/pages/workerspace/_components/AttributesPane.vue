@@ -79,7 +79,7 @@ const attributeTabPane = ref<Component>(MaterialAttributesPane || h(ElEmpty) as 
  * @description 判断是否是一个文档节点
  */
 function isDocumentModel(): boolean {
-  const item: any = mySchemaStore.currentElement;
+  const item: any = mySchemaStore.getCurrentElement;
   if (item !== void 0) {
     if (item?.type === 'document') {
       return item.rootNode;
@@ -122,12 +122,12 @@ $event.on('clearCanvas', () => {
 
 
 onMounted(() => {
-  isShow.value = mySchemaStore.currentElement !== void 0;
+  isShow.value = mySchemaStore.getCurrentElement !== void 0;
 });
 
 
-watch(() => mySchemaStore.currentElement, () => {
-  isShow.value = mySchemaStore.currentElement !== void 0;
+watch(() => mySchemaStore.getCurrentElement, (newVal: any) => {
+  isShow.value = newVal !== void 0;
 }, {
   deep: true
 })

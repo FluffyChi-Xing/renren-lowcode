@@ -315,7 +315,7 @@ const throttleDragEventHandler = throttle(
           material.id = $util.nano.generateUUID();
           materialContainer.value.push(material);
           // 将新增物料暂存到 store
-          mySchemaStore.newElement = material as RenrenMaterialModel;
+          mySchemaStore.setNewElement(material as RenrenMaterialModel);
           // 防止误触导致插入空值
           // 保存 schema
           $event.emit('insert');
@@ -423,7 +423,7 @@ async function moveComponentHandler(
         return material.id === node.id ? new RenrenMaterialModel(node) : material;
       });
       // 同步到 schemaStore 中
-      mySchemaStore.currentElement = new RenrenMaterialModel(node);
+      mySchemaStore.setCurrentElement(new RenrenMaterialModel(node));
     }
   });
 }
@@ -448,7 +448,8 @@ function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  mySchemaStore.currentElement = new MaterialDocumentModel(engine.arrangement.getDocument());
+  const document: MaterialInterface.IDocument = engine.arrangement.getDocument();
+  mySchemaStore.setCurrentElement(document, 'document');
 }
 
 
@@ -458,7 +459,7 @@ async function gridClickHandler(event: MouseEvent) {
  */
 async function outerGridClickHandler(e: MouseEvent) {
   e.stopPropagation();
-  mySchemaStore.currentElement = undefined;
+  mySchemaStore.setCurrentElement(undefined);
 }
 
 
@@ -473,10 +474,10 @@ function selectCurrentElement(item: RenrenMaterialModel, e?: MouseEvent) {
     e.stopPropagation();
   }
   // 将[当前物料]元素设为当前点击选中的物料
-  mySchemaStore.currentElement = undefined;
+  mySchemaStore.setCurrentElement(undefined);
   if (item !== void 0) {
-    mySchemaStore.currentElement = item as RenrenMaterialModel;
-    mySchemaStore.currentElementId = item.id as string;
+    mySchemaStore.setCurrentElement(item, 'material');
+    mySchemaStore.setCurrentElementId(item.id as string);
   }
 }
 
@@ -504,8 +505,8 @@ async function saveComponent(item: RenrenMaterialModel | undefined) {
 async function pasteMaterial() {
   // 检查 currentElement 的类型，只有是 RenrenMaterialModel 类型支持粘贴操作
   if ($util.renren.isMaterial(mySchemaStore.copyMaterial)) {
-    if (mySchemaStore.copyMaterial !== void 0) {
-      let newMaterial: RenrenMaterialModel = $util.renren.deepClone(mySchemaStore.copyMaterial) as RenrenMaterialModel;
+    if (mySchemaStore.getCopyMaterial !== void 0) {
+      let newMaterial: RenrenMaterialModel = $util.renren.deepClone(mySchemaStore.getCopyMaterial) as RenrenMaterialModel;
       // 重新生成新的 id
       newMaterial.id = $util.nano.generateUUID();
       materialContainer.value.push(newMaterial);
@@ -575,8 +576,8 @@ function hotkeyPaste(event: KeyboardEvent): void {
 function stepZIndexUp(): Promise<string> {
   return new Promise<string>(async (reject) => {
     try {
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-        const material = mySchemaStore.currentElement as RenrenMaterialModel;
+      if (mySchemaStore.isCurrentElementMaterialType()) {
+        const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
         if (!$util.renren.isEmpty(material)) {
           if (Array.isArray(material.props?.items) && material.props.items.length > 0) {
             let zIndex: number | undefined = getMaterialIndexNumber(material?.props?.items);
@@ -623,7 +624,7 @@ function changeCompZIndex(material: RenrenMaterialModel, zIndex: number | undefi
         if (Array.isArray(material.props?.items) && material.props.items.length > 0) {
           material.props.items.find(item => item.type === 'z-index')!.value = zIndex.toString();
           // 同步到 store
-          mySchemaStore.currentElement = material;
+          mySchemaStore.setCurrentElement(material, 'material');
           // 组装 css
           materialZIndex.value = zIndex.toString();
           // 同步到 schema
@@ -649,8 +650,8 @@ function changeCompZIndex(material: RenrenMaterialModel, zIndex: number | undefi
 function stepZIndexDown(): Promise<string> {
   return new Promise<string>(async (reject) => {
     try {
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-        const material = mySchemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.getCurrentElement)) {
+        const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
         if (!$util.renren.isEmpty(material)) {
           if (Array.isArray(material?.props?.items) && material?.props?.items.length > 0) {
             let zIndex: number | undefined = getMaterialIndexNumber(material?.props?.items);
@@ -671,6 +672,7 @@ function stepZIndexDown(): Promise<string> {
  * @description 修改层级
  */
 function changeZIndex(flag: string = 'up') {
+  let currentElement: any = mySchemaStore.getCurrentElement as RenrenMaterialModel;
   if (flag === 'up') {
     stepZIndexUp().catch(err => {
       $message({
@@ -679,7 +681,7 @@ function changeZIndex(flag: string = 'up') {
       });
     });
     isShow.value = false;
-    $event.emit(`updateMaterial:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`);
+    $event.emit(`updateMaterial:${currentElement.id}`);
   } else if (flag === 'down') {
     stepZIndexDown().catch(err => {
       $message({
@@ -688,7 +690,7 @@ function changeZIndex(flag: string = 'up') {
       });
     });
     isShow.value = false;
-    $event.emit(`updateMaterial:${(mySchemaStore.currentElement as RenrenMaterialModel)?.id}`);
+    $event.emit(`updateMaterial:${currentElement.id}`);
   } else {
     $message({
       type: 'warning',
@@ -708,13 +710,13 @@ function changeZIndex(flag: string = 'up') {
 function deleteCurrentMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+      if (mySchemaStore.isCurrentElementMaterialType()) {
         // 暂存 currentElement
-        const material = mySchemaStore.currentElement as RenrenMaterialModel;
+        const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
         // 清空 schemaStore 中的 currentElement
-        mySchemaStore.currentElement = undefined;
+        mySchemaStore.setCurrentElement(undefined);
         // 删除 schema 中对应的 material node
-        engine.arrangement.removeComponent(material.id, canvasStore.currentDocName).catch(err => {
+        engine.arrangement.removeComponent(material.id, canvasStore.getCurrentDocName).catch(err => {
           console.error('删除物料失败',err);
           reject('删除物料失败');
         });
@@ -750,8 +752,9 @@ function deleteNode() {
  * @description 处理复制组件事件
  */
 function copyMaterialHandler() {
-  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-    mySchemaStore.copyMaterial = mySchemaStore.currentElement as RenrenMaterialModel;
+  const currentElement: any = mySchemaStore.getCurrentElement;
+  if (mySchemaStore.isCurrentElementMaterialType()) {
+    mySchemaStore.setCopyMaterial(currentElement);
   }
   isShow.value = false;
 }
@@ -766,7 +769,7 @@ function initContextMenuItem(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       // 如果不存在当前选中的元素则使用默认菜单列表初始化
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
+      if (mySchemaStore.isCurrentElementMaterialType()) {
         contextMenuList.value = [
           {
             key: '复制',
@@ -823,9 +826,9 @@ function updateMaterialData(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       materialContainer.value = materialContainer.value.map(material => {
-        if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-          if (material.id === (mySchemaStore.currentElement as RenrenMaterialModel)?.id) {
-            return mySchemaStore.currentElement as RenrenMaterialModel;
+        if (mySchemaStore.isCurrentElementMaterialType()) {
+          if (material.id === (mySchemaStore.getCurrentElement as RenrenMaterialModel)?.id) {
+            return mySchemaStore.getCurrentElement as RenrenMaterialModel;
           } else {
             return material;
           }
@@ -895,7 +898,7 @@ $event.on('takePhoto', async () => {
 /**
  * @description 处理撤销操作
  */
-watch(() => mySchemaStore.elementInProcess, (newVal, oldVal) => {
+watch(() => mySchemaStore.getElementInProcess, (newVal, oldVal) => {
     // TODO: 重构 撤销/反做 事件处理
   },
   {
@@ -918,7 +921,7 @@ onMounted(async () => {
 /**
  * @description 初始化右键菜单列表
  */
-watch(() => mySchemaStore.currentElement, () => {
+watch(() => mySchemaStore.getCurrentElement, () => {
   // 初始化右键菜单
   initContextMenuItem().catch(err => {
     $message({

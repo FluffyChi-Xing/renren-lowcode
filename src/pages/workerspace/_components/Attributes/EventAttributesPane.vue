@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import $event from "@/componsables/utils/EventBusUtil";
-import {useSchemaStore} from "@/stores/schema";
+import useSchemaStore from "@/stores/schema";
 import {RenrenMaterialModel} from "@/componsables/models/MaterialModel";
 import {$util} from "@/componsables/utils";
 import tableHeader from './attribute-table-header-style.json';
@@ -20,10 +20,9 @@ const eventData = ref<RenrenInterface.IEvent[]>([]);
  */
 function addEventHandler() {
   if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
-    if (material) {
-      $event.emit(`addEvent:${material.id}`);
-    }
+    schemaStore.currentElementCallback((index: any) => {
+      $event.emit(`addEvent:${index.id}`);
+    });
   }
 }
 
@@ -32,21 +31,16 @@ function addEventHandler() {
  * @description 清空事件绑定
  */
 function clearEventsHandler() {
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
-    const material = schemaStore.currentElement as RenrenMaterialModel;
-    if (material) {
-      $event.emit(`clearEvent:${material.id}`);
-      /**
-       * TODO: 清空 schema 中对应 material 的 events
-       * TODO: 清空 schemaStore.currentElement.events
-       */
-    }
+  if (schemaStore.isCurrentElementMaterialType()) {
+    schemaStore.currentElementCallback((index: any) => {
+      $event.emit(`clearEvent:${index.id}`);
+    });
   }
 }
 
 
 function initEventData() {
-  if ($util.renren.isMaterial(schemaStore.currentElement)) {
+  if (schemaStore.isCurrentElementMaterialType()) {
     const material = schemaStore.currentElement as RenrenMaterialModel;
     if (material && material.events) {
       eventData.value = material.events as RenrenInterface.IEvent[];

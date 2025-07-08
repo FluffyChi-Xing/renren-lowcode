@@ -27,8 +27,8 @@ function addAnimation2MaterialHandler() {
  * @description 处理物料动画预览事件
  */
 function previewMaterialAnimationHandler() {
-  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-    const material = mySchemaStore.currentElement as RenrenMaterialModel;
+  if (mySchemaStore.isCurrentElementMaterialType()) {
+    const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
     $event.emit(`previewAnimation:${material.id}`);
   }
 }
@@ -38,8 +38,8 @@ function previewMaterialAnimationHandler() {
  * @description 添加动画效果信息到列表中
  */
 function addAnimationInfo2List() {
-  if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-    const material = mySchemaStore.currentElement as RenrenMaterialModel;
+  if (mySchemaStore.isCurrentElementMaterialType()) {
+    const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
     if (material !== void 0) {
       if (material.animation && material.animation.length > 0) {
         material.animation.forEach(item => {
@@ -60,7 +60,7 @@ function removeAnimationBinding(key?: string): Promise<string> {
     try {
       // 清空对应组件的 animation 属性
       let component: MaterialInterface.IMaterial | undefined;
-      component = engine.arrangement.getComponent((mySchemaStore.currentElement as RenrenMaterialModel)?.id);
+      component = engine.arrangement.getComponent((mySchemaStore.getCurrentElement as RenrenMaterialModel)?.id);
       if (component !== void 0) {
         if (Array.isArray(component.animation) && component.animation.length >= 0) {
           component.animation = [];
@@ -68,11 +68,11 @@ function removeAnimationBinding(key?: string): Promise<string> {
         }
       }
       // 清空 schemaStore.currentElement.animation
-      if ($util.renren.isMaterial(mySchemaStore.currentElement)) {
-        const material = mySchemaStore.currentElement as RenrenMaterialModel;
+      if ($util.renren.isMaterial(mySchemaStore.getCurrentElement)) {
+        const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
         if (material.animation && material.animation.length > 0) {
           material.animation = [];
-          mySchemaStore.currentElement = material;
+          mySchemaStore.initCurrentElement(material);
         }
       }
       // 清空 animationList

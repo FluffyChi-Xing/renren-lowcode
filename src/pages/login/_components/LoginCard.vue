@@ -27,6 +27,14 @@ function slideLayer() {
     }
   }
 }
+
+
+function registerSuccessHandler() {
+  if (layer.value) {
+    currentForm.value = LoginForm;
+    layer.value.classList.remove('right');
+  }
+}
 /** ========== 登录表单初始化-end ==========**/
 </script>
 
@@ -63,7 +71,7 @@ function slideLayer() {
         style="width: calc(50%);"
         class="w-auto h-full flex flex-col left-4 bg-white layer z-[99] absolute"
       >
-        <component :is="currentForm" />
+        <component @register="registerSuccessHandler" :is="currentForm" />
       </div>
     </div>
   </el-card>

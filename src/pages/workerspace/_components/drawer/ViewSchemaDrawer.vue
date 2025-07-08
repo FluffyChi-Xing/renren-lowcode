@@ -48,8 +48,7 @@ const isShow = ref<boolean>(false);
 
 
 const engine = container.resolve<IEngine>('engine');
-const canvasStore = useCanvasStore();
-const { getCurrentDocName } = canvasStore;
+const { getCurrentDocName } = useCanvasStore();
 /**
  * @description 处理高亮 schema 事件
  */

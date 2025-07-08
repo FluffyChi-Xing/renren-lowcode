@@ -83,8 +83,8 @@ function runAnimationOnMaterial(): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
       if (materialNode.value !== void 0) {
-        if (mySchemaStore.currentElement?.isMaterial()) {
-          const material: RenrenMaterialModel = mySchemaStore.currentElement as RenrenMaterialModel;
+        if (mySchemaStore.isCurrentElementMaterialType()) {
+          const material = mySchemaStore.getCurrentElement as RenrenMaterialModel;
           if (material.animation !== void 0) {
             // 获取 DOM 元素（处理组件实例的情况）
             const domElement = materialNode.value?.$el;

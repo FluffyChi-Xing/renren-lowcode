@@ -18,6 +18,8 @@ declare namespace PluginApiInterface {
 
   type PluginCompType = DefineComponent<{}, {}, any>;
 
+  type PluginKey = 'UndoRedo' | 'CodeGenerator' | 'SaveLocal' | 'SchemaPreview';
+
 
   type PluginRegisterOptionsType = {
     // 开启自动初始化
@@ -73,7 +75,7 @@ declare namespace PluginApiInterface {
 
   interface IPluginFuncType {
     // 获取组件实例
-    pluginGet: (name: string) => PluginCompType | unknown;
+    pluginGet: (name: PluginKey) => PluginCompType | unknown;
     // 获取全部组件实例
     pluginAll: PluginCompType[] | null | unknown;
     // 判断组件是否注册

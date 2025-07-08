@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import useUser from "@/componsables/hooks/userHooks";
+const emits = defineEmits(['register']);
 // 注册表单数据
-const registerForm = reactive<UserInfoReqDto.UserRegisterFormReqDto>({
+const registerForm = reactive<UserInfoReqDto.UserRegisterReqDto>({
   code: "",
   email: "",
   password: "",
-  username: ""
+  username: "",
+  secretKey: ""
 });
+const { register } = useUser();
 </script>
 
 <template>
@@ -48,7 +52,10 @@ const registerForm = reactive<UserInfoReqDto.UserRegisterFormReqDto>({
         <div class="w-full h-auto grid grid-cols-2 gap-4">
           <div class="w-full h-auto flex" />
           <div class="w-full h-auto flex items-center justify-end">
-            <el-button style="background: black;color: white;">注册</el-button>
+            <el-button @click="() => {
+              const flag = register(registerForm);
+              if (flag) emits('register');
+            }" style="background: black;color: white;">注册</el-button>
           </div>
         </div>
       </el-form-item>
