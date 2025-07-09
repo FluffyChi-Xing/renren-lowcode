@@ -81,7 +81,7 @@ const useSchemaStore = defineStore('schema', {
     checkElementId(index: string): boolean {
       return index === this.currentElementId;
     },
-    setNewElement(item: RenrenMaterialModel): void {
+    setNewElement(item: RenrenMaterialModel | undefined): void {
       this.newElement = item;
     },
     setCurrentElementId(index: string) {
