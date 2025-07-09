@@ -5,7 +5,6 @@
 import type {MaterialInterface} from "@/componsables/interface/MaterialInterface";
 import {LocalforageDB} from "@/componsables/database/LocalforageDB";
 import {SCHEMA_PROJECT_STORAGE_ID, SCHEMA_STORAGE_ID} from "@/componsables/constants/RenrenConstant";
-import documentSchema from './page-schema.json';
 
 
 /**
@@ -33,6 +32,78 @@ type createDocument = {
   path: string;
   schema: MaterialInterface.IDocument;
 }
+
+
+const documentSchema = {
+  activated: false,
+  blank: true,
+  fileName: 'index',
+  nodes: [],
+  opened: true,
+  rootNode: true,
+  sections: [],
+  prop: {
+    id: '1',
+    items: [
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: '#ffffff',
+        type: 'background-color',
+        owner: null,
+        parent: 'undefined'
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: '1',
+        type: 'opacity',
+        owner: null,
+        parent: 'undefined'
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: '16',
+        type: 'font-size',
+        owner: null,
+        parent: 'undefined'
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: '1280',
+        type: 'width',
+        owner: null,
+        parent: 'undefined'
+      },
+      {
+        items: null,
+        maps: undefined,
+        code: '',
+        key: 'style',
+        value: '720',
+        type: 'height',
+        owner: null,
+        parent: 'undefined'
+      }
+    ],
+    owner: '页面01',
+    maps: undefined,
+    type: '',
+    size: 0
+  }
+}
+
+
 
 export interface IArrangement<T extends MaterialInterface.IMaterial> {
 
@@ -501,13 +572,14 @@ class Arrangement <T extends MaterialInterface.IMaterial> implements IArrangemen
    * @param documentId
    */
   getDocument<T extends MaterialInterface.IDocument>(documentId?: string): T {
-    let result: T = {} as T;
+    let result = {};
     if (documentId === void 0) {
-      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')  as T
-    } else {
-      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}')  as T
+      result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID) || '{}')
+      return result as T;
     }
-    return result;
+    result = JSON.parse(localStorage.getItem(SCHEMA_STORAGE_ID + documentId) || '{}');
+    console.log(`getDocument, ${documentId}`, result);
+    return result as T;
   }
 
   /**

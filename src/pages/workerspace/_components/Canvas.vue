@@ -450,8 +450,10 @@ function keepMaterialAlive() {
  */
 async function gridClickHandler(event: MouseEvent) {
   event.stopPropagation();
-  const document: MaterialInterface.IDocument = engine.arrangement.getDocument();
-  mySchemaStore.setCurrentElement(document, 'document');
+  // TODO: 获取当前预览的页面 index
+  const defaultProject = '页面test-01';
+  const documents = engine.arrangement.getDocument(defaultProject);
+  mySchemaStore.setCurrentElement(documents, 'document');
 }
 
 

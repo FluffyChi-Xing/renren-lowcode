@@ -443,20 +443,20 @@ function cancelCreateHandler() {
 
 // TODO: 实现页面预览逻辑
 function previewDocument(index?: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>(async (resolve, reject) => {
     try {
       if (index === void 0) resolve('请选择要预览的页面');
       // 调用 engine initDocument api,如果本地已经存在对应的缓存，则直接跳转编辑器预览，
       // TODO: 否则调用后端获取对应的页面数据进行本地缓存
       // 否则如果是新建的页面，则调用 engine initDocument api
-      engine.arrangement.initDocument(index).catch(err => {
+      await engine.arrangement.initDocument(index).catch(err => {
         $message({
           type: 'warning',
           message: err as string
         });
       });
       updateCurrentDocName(index);
-      router.push('/workerSpace');
+      await router.push('/workerSpace');
       resolve('success');
     } catch (e) {
       console.error('预览页面失败', e);

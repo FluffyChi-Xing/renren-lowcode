@@ -66,6 +66,7 @@ function initDocumentAttributeData(): Promise<string> {
           document.prop.items.forEach((item: MaterialInterface.IProp) => {
             documentAttribute.value.push(item);
           });
+          console.log('初始化文档节点响应式属性数据成功', documentAttribute.value);
           resolve('初始化文档节点响应式属性数据成功');
         }
       });
